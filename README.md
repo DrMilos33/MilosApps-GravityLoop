@@ -18,3 +18,25 @@ geschickt umflogen werden.
 
 Siehe [Produktbrief](docs/PRODUCT_BRIEF.md), [QA-Plan](docs/QA_PLAN.md) und
 [Erkenntnisse](docs/LEARNINGS.md).
+
+## Lokaler DEV-Start
+
+Voraussetzung ist Node.js 22 oder neuer mit pnpm.
+
+```powershell
+pnpm install
+pnpm dev
+```
+
+Danach läuft die App unter `http://127.0.0.1:4173/`; der lokale
+Readiness-Healthcheck liegt unter `http://127.0.0.1:4173/health.json`.
+
+```powershell
+pnpm test
+pnpm build
+pnpm test:e2e
+```
+
+Die Runtime besteht aus Vanilla TypeScript, CSS und Canvas. Vite dient nur dem
+DEV-/Build-Lifecycle; Spielphysik, Zufall, Zustand und lokale Speicherung sind
+in frameworkunabhängigen Modulen testbar.

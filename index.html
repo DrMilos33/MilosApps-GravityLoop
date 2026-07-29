@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#091727" />
+    <meta
+      name="description"
+      content="Gravity Loop – ein ruhiges, reaktionsschnelles Einfinger-Spiel von MilosApps."
+    />
+    <link rel="icon" href="/gravity-loop-mark.svg" type="image/svg+xml" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <title>Gravity Loop · MilosApps</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#game-canvas">Zum Spiel springen</a>
+    <main class="app-shell">
+      <header class="app-header">
+        <div class="brand-lockup" aria-label="Gravity Loop von MilosApps">
+          <svg class="brand-mark" aria-hidden="true" viewBox="0 0 48 48">
+            <circle cx="24" cy="24" r="7" />
+            <path d="M42 24c0 9.9-8.1 18-18 18S6 33.9 6 24 14.1 6 24 6c7.2 0 13.4 4.2 16.3 10.3" />
+            <circle class="brand-comet" cx="40.3" cy="16.3" r="3.7" />
+          </svg>
+          <span>
+            <span class="eyebrow">MilosApps</span>
+            <span class="app-title">Gravity Loop</span>
+          </span>
+        </div>
+        <p class="header-hint">Halten krümmt. Loslassen fliegt geradeaus.</p>
+      </header>
+
+      <section class="score-strip" aria-label="Spielstand">
+        <div>
+          <span class="metric-label">Punkte</span>
+          <strong id="score-value" data-testid="score">0</strong>
+        </div>
+        <div>
+          <span class="metric-label">Funken</span>
+          <strong id="combo-value" data-testid="combo">0</strong>
+        </div>
+        <div>
+          <span class="metric-label">Bestwert</span>
+          <strong id="best-value" data-testid="best">0</strong>
+        </div>
+      </section>
+
+      <section class="game-card" aria-labelledby="game-title">
+        <h1 id="game-title" class="sr-only">Gravity Loop Spielfeld</h1>
+        <div class="canvas-wrap" id="canvas-wrap">
+          <canvas
+            id="game-canvas"
+            data-testid="game-canvas"
+            tabindex="0"
+            role="application"
+            aria-label="Gravity Loop Spielfeld. Halte mit Finger oder Maus oder halte die Leertaste, um den Kometen zum Gravitationskern zu lenken. Loslassen lässt ihn geradeaus fliegen."
+          >
+            Gravity Loop benötigt einen Browser mit Canvas-Unterstützung. Mit der Leertaste hältst
+            du die Gravitation, beim Loslassen fliegt der Komet geradeaus.
+          </canvas>
+
+          <div class="game-overlay" id="game-overlay" data-testid="game-overlay">
+            <div class="overlay-card">
+              <p class="overlay-kicker" id="overlay-kicker">Ein Finger. Eine Umlaufbahn.</p>
+              <h2 id="overlay-title">Halten zieht dich zur Mitte.</h2>
+              <p id="overlay-copy">
+                Sammle Lichtfunken. Lass rechtzeitig los, bevor Kern oder Rand dich erwischen.
+              </p>
+              <button class="primary-button" id="overlay-action" type="button">Losfliegen</button>
+            </div>
+          </div>
+
+          <div class="hold-indicator" id="hold-indicator" aria-hidden="true">
+            <span></span>
+            Gravitation
+          </div>
+        </div>
+
+        <div class="control-row" aria-label="Spielsteuerung">
+          <button class="control-button" id="pause-button" type="button" aria-keyshortcuts="P">
+            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14" /></svg>
+            <span>Pause</span>
+          </button>
+          <button class="control-button" id="restart-button" type="button" aria-keyshortcuts="R">
+            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M5 8v5h5M6.4 17a8 8 0 1 0 .1-10.1L5 8" /></svg>
+            <span>Neustart</span>
+          </button>
+          <button class="control-button" id="settings-button" type="button">
+            <svg aria-hidden="true" viewBox="0 0 24 24">
+              <path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" />
+              <path d="M19 13.5v-3l-2-.7-.5-1.2.9-1.9-2.1-2.1-1.9.9-1.2-.5-.7-2h-3l-.7 2-1.2.5-1.9-.9-2.1 2.1.9 1.9-.5 1.2-2 .7v3l2 .7.5 1.2-.9 1.9 2.1 2.1 1.9-.9 1.2.5.7 2h3l.7-2 1.2-.5 1.9.9 2.1-2.1-.9-1.9.5-1.2 2-.7Z" />
+            </svg>
+            <span>Einstellungen</span>
+          </button>
+        </div>
+      </section>
+
+      <p class="keyboard-help">
+        <kbd>Leertaste</kbd> halten · <kbd>P</kbd> Pause · <kbd>R</kbd> Neustart
+      </p>
+      <p class="daily-seed" id="daily-seed"></p>
+      <div class="sr-only" id="live-status" aria-live="polite" aria-atomic="true"></div>
+    </main>
+
+    <dialog class="settings-dialog" id="settings-dialog" aria-labelledby="settings-title">
+      <form method="dialog">
+        <div class="dialog-header">
+          <div>
+            <span class="eyebrow">Dein Fluggefühl</span>
+            <h2 id="settings-title">Einstellungen</h2>
+          </div>
+          <button class="icon-button" value="cancel" aria-label="Einstellungen schließen">
+            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18" /></svg>
+          </button>
+        </div>
+
+        <label class="setting-row">
+          <span>
+            <strong>Klänge</strong>
+            <small>Kurze, synthetische Signale. Standardmäßig stumm.</small>
+          </span>
+          <input id="sound-setting" type="checkbox" role="switch" />
+        </label>
+
+        <label class="setting-row setting-select">
+          <span>
+            <strong>Bewegung</strong>
+            <small>Beeinflusst nur dekorative Effekte, nie die Physik.</small>
+          </span>
+          <select id="motion-setting">
+            <option value="system">Systemeinstellung</option>
+            <option value="reduce">Reduziert</option>
+            <option value="full">Lebendig</option>
+          </select>
+        </label>
+
+        <label class="setting-row">
+          <span>
+            <strong>Hoher Kontrast</strong>
+            <small>Verstärkt Bahnen, Ziele und Bedienelemente.</small>
+          </span>
+          <input id="contrast-setting" type="checkbox" role="switch" />
+        </label>
+
+        <button class="primary-button dialog-done" value="default">Fertig</button>
+      </form>
+    </dialog>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
