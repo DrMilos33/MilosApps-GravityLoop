@@ -1,11 +1,11 @@
 import {
   ARENA_RADIUS,
-  CORE_RADIUS,
   getHazardPosition,
   type GameState,
 } from "./core/game";
 import { nextRandom } from "./core/rng";
 import type { Vector } from "./core/math";
+import type { CelestialStyle, CometSkin } from "./storage";
 
 interface Layout {
   width: number;
@@ -28,10 +28,58 @@ interface Pulse {
   age: number;
 }
 
+interface SurfaceMark {
+  x: number;
+  y: number;
+  radius: number;
+  alpha: number;
+}
+
 export interface RenderSettings {
   reducedMotion: boolean;
   highContrast: boolean;
+  celestialStyle: CelestialStyle;
+  cometSkin: CometSkin;
 }
+
+interface CometPalette {
+  body: string;
+  edge: string;
+  glow: string;
+  tail: string;
+  trail: string;
+}
+
+const COMET_PALETTES: Record<CometSkin, CometPalette> = {
+  mint: {
+    body: "#ddfffb",
+    edge: "#8de9e0",
+    glow: "#baf9f2",
+    tail: "108, 232, 222",
+    trail: "104, 220, 211",
+  },
+  ember: {
+    body: "#fff0c2",
+    edge: "#ff956d",
+    glow: "#ffb468",
+    tail: "255, 125, 82",
+    trail: "255, 153, 100",
+  },
+  ice: {
+    body: "#f2fbff",
+    edge: "#8fc7ff",
+    glow: "#9ce6ff",
+    tail: "103, 194, 255",
+    trail: "111, 196, 255",
+  },
+  hat: {
+    body: "#fff7de",
+    edge: "#9de9dc",
+    glow: "#d8fff8",
+    tail: "112, 226, 209",
+    trail: "109, 222, 204",
+  },
+};
 
 function mix(left: number, right: number, alpha: number): number {
   return left + (right - left) * alpha;
@@ -51,6 +99,7 @@ export class GameRenderer {
     dpr: 1,
   };
   private readonly backgroundStars: BackgroundStar[] = [];
+  private readonly surfaceMarks: SurfaceMark[] = [];
   private readonly trail: Vector[] = [];
   private readonly pulses: Pulse[] = [];
   private resizeObserver: ResizeObserver;
@@ -93,6 +142,25 @@ export class GameRenderer {
         y: yResult.value,
         radius: 0.45 + radiusResult.value * 1.15,
         alpha: 0.14 + alphaResult.value * 0.32,
+      });
+    }
+    this.surfaceMarks.length = 0;
+    for (let index = 0; index < 12; index += 1) {
+      const angleResult = nextRandom(randomState);
+      randomState = angleResult.state;
+      const distanceResult = nextRandom(randomState);
+      randomState = distanceResult.state;
+      const radiusResult = nextRandom(randomState);
+      randomState = radiusResult.state;
+      const alphaResult = nextRandom(randomState);
+      randomState = alphaResult.state;
+      const angle = angleResult.value * Math.PI * 2;
+      const distance = Math.sqrt(distanceResult.value) * 0.72;
+      this.surfaceMarks.push({
+        x: Math.cos(angle) * distance,
+        y: Math.sin(angle) * distance,
+        radius: 0.07 + radiusResult.value * 0.14,
+        alpha: 0.12 + alphaResult.value * 0.18,
       });
     }
     this.staticContrast = null;
@@ -248,11 +316,15 @@ export class GameRenderer {
 
   private drawCore(
     context: CanvasRenderingContext2D,
-    elapsedSeconds: number,
+    state: GameState,
     settings: RenderSettings,
   ): void {
-    const baseRadius = CORE_RADIUS * this.layout.scale;
-    const breathe = settings.reducedMotion ? 0 : Math.sin(elapsedSeconds * 2.1) * baseRadius * 0.045;
+    const isMoon = state.options.celestialMode === "moon";
+    const baseRadius = state.coreRadius * this.layout.scale;
+    const breathe =
+      settings.reducedMotion || isMoon
+        ? 0
+        : Math.sin(state.elapsedSeconds * 2.1) * baseRadius * 0.035;
     const radius = baseRadius + breathe;
     const glow = context.createRadialGradient(
       this.layout.centerX,
@@ -262,21 +334,107 @@ export class GameRenderer {
       this.layout.centerY,
       radius * 2.25,
     );
-    glow.addColorStop(0, settings.highContrast ? "#fff3c7" : "#ffe4ae");
-    glow.addColorStop(0.28, "#ffb45f");
-    glow.addColorStop(0.7, "rgba(237, 111, 95, 0.32)");
-    glow.addColorStop(1, "rgba(237, 111, 95, 0)");
+    if (isMoon) {
+      glow.addColorStop(0, settings.highContrast ? "#f8fdff" : "#dcecff");
+      glow.addColorStop(0.3, "rgba(167, 203, 222, 0.52)");
+      glow.addColorStop(0.72, "rgba(95, 134, 161, 0.2)");
+      glow.addColorStop(1, "rgba(95, 134, 161, 0)");
+    } else {
+      glow.addColorStop(0, settings.highContrast ? "#fff3c7" : "#ffe4ae");
+      glow.addColorStop(0.28, "#ffb45f");
+      glow.addColorStop(0.7, "rgba(237, 111, 95, 0.32)");
+      glow.addColorStop(1, "rgba(237, 111, 95, 0)");
+    }
     context.fillStyle = glow;
     context.beginPath();
     context.arc(this.layout.centerX, this.layout.centerY, radius * 2.25, 0, Math.PI * 2);
     context.fill();
 
-    context.fillStyle = "#ffbd68";
+    const surface = context.createRadialGradient(
+      this.layout.centerX - radius * 0.34,
+      this.layout.centerY - radius * 0.38,
+      radius * 0.08,
+      this.layout.centerX,
+      this.layout.centerY,
+      radius,
+    );
+    if (isMoon) {
+      surface.addColorStop(0, settings.highContrast ? "#ffffff" : "#edf3f1");
+      surface.addColorStop(0.52, "#b9c4c5");
+      surface.addColorStop(1, settings.highContrast ? "#566575" : "#65717c");
+    } else {
+      surface.addColorStop(0, "#fff5b8");
+      surface.addColorStop(0.48, "#ffbe55");
+      surface.addColorStop(1, settings.highContrast ? "#e9653f" : "#e86e45");
+    }
+    context.fillStyle = surface;
     context.beginPath();
     context.arc(this.layout.centerX, this.layout.centerY, radius, 0, Math.PI * 2);
     context.fill();
+
+    if (settings.celestialStyle === "natural") {
+      context.save();
+      context.beginPath();
+      context.arc(this.layout.centerX, this.layout.centerY, radius * 0.96, 0, Math.PI * 2);
+      context.clip();
+      for (const mark of this.surfaceMarks) {
+        const x = this.layout.centerX + mark.x * radius;
+        const y = this.layout.centerY + mark.y * radius;
+        const markRadius = mark.radius * radius;
+        const markGradient = context.createRadialGradient(
+          x - markRadius * 0.28,
+          y - markRadius * 0.3,
+          markRadius * 0.08,
+          x,
+          y,
+          markRadius,
+        );
+        if (isMoon) {
+          markGradient.addColorStop(0, `rgba(244, 248, 246, ${mark.alpha + 0.08})`);
+          markGradient.addColorStop(0.38, `rgba(102, 114, 121, ${mark.alpha})`);
+          markGradient.addColorStop(1, "rgba(64, 75, 84, 0)");
+        } else {
+          markGradient.addColorStop(0, `rgba(255, 245, 166, ${mark.alpha})`);
+          markGradient.addColorStop(0.62, `rgba(172, 63, 45, ${mark.alpha})`);
+          markGradient.addColorStop(1, "rgba(172, 63, 45, 0)");
+        }
+        context.fillStyle = markGradient;
+        context.beginPath();
+        context.ellipse(
+          x,
+          y,
+          markRadius,
+          markRadius * (isMoon ? 0.82 : 0.48),
+          mark.x * 3.1,
+          0,
+          Math.PI * 2,
+        );
+        context.fill();
+      }
+      context.restore();
+    } else if (isMoon) {
+      context.fillStyle = "rgba(72, 86, 98, 0.24)";
+      for (const mark of this.surfaceMarks.slice(0, 4)) {
+        context.beginPath();
+        context.arc(
+          this.layout.centerX + mark.x * radius,
+          this.layout.centerY + mark.y * radius,
+          mark.radius * radius * 0.72,
+          0,
+          Math.PI * 2,
+        );
+        context.fill();
+      }
+    }
+
     context.lineWidth = settings.highContrast ? 3 : 1.5;
-    context.strokeStyle = settings.highContrast ? "#fff8df" : "rgba(255, 248, 223, 0.72)";
+    context.strokeStyle = isMoon
+      ? settings.highContrast
+        ? "#ffffff"
+        : "rgba(224, 239, 242, 0.72)"
+      : settings.highContrast
+        ? "#fff8df"
+        : "rgba(255, 248, 223, 0.72)";
     context.stroke();
   }
 
@@ -292,13 +450,17 @@ export class GameRenderer {
       context.lineTo(point.x, point.y);
     }
     context.lineWidth = settings.highContrast ? 3 : 2;
-    context.strokeStyle = settings.highContrast ? "rgba(160, 255, 246, 0.8)" : "rgba(104, 220, 211, 0.36)";
+    const palette = COMET_PALETTES[settings.cometSkin];
+    context.strokeStyle = settings.highContrast
+      ? `rgba(${palette.trail}, 0.82)`
+      : `rgba(${palette.trail}, 0.36)`;
     context.stroke();
   }
 
   private drawGravityTether(
     context: CanvasRenderingContext2D,
     playerPosition: Vector,
+    celestialMode: GameState["options"]["celestialMode"],
     settings: RenderSettings,
   ): void {
     const player = this.worldToCanvas(playerPosition);
@@ -308,7 +470,12 @@ export class GameRenderer {
       player.x,
       player.y,
     );
-    gradient.addColorStop(0, "rgba(255, 190, 103, 0.28)");
+    gradient.addColorStop(
+      0,
+      celestialMode === "moon"
+        ? "rgba(183, 219, 240, 0.38)"
+        : "rgba(255, 190, 103, 0.28)",
+    );
     gradient.addColorStop(1, settings.highContrast ? "rgba(152, 255, 244, 0.95)" : "rgba(125, 234, 224, 0.68)");
     context.strokeStyle = gradient;
     context.lineWidth = settings.highContrast ? 3 : 2;
@@ -429,15 +596,16 @@ export class GameRenderer {
     const canvasPosition = this.worldToCanvas(position);
     const angle = Math.atan2(state.player.velocity.y, state.player.velocity.x);
     const radius = state.player.radius * this.layout.scale;
+    const palette = COMET_PALETTES[settings.cometSkin];
     context.save();
     context.translate(canvasPosition.x, canvasPosition.y);
     context.rotate(angle);
 
     const tailLength = radius * (settings.reducedMotion ? 1.45 : 1.8 + Math.sin(state.elapsedSeconds * 8) * 0.12);
     const tailGradient = context.createLinearGradient(-tailLength * 2, 0, radius, 0);
-    tailGradient.addColorStop(0, "rgba(108, 232, 222, 0)");
-    tailGradient.addColorStop(0.48, "rgba(108, 232, 222, 0.42)");
-    tailGradient.addColorStop(1, "rgba(246, 255, 249, 0.95)");
+    tailGradient.addColorStop(0, `rgba(${palette.tail}, 0)`);
+    tailGradient.addColorStop(0.48, `rgba(${palette.tail}, 0.42)`);
+    tailGradient.addColorStop(1, `rgba(${palette.tail}, 0.96)`);
     context.fillStyle = tailGradient;
     context.beginPath();
     context.moveTo(radius * 0.45, 0);
@@ -446,14 +614,49 @@ export class GameRenderer {
     context.fill();
 
     context.shadowBlur = settings.highContrast ? 18 : 12;
-    context.shadowColor = "#baf9f2";
-    context.fillStyle = "#ddfffb";
-    context.strokeStyle = settings.highContrast ? "#ffffff" : "#8de9e0";
+    context.shadowColor = palette.glow;
+    context.fillStyle = palette.body;
+    context.strokeStyle = settings.highContrast ? "#ffffff" : palette.edge;
     context.lineWidth = settings.highContrast ? 3 : 1.6;
     context.beginPath();
     context.arc(0, 0, radius, 0, Math.PI * 2);
     context.fill();
     context.stroke();
+
+    if (settings.cometSkin === "hat") {
+      context.shadowBlur = 0;
+      context.fillStyle = "#f1c85f";
+      context.strokeStyle = settings.highContrast ? "#ffffff" : "#713754";
+      context.lineWidth = Math.max(1.2, radius * 0.1);
+      context.beginPath();
+      context.roundRect(
+        -radius * 0.65,
+        -radius * 2.18,
+        radius * 1.3,
+        radius * 1.12,
+        radius * 0.12,
+      );
+      context.fill();
+      context.stroke();
+      context.fillStyle = "#713754";
+      context.fillRect(
+        -radius * 0.63,
+        -radius * 1.42,
+        radius * 1.26,
+        radius * 0.23,
+      );
+      context.fillStyle = "#f1c85f";
+      context.beginPath();
+      context.roundRect(
+        -radius * 1.08,
+        -radius * 1.18,
+        radius * 2.16,
+        radius * 0.3,
+        radius * 0.1,
+      );
+      context.fill();
+      context.stroke();
+    }
     context.restore();
   }
 
@@ -470,9 +673,14 @@ export class GameRenderer {
     this.drawTrail(context, settings);
     this.drawHazards(context, state, settings);
     if (state.held) {
-      this.drawGravityTether(context, interpolatedPosition, settings);
+      this.drawGravityTether(
+        context,
+        interpolatedPosition,
+        state.options.celestialMode,
+        settings,
+      );
     }
-    this.drawCore(context, state.elapsedSeconds, settings);
+    this.drawCore(context, state, settings);
     this.drawPickup(context, state, settings);
     this.drawPulses(context, deltaSeconds, settings);
     this.drawPlayer(context, state, interpolatedPosition, settings);

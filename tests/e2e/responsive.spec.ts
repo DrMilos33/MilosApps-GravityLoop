@@ -49,13 +49,28 @@ async function inspectViewport(browser: Browser, viewport: ViewportCase) {
       ),
     };
   });
+  await page.getByRole("button", { name: "Einstellungen" }).click();
+  const dialogLayout = await page.evaluate(() => {
+    const dialog = document.getElementById("settings-dialog");
+    const rect = dialog?.getBoundingClientRect();
+    return {
+      left: rect?.left ?? -1,
+      right: rect?.right ?? Number.POSITIVE_INFINITY,
+      top: rect?.top ?? -1,
+      bottom: rect?.bottom ?? Number.POSITIVE_INFINITY,
+      clientWidth: dialog?.clientWidth ?? 0,
+      scrollWidth: dialog?.scrollWidth ?? Number.POSITIVE_INFINITY,
+      clientHeight: dialog?.clientHeight ?? 0,
+      scrollHeight: dialog?.scrollHeight ?? 0,
+    };
+  });
   await context.close();
-  return { errors, layout };
+  return { errors, layout, dialogLayout };
 }
 
 for (const viewport of viewports) {
   test(`fits ${viewport.name} at DPR ${viewport.dpr}`, async ({ browser }) => {
-    const { errors, layout } = await inspectViewport(browser, viewport);
+    const { errors, layout, dialogLayout } = await inspectViewport(browser, viewport);
     expect(errors).toEqual([]);
     expect(layout.scrollWidth).toBeLessThanOrEqual(layout.clientWidth);
     expect(layout.canvasCssWidth).toBeGreaterThan(280);
@@ -65,6 +80,12 @@ for (const viewport of viewports) {
     expect(layout.canvasPixelHeight / layout.canvasCssHeight).toBeCloseTo(expectedCanvasDpr, 1);
     expect(layout.controlHeights.every((height) => height >= 44)).toBe(true);
     expect(layout.overlayVisible).toBe(true);
+    expect(dialogLayout.left).toBeGreaterThanOrEqual(0);
+    expect(dialogLayout.right).toBeLessThanOrEqual(viewport.width);
+    expect(dialogLayout.top).toBeGreaterThanOrEqual(0);
+    expect(dialogLayout.bottom).toBeLessThanOrEqual(viewport.height);
+    expect(dialogLayout.scrollWidth).toBeLessThanOrEqual(dialogLayout.clientWidth);
+    expect(dialogLayout.scrollHeight).toBeGreaterThanOrEqual(dialogLayout.clientHeight);
   });
 }
 

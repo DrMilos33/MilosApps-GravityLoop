@@ -3,14 +3,68 @@ import { nextRandom, normalizeSeed } from "./rng";
 
 export const ARENA_RADIUS = 1;
 export const CORE_RADIUS = 0.135;
+export const MOON_RADIUS = 0.15;
 export const PLAYER_RADIUS = 0.035;
 export const PICKUP_RADIUS = 0.047;
 export const CONTROL_ACCELERATION = 0.82;
+export const MOON_CONTROL_ACCELERATION = 0.55;
 export const STARTING_SPEED = 0.68;
 
 export type GameMode = "ready" | "playing" | "paused" | "gameover";
 export type PauseReason = "manual" | "settings" | "hidden" | "focus" | "rotation" | null;
 export type GameOverReason = "core" | "edge" | "hazard" | null;
+export type Difficulty = "easy" | "normal" | "hard";
+export type CelestialMode = "sun" | "moon";
+
+export interface GameOptions {
+  difficulty: Difficulty;
+  celestialMode: CelestialMode;
+}
+
+export const DEFAULT_GAME_OPTIONS: GameOptions = {
+  difficulty: "normal",
+  celestialMode: "sun",
+};
+
+interface DifficultyProfile {
+  startingSpeed: number;
+  maximumSpeed: number;
+  gravityMultiplier: number;
+  hazardEvery: number;
+  maximumHazards: number;
+  hazardSpeedMultiplier: number;
+  scoreMultiplier: number;
+}
+
+const DIFFICULTY_PROFILES: Record<Difficulty, DifficultyProfile> = {
+  easy: {
+    startingSpeed: 0.62,
+    maximumSpeed: 0.8,
+    gravityMultiplier: 0.9,
+    hazardEvery: 4,
+    maximumHazards: 2,
+    hazardSpeedMultiplier: 0.84,
+    scoreMultiplier: 0.85,
+  },
+  normal: {
+    startingSpeed: STARTING_SPEED,
+    maximumSpeed: 0.86,
+    gravityMultiplier: 1,
+    hazardEvery: 3,
+    maximumHazards: 4,
+    hazardSpeedMultiplier: 1,
+    scoreMultiplier: 1,
+  },
+  hard: {
+    startingSpeed: 0.73,
+    maximumSpeed: 0.92,
+    gravityMultiplier: 1.08,
+    hazardEvery: 2,
+    maximumHazards: 5,
+    hazardSpeedMultiplier: 1.16,
+    scoreMultiplier: 1.25,
+  },
+};
 
 export interface Player {
   position: Vector;
@@ -40,6 +94,8 @@ export interface GameState {
   rngState: number;
   elapsedSeconds: number;
   stepCount: number;
+  options: GameOptions;
+  coreRadius: number;
   player: Player;
   pickup: Pickup;
   hazards: Hazard[];
@@ -92,7 +148,8 @@ function hazardPosition(hazard: Hazard): Vector {
 }
 
 function spawnHazard(state: GameState): void {
-  if (state.hazards.length >= 4) {
+  const profile = DIFFICULTY_PROFILES[state.options.difficulty];
+  if (state.hazards.length >= profile.maximumHazards) {
     return;
   }
 
@@ -101,7 +158,11 @@ function spawnHazard(state: GameState): void {
     const orbitRadius = 0.3 + random(state) * 0.48;
     const angle = random(state) * Math.PI * 2;
     const direction = state.hazards.length % 2 === 0 ? -1 : 1;
-    const angularSpeed = direction * (0.16 + random(state) * 0.12);
+    const angularSpeed =
+      direction *
+      (0.16 + random(state) * 0.12) *
+      profile.hazardSpeedMultiplier *
+      (state.options.celestialMode === "moon" ? 0.82 : 1);
     const radius = 0.043 + random(state) * 0.014;
     const nextCandidate = { orbitRadius, angle, angularSpeed, radius };
     const position = hazardPosition(nextCandidate);
@@ -125,16 +186,23 @@ function spawnHazard(state: GameState): void {
   }
 }
 
-export function createGameState(seed: number): GameState {
+export function createGameState(
+  seed: number,
+  options: GameOptions = DEFAULT_GAME_OPTIONS,
+): GameState {
   const normalizedSeed = normalizeSeed(seed);
+  const normalizedOptions = { ...options };
+  const profile = DIFFICULTY_PROFILES[normalizedOptions.difficulty];
+  const startingSpeed =
+    profile.startingSpeed * (normalizedOptions.celestialMode === "moon" ? 0.94 : 1);
   const player: Player = {
     position: { x: -0.58, y: 0.16 },
     previousPosition: { x: -0.58, y: 0.16 },
     velocity: normalize({ x: 0.26, y: -0.94 }),
     radius: PLAYER_RADIUS,
   };
-  player.velocity.x *= STARTING_SPEED;
-  player.velocity.y *= STARTING_SPEED;
+  player.velocity.x *= startingSpeed;
+  player.velocity.y *= startingSpeed;
 
   const state: GameState = {
     mode: "ready",
@@ -144,6 +212,9 @@ export function createGameState(seed: number): GameState {
     rngState: normalizedSeed,
     elapsedSeconds: 0,
     stepCount: 0,
+    options: normalizedOptions,
+    coreRadius:
+      normalizedOptions.celestialMode === "moon" ? MOON_RADIUS : CORE_RADIUS,
     player,
     pickup: {
       position: { x: 0, y: 0 },
@@ -209,7 +280,21 @@ function endGame(
 }
 
 function updateScore(state: GameState): void {
-  state.score = Math.floor(state.elapsedSeconds * 12) + state.pickupPoints;
+  const profile = DIFFICULTY_PROFILES[state.options.difficulty];
+  state.score =
+    Math.floor(state.elapsedSeconds * 12 * profile.scoreMultiplier) +
+    state.pickupPoints;
+}
+
+function controlAcceleration(state: GameState): number {
+  const profile = DIFFICULTY_PROFILES[state.options.difficulty];
+  if (state.options.celestialMode === "moon") {
+    return MOON_CONTROL_ACCELERATION * profile.gravityMultiplier;
+  }
+
+  const distance = Math.max(0.28, magnitude(state.player.position));
+  const solarPull = 0.54 + 0.175 / distance;
+  return solarPull * profile.gravityMultiplier;
 }
 
 export function advanceGame(state: GameState, seconds: number): GameEvent[] {
@@ -223,11 +308,18 @@ export function advanceGame(state: GameState, seconds: number): GameEvent[] {
 
   if (state.held) {
     const towardCore = normalize({ x: -player.position.x, y: -player.position.y });
-    player.velocity.x += towardCore.x * CONTROL_ACCELERATION * seconds;
-    player.velocity.y += towardCore.y * CONTROL_ACCELERATION * seconds;
+    const acceleration = controlAcceleration(state);
+    player.velocity.x += towardCore.x * acceleration * seconds;
+    player.velocity.y += towardCore.y * acceleration * seconds;
   }
 
-  const maximumSpeed = Math.min(0.86, STARTING_SPEED + Math.floor(state.collected / 4) * 0.025);
+  const profile = DIFFICULTY_PROFILES[state.options.difficulty];
+  const modeSpeedMultiplier = state.options.celestialMode === "moon" ? 0.94 : 1;
+  const maximumSpeed = Math.min(
+    profile.maximumSpeed * modeSpeedMultiplier,
+    profile.startingSpeed * modeSpeedMultiplier +
+      Math.floor(state.collected / 4) * 0.025,
+  );
   const speed = magnitude(player.velocity);
   if (speed > maximumSpeed) {
     player.velocity.x = (player.velocity.x / speed) * maximumSpeed;
@@ -252,7 +344,7 @@ export function advanceGame(state: GameState, seconds: number): GameEvent[] {
 
   if (
     distancePointToSegment({ x: 0, y: 0 }, player.previousPosition, player.position) <=
-    CORE_RADIUS + player.radius
+    state.coreRadius + player.radius
   ) {
     return endGame(state, "core", { ...player.position });
   }
@@ -278,9 +370,11 @@ export function advanceGame(state: GameState, seconds: number): GameEvent[] {
     const collectedPosition = { ...state.pickup.position };
     state.collected += 1;
     const multiplier = Math.min(2.5, 1 + Math.floor((state.collected - 1) / 3) * 0.25);
-    state.pickupPoints += Math.round(100 * multiplier);
+    state.pickupPoints += Math.round(
+      100 * multiplier * profile.scoreMultiplier,
+    );
     state.pickup = spawnPickup(state);
-    if (state.collected % 3 === 0) {
+    if (state.collected % profile.hazardEvery === 0) {
       spawnHazard(state);
     }
     updateScore(state);

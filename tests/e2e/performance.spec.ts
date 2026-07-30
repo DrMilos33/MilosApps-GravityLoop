@@ -18,8 +18,22 @@ interface Metrics {
   droppedSimulationMs: number;
 }
 
-async function exercise(page: Page): Promise<Metrics> {
+async function exercise(page: Page, richVisuals = false): Promise<Metrics> {
   await page.goto("./?test=1");
+  if (richVisuals) {
+    await page.getByRole("button", { name: "Einstellungen" }).click();
+    await page.getByRole("combobox", { name: "Zentralkörper" }).selectOption("moon");
+    await page.getByRole("combobox", { name: "Sonne und Mond" }).selectOption("natural");
+    await page.getByRole("combobox", { name: "Kometen-Skin" }).selectOption("hat");
+    await page.getByRole("button", { name: "Fertig" }).click();
+    await expect
+      .poll(() =>
+        page.evaluate(
+          () => window.__gravityLoopTestApi!.getDebugState().state.options.celestialMode,
+        ),
+      )
+      .toBe("moon");
+  }
   await page.getByRole("button", { name: "Losfliegen" }).click();
   await expect(page.getByTestId("game-overlay")).toBeHidden();
   const canvas = page.getByTestId("game-canvas");
@@ -55,6 +69,23 @@ test("keeps frame and input latency responsive at normal CPU speed", async ({
   expect(metrics.estimatedFps).toBeGreaterThan(45);
   expect(metrics.p95FrameMs).toBeLessThan(36);
   expect(metrics.inputSamples).toBeGreaterThanOrEqual(3);
+  expect(metrics.p95InputMs).toBeLessThan(45);
+  expect(metrics.droppedSimulationMs).toBeLessThan(250);
+});
+
+test("keeps procedural moon and hat rendering within the frame budget", async ({
+  page,
+}, testInfo) => {
+  const metrics = await exercise(page, true);
+  console.log("rich-visuals-metrics", JSON.stringify(metrics));
+  await testInfo.attach("rich-visuals-metrics.json", {
+    body: JSON.stringify(metrics, null, 2),
+    contentType: "application/json",
+  });
+
+  expect(metrics.frameSamples).toBeGreaterThan(120);
+  expect(metrics.estimatedFps).toBeGreaterThan(45);
+  expect(metrics.p95FrameMs).toBeLessThan(36);
   expect(metrics.p95InputMs).toBeLessThan(45);
   expect(metrics.droppedSimulationMs).toBeLessThan(250);
 });

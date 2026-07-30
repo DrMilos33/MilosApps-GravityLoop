@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   CORE_RADIUS,
+  MOON_RADIUS,
   PLAYER_RADIUS,
   advanceGame,
   createGameState,
@@ -16,6 +17,20 @@ function runningState(seed = 41): GameState {
   const state = createGameState(seed);
   startGame(state);
   return state;
+}
+
+function accelerationAfterStep(
+  celestialMode: "sun" | "moon",
+  position: { x: number; y: number },
+): number {
+  const state = createGameState(73, { difficulty: "normal", celestialMode });
+  state.player.position = { ...position };
+  state.player.previousPosition = { ...position };
+  state.player.velocity = { x: 0, y: 0 };
+  startGame(state);
+  setHeld(state, true);
+  advanceGame(state, FIXED_STEP_SECONDS);
+  return Math.hypot(state.player.velocity.x, state.player.velocity.y) / FIXED_STEP_SECONDS;
 }
 
 function simulatePattern(renderRate: number): GameState {
@@ -53,6 +68,68 @@ describe("game state and physics", () => {
     expect(velocityChange.x * towardCore.x + velocityChange.y * towardCore.y).toBeGreaterThan(0);
   });
 
+  it("offers ordered difficulty profiles without changing the one-finger rule", () => {
+    const easy = createGameState(41, { difficulty: "easy", celestialMode: "sun" });
+    const normal = createGameState(41, { difficulty: "normal", celestialMode: "sun" });
+    const hard = createGameState(41, { difficulty: "hard", celestialMode: "sun" });
+
+    const speed = (state: GameState) =>
+      Math.hypot(state.player.velocity.x, state.player.velocity.y);
+
+    expect(speed(easy)).toBeLessThan(speed(normal));
+    expect(speed(normal)).toBeLessThan(speed(hard));
+    expect(easy.options).toEqual({ difficulty: "easy", celestialMode: "sun" });
+    expect(hard.options).toEqual({ difficulty: "hard", celestialMode: "sun" });
+
+    for (const state of [easy, normal, hard]) {
+      const velocity = { ...state.player.velocity };
+      startGame(state);
+      advanceGame(state, FIXED_STEP_SECONDS);
+      expect(state.player.velocity).toEqual(velocity);
+    }
+  });
+
+  it("paces hazards and rewards according to the selected difficulty", () => {
+    const easy = createGameState(44, { difficulty: "easy", celestialMode: "sun" });
+    const normal = createGameState(44, { difficulty: "normal", celestialMode: "sun" });
+    const hard = createGameState(44, { difficulty: "hard", celestialMode: "sun" });
+    const states = [easy, normal, hard];
+    states.forEach(startGame);
+
+    const collectAtRest = (state: GameState) => {
+      state.player.velocity = { x: 0, y: 0 };
+      state.pickup.position = { ...state.player.position };
+      advanceGame(state, FIXED_STEP_SECONDS);
+    };
+
+    for (let pickup = 0; pickup < 2; pickup += 1) {
+      states.forEach(collectAtRest);
+    }
+    expect(easy.hazards).toHaveLength(0);
+    expect(normal.hazards).toHaveLength(0);
+    expect(hard.hazards).toHaveLength(1);
+    expect(hard.score).toBeGreaterThan(normal.score);
+
+    states.forEach(collectAtRest);
+    expect(normal.hazards).toHaveLength(1);
+    expect(easy.hazards).toHaveLength(0);
+
+    states.forEach(collectAtRest);
+    expect(easy.hazards).toHaveLength(1);
+    expect(hard.hazards).toHaveLength(2);
+  });
+
+  it("uses a rising solar pull and a gentler, steadier lunar pull", () => {
+    const nearSun = accelerationAfterStep("sun", { x: 0.32, y: 0 });
+    const farSun = accelerationAfterStep("sun", { x: 0.72, y: 0 });
+    const nearMoon = accelerationAfterStep("moon", { x: 0.32, y: 0 });
+    const farMoon = accelerationAfterStep("moon", { x: 0.72, y: 0 });
+
+    expect(nearSun).toBeGreaterThan(farSun * 1.15);
+    expect(farSun).toBeGreaterThan(farMoon);
+    expect(Math.abs(nearMoon - farMoon)).toBeLessThan(0.05);
+  });
+
   it("produces equivalent outcomes at 30, 60 and high refresh rendering", () => {
     const at30 = simulatePattern(30);
     const at60 = simulatePattern(60);
@@ -78,6 +155,26 @@ describe("game state and physics", () => {
     expect(state.mode).toBe("gameover");
     expect(state.gameOverReason).toBe("core");
     expect(events).toContainEqual(expect.objectContaining({ type: "gameover", reason: "core" }));
+  });
+
+  it("ends the round on both a solar plunge and a lunar impact", () => {
+    for (const [celestialMode, radius] of [
+      ["sun", CORE_RADIUS],
+      ["moon", MOON_RADIUS],
+    ] as const) {
+      const state = createGameState(92, { difficulty: "normal", celestialMode });
+      startGame(state);
+      state.player.position = { x: -(radius + PLAYER_RADIUS + 0.03), y: 0 };
+      state.player.previousPosition = { ...state.player.position };
+      state.player.velocity = { x: 1.2, y: 0 };
+
+      const events = advanceGame(state, 0.15);
+
+      expect(state.gameOverReason).toBe("core");
+      expect(events).toContainEqual(
+        expect.objectContaining({ type: "gameover", reason: "core" }),
+      );
+    }
   });
 
   it("detects the arena boundary and deterministic orbit hazards", () => {

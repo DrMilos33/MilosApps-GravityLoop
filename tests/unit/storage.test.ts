@@ -21,13 +21,43 @@ describe("local progress storage", () => {
     expect(
       decodeProgress(JSON.stringify({ version: 1, best: 412.9, streak: 7, muted: false })),
     ).toEqual({
-      version: 2,
+      version: 3,
       bestScore: 412,
       bestSeries: 7,
       settings: {
         sound: true,
         motion: "system",
         highContrast: false,
+        difficulty: "normal",
+        celestialMode: "sun",
+        celestialStyle: "graphic",
+        cometSkin: "mint",
+      },
+    });
+  });
+
+  it("migrates version 2 without losing existing preferences", () => {
+    expect(
+      decodeProgress(
+        JSON.stringify({
+          version: 2,
+          bestScore: 920,
+          bestSeries: 8,
+          settings: { sound: true, motion: "reduce", highContrast: true },
+        }),
+      ),
+    ).toEqual({
+      version: 3,
+      bestScore: 920,
+      bestSeries: 8,
+      settings: {
+        sound: true,
+        motion: "reduce",
+        highContrast: true,
+        difficulty: "normal",
+        celestialMode: "sun",
+        celestialStyle: "graphic",
+        cometSkin: "mint",
       },
     });
   });
@@ -36,20 +66,32 @@ describe("local progress storage", () => {
     expect(
       decodeProgress(
         JSON.stringify({
-          version: 2,
+          version: 3,
           bestScore: Number.MAX_SAFE_INTEGER,
           bestSeries: -4,
-          settings: { sound: "yes", motion: "spin", highContrast: 1 },
+          settings: {
+            sound: "yes",
+            motion: "spin",
+            highContrast: 1,
+            difficulty: "impossible",
+            celestialMode: "black-hole",
+            celestialStyle: "photo-url",
+            cometSkin: "<script>",
+          },
         }),
       ),
     ).toEqual({
-      version: 2,
+      version: 3,
       bestScore: 999_999_999,
       bestSeries: 0,
       settings: {
         sound: false,
         motion: "system",
         highContrast: false,
+        difficulty: "normal",
+        celestialMode: "sun",
+        celestialStyle: "graphic",
+        cometSkin: "mint",
       },
     });
   });
@@ -81,6 +123,6 @@ describe("local progress storage", () => {
 
     expect(saveProgress(storage, { ...DEFAULT_PROGRESS, bestScore: 120 })).toBe(true);
     expect(writtenKey).toBe(STORAGE_KEY);
-    expect(JSON.parse(writtenValue)).toEqual(expect.objectContaining({ version: 2, bestScore: 120 }));
+    expect(JSON.parse(writtenValue)).toEqual(expect.objectContaining({ version: 3, bestScore: 120 }));
   });
 });

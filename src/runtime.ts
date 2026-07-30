@@ -6,6 +6,7 @@ import {
   setHeld,
   startGame,
   type GameEvent,
+  type GameOptions,
   type GameState,
   type PauseReason,
 } from "./core/game";
@@ -34,8 +35,9 @@ export class GameRuntime {
     private readonly renderer: GameRenderer,
     private readonly renderSettings: () => RenderSettings,
     private readonly onUpdate: (state: GameState, events: GameEvent[]) => void,
+    initialOptions?: GameOptions,
   ) {
-    this.state = createGameState(seed);
+    this.state = createGameState(seed, initialOptions);
     this.renderer.reset(seed, this.state.player.position);
     this.animationFrame = requestAnimationFrame(this.frame);
     this.onUpdate(this.state, []);
@@ -51,11 +53,11 @@ export class GameRuntime {
     const frameSeconds = Math.max(0, (now - this.previousFrameAt) / 1_000);
     this.previousFrameAt = now;
     this.telemetry.recordFrame(now);
+    this.telemetry.applyPendingInput(performance.now());
 
     if (this.state.mode === "playing") {
       let events: GameEvent[] = [];
       const result = this.stepper.advance(frameSeconds, (seconds) => {
-        this.telemetry.applyPendingInput(performance.now());
         const stepEvents = advanceGame(this.state, seconds);
         this.renderer.recordPlayer(this.state.player.position);
         for (const event of stepEvents) {
@@ -128,12 +130,20 @@ export class GameRuntime {
 
   reset(startImmediately = false): void {
     const seed = this.state.seed;
-    this.state = createGameState(seed);
+    this.state = createGameState(seed, this.state.options);
     this.stepper.reset();
     this.renderer.reset(seed, this.state.player.position);
     if (startImmediately) {
       this.emit(startGame(this.state));
     }
+    this.onUpdate(this.state, []);
+  }
+
+  configure(options: GameOptions): void {
+    const seed = this.state.seed;
+    this.state = createGameState(seed, options);
+    this.stepper.reset();
+    this.renderer.reset(seed, this.state.player.position);
     this.onUpdate(this.state, []);
   }
 

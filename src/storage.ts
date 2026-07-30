@@ -1,12 +1,20 @@
+import type { CelestialMode, Difficulty } from "./core/game";
+
 export const STORAGE_KEY = "gravity-loop:progress";
-export const STORAGE_VERSION = 2;
+export const STORAGE_VERSION = 3;
 
 export type MotionPreference = "system" | "reduce" | "full";
+export type CelestialStyle = "graphic" | "natural";
+export type CometSkin = "mint" | "ember" | "ice" | "hat";
 
 export interface PlayerSettings {
   sound: boolean;
   motion: MotionPreference;
   highContrast: boolean;
+  difficulty: Difficulty;
+  celestialMode: CelestialMode;
+  celestialStyle: CelestialStyle;
+  cometSkin: CometSkin;
 }
 
 export interface ProgressRecord {
@@ -24,6 +32,10 @@ export const DEFAULT_PROGRESS: ProgressRecord = {
     sound: false,
     motion: "system",
     highContrast: false,
+    difficulty: "normal",
+    celestialMode: "sun",
+    celestialStyle: "graphic",
+    cometSkin: "mint",
   },
 };
 
@@ -43,7 +55,23 @@ function safeMotion(value: unknown): MotionPreference {
   return value === "reduce" || value === "full" ? value : "system";
 }
 
-function sanitizeV2(value: Record<string, unknown>): ProgressRecord {
+function safeDifficulty(value: unknown): Difficulty {
+  return value === "easy" || value === "hard" ? value : "normal";
+}
+
+function safeCelestialMode(value: unknown): CelestialMode {
+  return value === "moon" ? value : "sun";
+}
+
+function safeCelestialStyle(value: unknown): CelestialStyle {
+  return value === "natural" ? value : "graphic";
+}
+
+function safeCometSkin(value: unknown): CometSkin {
+  return value === "ember" || value === "ice" || value === "hat" ? value : "mint";
+}
+
+function sanitizeCurrent(value: Record<string, unknown>): ProgressRecord {
   const settings =
     typeof value.settings === "object" && value.settings !== null
       ? (value.settings as Record<string, unknown>)
@@ -57,19 +85,35 @@ function sanitizeV2(value: Record<string, unknown>): ProgressRecord {
       sound: settings.sound === true,
       motion: safeMotion(settings.motion),
       highContrast: settings.highContrast === true,
+      difficulty: safeDifficulty(settings.difficulty),
+      celestialMode: safeCelestialMode(settings.celestialMode),
+      celestialStyle: safeCelestialStyle(settings.celestialStyle),
+      cometSkin: safeCometSkin(settings.cometSkin),
     },
   };
 }
 
-function migrateV1(value: Record<string, unknown>): ProgressRecord {
+function migrateLegacy(
+  value: Record<string, unknown>,
+  scoreKey: "best" | "bestScore",
+  seriesKey: "streak" | "bestSeries",
+): ProgressRecord {
+  const settings =
+    typeof value.settings === "object" && value.settings !== null
+      ? (value.settings as Record<string, unknown>)
+      : {};
   return {
     version: STORAGE_VERSION,
-    bestScore: safeInteger(value.best),
-    bestSeries: safeInteger(value.streak, 99_999),
+    bestScore: safeInteger(value[scoreKey]),
+    bestSeries: safeInteger(value[seriesKey], 99_999),
     settings: {
-      sound: value.muted === false,
-      motion: "system",
-      highContrast: false,
+      sound: scoreKey === "best" ? value.muted === false : settings.sound === true,
+      motion: scoreKey === "best" ? "system" : safeMotion(settings.motion),
+      highContrast: scoreKey === "best" ? false : settings.highContrast === true,
+      difficulty: "normal",
+      celestialMode: "sun",
+      celestialStyle: "graphic",
+      cometSkin: "mint",
     },
   };
 }
@@ -87,10 +131,13 @@ export function decodeProgress(serialized: string | null): ProgressRecord {
 
     const record = value as Record<string, unknown>;
     if (record.version === STORAGE_VERSION) {
-      return sanitizeV2(record);
+      return sanitizeCurrent(record);
+    }
+    if (record.version === 2) {
+      return migrateLegacy(record, "bestScore", "bestSeries");
     }
     if (record.version === 1) {
-      return migrateV1(record);
+      return migrateLegacy(record, "best", "streak");
     }
   } catch {
     // A damaged local record is intentionally replaced with safe defaults.
@@ -109,7 +156,10 @@ export function loadProgress(storage: StorageLike): ProgressRecord {
 
 export function saveProgress(storage: StorageLike, progress: ProgressRecord): boolean {
   try {
-    storage.setItem(STORAGE_KEY, JSON.stringify(sanitizeV2(progress as unknown as Record<string, unknown>)));
+    storage.setItem(
+      STORAGE_KEY,
+      JSON.stringify(sanitizeCurrent(progress as unknown as Record<string, unknown>)),
+    );
     return true;
   } catch {
     return false;

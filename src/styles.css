@@ -492,6 +492,10 @@ kbd {
 .settings-dialog {
   width: min(calc(100% - 2rem), 35rem);
   max-height: calc(100dvh - 2rem);
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
   padding: 0;
   border: 1px solid rgba(165, 235, 229, 0.28);
   border-radius: 1.5rem;
@@ -530,6 +534,15 @@ kbd {
   font-size: 1.65rem;
   letter-spacing: -0.035em;
   overflow-wrap: anywhere;
+}
+
+.settings-section-label {
+  margin: 1rem 0 0.1rem;
+  color: var(--mint);
+  font-size: 0.7rem;
+  font-weight: 850;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
 .icon-button {
@@ -611,15 +624,22 @@ kbd {
 .setting-select select {
   min-height: 2.75rem;
   max-width: 11rem;
+  padding: 0.42rem 0.7rem;
   border: 1px solid var(--line);
   border-radius: 0.72rem;
   color: var(--ink);
   background: #142f43;
+  font: inherit;
+  font-weight: 700;
 }
 
 .dialog-done {
+  position: sticky;
+  z-index: 2;
+  bottom: 0;
   width: 100%;
   margin-top: 0.9rem;
+  box-shadow: 0 -0.8rem 1rem #0c2031;
 }
 
 .sr-only {
@@ -682,6 +702,11 @@ kbd {
   .setting-row {
     align-items: start;
     padding-block: 0.9rem;
+  }
+
+  .settings-dialog {
+    width: min(calc(100% - 1rem), 35rem);
+    max-height: calc(100dvh - 1rem);
   }
 
   .setting-row .secondary-button {

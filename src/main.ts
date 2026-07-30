@@ -1,5 +1,11 @@
 import "./styles.css";
-import type { GameEvent, GameState, PauseReason } from "./core/game";
+import type {
+  CelestialMode,
+  Difficulty,
+  GameEvent,
+  GameState,
+  PauseReason,
+} from "./core/game";
 import { localDateKey, seedFromDate } from "./core/rng";
 import { InputController } from "./input";
 import { GameRenderer, type RenderSettings } from "./renderer";
@@ -9,6 +15,8 @@ import {
   DEFAULT_PROGRESS,
   loadProgress,
   saveProgress,
+  type CelestialStyle,
+  type CometSkin,
   type MotionPreference,
   type ProgressRecord,
 } from "./storage";
@@ -51,6 +59,10 @@ const settingsDialog = element<HTMLDialogElement>("settings-dialog");
 const soundSetting = element<HTMLInputElement>("sound-setting");
 const motionSetting = element<HTMLSelectElement>("motion-setting");
 const contrastSetting = element<HTMLInputElement>("contrast-setting");
+const difficultySetting = element<HTMLSelectElement>("difficulty-setting");
+const celestialModeSetting = element<HTMLSelectElement>("celestial-mode-setting");
+const celestialStyleSetting = element<HTMLSelectElement>("celestial-style-setting");
+const cometSkinSetting = element<HTMLSelectElement>("comet-skin-setting");
 const resetProgressButton = element<HTMLButtonElement>("reset-progress-button");
 const resetConfirmation = element<HTMLDivElement>("reset-confirmation");
 const resetCancelButton = element<HTMLButtonElement>("reset-cancel-button");
@@ -60,6 +72,22 @@ let progress: ProgressRecord = loadProgress(window.localStorage);
 const today = new Date();
 const dailySeedValue = seedFromDate(today);
 const renderer = new GameRenderer(canvas, dailySeedValue);
+const formattedToday = new Intl.DateTimeFormat("de-DE", {
+  day: "2-digit",
+  month: "long",
+  year: "numeric",
+}).format(today);
+
+const difficultyNames: Record<Difficulty, string> = {
+  easy: "Leicht",
+  normal: "Normal",
+  hard: "Schwer",
+};
+
+const celestialNames: Record<CelestialMode, string> = {
+  sun: "Sonnenorbit",
+  moon: "Mondorbit",
+};
 
 function prefersReducedMotion(): boolean {
   if (progress.settings.motion === "reduce") {
@@ -75,6 +103,8 @@ function renderSettings(): RenderSettings {
   return {
     reducedMotion: prefersReducedMotion(),
     highContrast: progress.settings.highContrast,
+    celestialStyle: progress.settings.celestialStyle,
+    cometSkin: progress.settings.cometSkin,
   };
 }
 
@@ -100,12 +130,32 @@ function reasonCopy(reason: PauseReason): string {
 function gameOverCopy(state: GameState): string {
   switch (state.gameOverReason) {
     case "core":
-      return "Zu nah am Kern. Lass etwas früher los und nimm mehr Schwung mit.";
+      return state.options.celestialMode === "sun"
+        ? "In die Sonne gezogen. Lass früher los – ihre Kraft steigt in der Nähe deutlich an."
+        : "Auf dem Mond eingeschlagen. Lass früher los und nimm den sanften Schwung mit.";
     case "hazard":
-      return "Ein dunkler Mond kreuzte deine Bahn. Sein Ring zeigt dir den nächsten Weg.";
+      return "Ein Trabant kreuzte deine Bahn. Sein Ring zeigt dir den nächsten Weg.";
     default:
       return "Über den sicheren Rand hinaus. Halte etwas länger, um enger einzudrehen.";
   }
+}
+
+function updateOrbitContext(state: GameState): void {
+  const isMoon = state.options.celestialMode === "moon";
+  dailySeed.textContent = `${celestialNames[state.options.celestialMode]} · ${
+    difficultyNames[state.options.difficulty]
+  } · ${formattedToday} · ${localDateKey(today)}`;
+  canvas.setAttribute(
+    "aria-label",
+    `Gravity Loop Spielfeld im ${isMoon ? "Mondmodus" : "Sonnenmodus"}. ` +
+      `Schwierigkeit ${difficultyNames[state.options.difficulty]}. Halte mit Finger oder Maus ` +
+      `oder halte die Leertaste, um den Kometen ${
+        isMoon ? "zum Mond" : "zur Sonne"
+      } zu lenken. ` +
+      `Loslassen lässt ihn geradeaus fliegen. Eine Berührung mit ${
+        isMoon ? "dem Mond" : "der Sonne"
+      } beendet die Runde.`,
+  );
 }
 
 function announceEvents(events: GameEvent[], state: GameState): void {
@@ -149,13 +199,22 @@ function updateUi(state: GameState, events: GameEvent[]): void {
   pauseButton.disabled = state.mode === "ready" || state.mode === "gameover";
   pauseButton.querySelector("span")!.textContent = state.mode === "paused" ? "Weiter" : "Pause";
   pauseButton.setAttribute("aria-pressed", state.mode === "paused" ? "true" : "false");
+  updateOrbitContext(state);
 
   overlay.classList.toggle("is-hidden", state.mode === "playing");
   if (state.mode === "ready") {
-    overlayKicker.textContent = "Ein Finger. Eine Umlaufbahn.";
-    overlayTitle.textContent = "Halten zieht dich zur Mitte.";
-    overlayCopy.textContent =
-      "Sammle Lichtfunken. Lass rechtzeitig los, bevor Kern oder Rand dich erwischen.";
+    overlayKicker.textContent = `${difficultyNames[state.options.difficulty]} · ${
+      celestialNames[state.options.celestialMode]
+    }`;
+    if (state.options.celestialMode === "moon") {
+      overlayTitle.textContent = "Halten lenkt dich zum Mond.";
+      overlayCopy.textContent =
+        "Die Mondgravitation zieht sanfter und gleichmäßiger. Ein Einschlag beendet die Runde.";
+    } else {
+      overlayTitle.textContent = "Halten zieht dich zur Sonne.";
+      overlayCopy.textContent =
+        "Je näher du kommst, desto stärker zieht sie. Eine Berührung beendet die Runde.";
+    }
     overlayAction.textContent = "Losfliegen";
   } else if (state.mode === "paused") {
     overlayKicker.textContent = "Sicher pausiert";
@@ -174,7 +233,16 @@ function updateUi(state: GameState, events: GameEvent[]): void {
 }
 
 const sound = new SoundController(() => progress.settings.sound);
-const runtime = new GameRuntime(dailySeedValue, renderer, renderSettings, updateUi);
+const runtime = new GameRuntime(
+  dailySeedValue,
+  renderer,
+  renderSettings,
+  updateUi,
+  {
+    difficulty: progress.settings.difficulty,
+    celestialMode: progress.settings.celestialMode,
+  },
+);
 const input = new InputController(canvas, runtime);
 
 overlayAction.addEventListener("click", () => {
@@ -201,6 +269,10 @@ settingsButton.addEventListener("click", () => {
   soundSetting.checked = progress.settings.sound;
   motionSetting.value = progress.settings.motion;
   contrastSetting.checked = progress.settings.highContrast;
+  difficultySetting.value = progress.settings.difficulty;
+  celestialModeSetting.value = progress.settings.celestialMode;
+  celestialStyleSetting.value = progress.settings.celestialStyle;
+  cometSkinSetting.value = progress.settings.cometSkin;
   resetConfirmation.hidden = true;
   resetProgressButton.disabled = false;
   resetProgressButton.textContent = "Zurücksetzen";
@@ -208,11 +280,27 @@ settingsButton.addEventListener("click", () => {
 });
 
 settingsDialog.addEventListener("close", () => {
+  const difficulty = difficultySetting.value as Difficulty;
+  const celestialMode = celestialModeSetting.value as CelestialMode;
+  const gameplayChanged =
+    runtime.getState().options.difficulty !== difficulty ||
+    runtime.getState().options.celestialMode !== celestialMode;
   progress.settings.sound = soundSetting.checked;
   progress.settings.motion = motionSetting.value as MotionPreference;
   progress.settings.highContrast = contrastSetting.checked;
+  progress.settings.difficulty = difficulty;
+  progress.settings.celestialMode = celestialMode;
+  progress.settings.celestialStyle =
+    celestialStyleSetting.value as CelestialStyle;
+  progress.settings.cometSkin = cometSkinSetting.value as CometSkin;
   document.documentElement.classList.toggle("high-contrast", progress.settings.highContrast);
   save();
+  if (gameplayChanged) {
+    runtime.configure({ difficulty, celestialMode });
+    liveStatus.textContent = `${celestialNames[celestialMode]}, Schwierigkeit ${
+      difficultyNames[difficulty]
+    }. Die Runde wurde neu vorbereitet.`;
+  }
   settingsButton.focus();
 });
 
@@ -235,9 +323,16 @@ resetConfirmButton.addEventListener("click", () => {
   soundSetting.checked = progress.settings.sound;
   motionSetting.value = progress.settings.motion;
   contrastSetting.checked = progress.settings.highContrast;
+  difficultySetting.value = progress.settings.difficulty;
+  celestialModeSetting.value = progress.settings.celestialMode;
+  celestialStyleSetting.value = progress.settings.celestialStyle;
+  cometSkinSetting.value = progress.settings.cometSkin;
   document.documentElement.classList.remove("high-contrast");
   save();
-  runtime.reset();
+  runtime.configure({
+    difficulty: progress.settings.difficulty,
+    celestialMode: progress.settings.celestialMode,
+  });
   resetConfirmation.hidden = true;
   resetProgressButton.textContent = "Zurückgesetzt";
   resetProgressButton.disabled = true;
@@ -277,11 +372,6 @@ window.matchMedia("(orientation: portrait)").addEventListener("change", () => {
 });
 
 document.documentElement.classList.toggle("high-contrast", progress.settings.highContrast);
-dailySeed.textContent = `Heutiger Orbit · ${new Intl.DateTimeFormat("de-DE", {
-  day: "2-digit",
-  month: "long",
-  year: "numeric",
-}).format(today)} · ${localDateKey(today)}`;
 
 const searchParameters = new URLSearchParams(window.location.search);
 if (searchParameters.get("test") === "1") {

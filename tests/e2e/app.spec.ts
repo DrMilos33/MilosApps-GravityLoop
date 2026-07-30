@@ -60,7 +60,7 @@ test.describe("core browser flow", () => {
     await expect(page.getByTestId("game-canvas")).toBeVisible();
     await expect(page.getByRole("button", { name: "Pause" })).toBeDisabled();
     await expect(page.getByRole("button", { name: "Losfliegen" })).toBeVisible();
-    await expect(page.getByText("Heutiger Orbit", { exact: false })).toBeVisible();
+    await expect(page.locator("#daily-seed")).toContainText("Sonnenorbit");
 
     const health = await request.get("./health.json");
     expect(health.ok()).toBe(true);
@@ -216,7 +216,7 @@ test.describe("core browser flow", () => {
     await expect.poll(async () => (await debugState(page)).state.mode).toBe("ready");
 
     await page.getByRole("button", { name: "Einstellungen" }).click();
-    await page.getByRole("combobox").focus();
+    await page.getByRole("combobox", { name: "Bewegung" }).focus();
     await page.keyboard.press("r");
     expect((await debugState(page)).state.mode).toBe("ready");
     await expect(page.getByRole("dialog")).toBeVisible();

@@ -5,11 +5,17 @@ test.beforeEach(async ({ page }) => {
   await page.goto("./?test=1");
 });
 
-test("persists sound, motion and contrast locally without cookies", async ({ page }) => {
+test("persists gameplay, appearance and comfort settings locally without cookies", async ({
+  page,
+}) => {
   await page.getByRole("button", { name: "Einstellungen" }).click();
   const dialog = page.getByRole("dialog");
   await expect(dialog).toBeVisible();
 
+  await page.getByRole("combobox", { name: "Schwierigkeit" }).selectOption("hard");
+  await page.getByRole("combobox", { name: "Zentralkörper" }).selectOption("moon");
+  await page.getByRole("combobox", { name: "Sonne und Mond" }).selectOption("natural");
+  await page.getByRole("combobox", { name: "Kometen-Skin" }).selectOption("hat");
   await page.getByRole("switch", { name: "Klänge" }).check();
   await page.getByRole("combobox", { name: "Bewegung" }).selectOption("reduce");
   await page.getByRole("switch", { name: "Hoher Kontrast" }).check();
@@ -26,11 +32,15 @@ test("persists sound, motion and contrast locally without cookies", async ({ pag
   }));
   expect(stored.progress).toEqual(
     expect.objectContaining({
-      version: 2,
+      version: 3,
       settings: {
         sound: true,
         motion: "reduce",
         highContrast: true,
+        difficulty: "hard",
+        celestialMode: "moon",
+        celestialStyle: "natural",
+        cometSkin: "hat",
       },
     }),
   );
@@ -38,9 +48,88 @@ test("persists sound, motion and contrast locally without cookies", async ({ pag
 
   await page.reload();
   await page.getByRole("button", { name: "Einstellungen" }).click();
+  await expect(page.getByRole("combobox", { name: "Schwierigkeit" })).toHaveValue("hard");
+  await expect(page.getByRole("combobox", { name: "Zentralkörper" })).toHaveValue("moon");
+  await expect(page.getByRole("combobox", { name: "Sonne und Mond" })).toHaveValue("natural");
+  await expect(page.getByRole("combobox", { name: "Kometen-Skin" })).toHaveValue("hat");
   await expect(page.getByRole("switch", { name: "Klänge" })).toBeChecked();
   await expect(page.getByRole("combobox", { name: "Bewegung" })).toHaveValue("reduce");
   await expect(page.getByRole("switch", { name: "Hoher Kontrast" })).toBeChecked();
+});
+
+test("switches world and difficulty only through a clean round reset", async ({ page }) => {
+  await page.getByRole("button", { name: "Losfliegen" }).click();
+  await expect
+    .poll(() => page.evaluate(() => window.__gravityLoopTestApi!.getDebugState().state.stepCount))
+    .toBeGreaterThan(0);
+
+  await page.getByRole("button", { name: "Einstellungen" }).click();
+  await page.getByRole("combobox", { name: "Schwierigkeit" }).selectOption("easy");
+  await page.getByRole("combobox", { name: "Zentralkörper" }).selectOption("moon");
+  await page.getByRole("button", { name: "Fertig" }).click();
+
+  await expect
+    .poll(() => page.evaluate(() => window.__gravityLoopTestApi!.getDebugState().state.mode))
+    .toBe("ready");
+  const state = await page.evaluate(() => window.__gravityLoopTestApi!.getDebugState().state);
+  expect(state.mode).toBe("ready");
+  expect(state.stepCount).toBe(0);
+  expect(state.score).toBe(0);
+  expect(state.options).toEqual({ difficulty: "easy", celestialMode: "moon" });
+  await expect(page.getByRole("heading", { name: "Halten lenkt dich zum Mond." })).toBeVisible();
+  await expect(page.getByText("Mondorbit · Leicht", { exact: false })).toBeVisible();
+});
+
+test("renders procedural moon and hat skin as real canvas changes", async ({
+  page,
+}, testInfo) => {
+  const sampleCanvas = () =>
+    page.evaluate(() => {
+      const debug = window.__gravityLoopTestApi!.getDebugState();
+      const canvas = document.getElementById("game-canvas") as HTMLCanvasElement;
+      const context = canvas.getContext("2d")!;
+      const centerX = debug.layout.centerX * debug.layout.dpr;
+      const centerY = debug.layout.centerY * debug.layout.dpr;
+      const playerX =
+        (debug.layout.centerX + debug.state.player.position.x * debug.layout.scale) *
+        debug.layout.dpr;
+      const playerY =
+        (debug.layout.centerY + debug.state.player.position.y * debug.layout.scale) *
+        debug.layout.dpr;
+      return {
+        core: [...context.getImageData(Math.round(centerX), Math.round(centerY), 1, 1).data],
+        player: [
+          ...context.getImageData(Math.round(playerX), Math.round(playerY), 1, 1).data,
+        ],
+      };
+    });
+
+  await page.waitForTimeout(100);
+  const before = await sampleCanvas();
+  await page.getByRole("button", { name: "Einstellungen" }).click();
+  await page.getByRole("combobox", { name: "Zentralkörper" }).selectOption("moon");
+  await page.getByRole("combobox", { name: "Sonne und Mond" }).selectOption("natural");
+  await page.getByRole("combobox", { name: "Kometen-Skin" }).selectOption("hat");
+  await page.getByRole("button", { name: "Fertig" }).click();
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () => window.__gravityLoopTestApi!.getDebugState().state.options.celestialMode,
+      ),
+    )
+    .toBe("moon");
+  await page.waitForTimeout(100);
+  const after = await sampleCanvas();
+
+  expect(after.core).not.toEqual(before.core);
+  expect(after.player).not.toEqual(before.player);
+  await page.getByRole("button", { name: "Losfliegen" }).click();
+  await expect(page.getByTestId("game-overlay")).toBeHidden();
+  await page.waitForTimeout(120);
+  await testInfo.attach("moon-natural-hat.png", {
+    body: await page.screenshot(),
+    contentType: "image/png",
+  });
 });
 
 test("has no automated WCAG A/AA violations in game and settings states", async ({ page }) => {
@@ -173,10 +262,18 @@ test("resets all local data only after explicit second confirmation", async ({ p
     JSON.parse(localStorage.getItem("gravity-loop:progress") ?? "{}"),
   );
   expect(record).toEqual({
-    version: 2,
+    version: 3,
     bestScore: 0,
     bestSeries: 0,
-    settings: { sound: false, motion: "system", highContrast: false },
+    settings: {
+      sound: false,
+      motion: "system",
+      highContrast: false,
+      difficulty: "normal",
+      celestialMode: "sun",
+      celestialStyle: "graphic",
+      cometSkin: "mint",
+    },
   });
   await expect(page.locator("html")).not.toHaveClass(/high-contrast/);
 });
