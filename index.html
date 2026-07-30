@@ -11,8 +11,8 @@
     <link rel="icon" href="./gravity-loop-mark.svg" type="image/svg+xml" />
     <link rel="manifest" href="./manifest.webmanifest" />
     <title>Gravity Loop · MilosApps</title>
-    <script type="module" crossorigin src="./assets/index-BpDoTQDs.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-C5QCLY1U.css">
+    <script type="module" crossorigin src="./assets/index-CWugzJhh.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-gORRNhdc.css">
   </head>
   <body>
     <a class="skip-link" href="#game-canvas">Zum Spiel springen</a>
@@ -55,7 +55,7 @@
             data-testid="game-canvas"
             tabindex="0"
             role="application"
-            aria-label="Gravity Loop Spielfeld. Halte mit Finger oder Maus oder halte die Leertaste, um den Kometen zum Gravitationskern zu lenken. Loslassen lässt ihn geradeaus fliegen."
+            aria-label="Gravity Loop Spielfeld im Sonnenmodus. Halte mit Finger oder Maus oder halte die Leertaste, um den Kometen zur Sonne zu lenken. Loslassen lässt ihn geradeaus fliegen. Eine Berührung mit der Sonne beendet die Runde."
           >
             Gravity Loop benötigt einen Browser mit Canvas-Unterstützung. Mit der Leertaste hältst
             du die Gravitation, beim Loslassen fliegt der Komet geradeaus.
@@ -66,7 +66,7 @@
               <p class="overlay-kicker" id="overlay-kicker">Ein Finger. Eine Umlaufbahn.</p>
               <h2 id="overlay-title">Halten zieht dich zur Mitte.</h2>
               <p id="overlay-copy">
-                Sammle Lichtfunken. Lass rechtzeitig los, bevor Kern oder Rand dich erwischen.
+                Sammle Lichtfunken. Lass rechtzeitig los: Sonne, Trabanten und Rand beenden die Runde.
               </p>
               <button class="primary-button" id="overlay-action" type="button">Losfliegen</button>
             </div>
@@ -115,6 +115,59 @@
             <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18" /></svg>
           </button>
         </div>
+
+        <p class="settings-section-label">Spiel</p>
+
+        <label class="setting-row setting-select">
+          <span>
+            <strong>Schwierigkeit</strong>
+            <small>Tempo, Gefahren und Punkte. Ein Wechsel startet die Runde fair neu.</small>
+          </span>
+          <select id="difficulty-setting">
+            <option value="easy">Leicht</option>
+            <option value="normal">Normal</option>
+            <option value="hard">Schwer</option>
+          </select>
+        </label>
+
+        <label class="setting-row setting-select">
+          <span>
+            <strong>Zentralkörper</strong>
+            <small>Die Sonne zieht nahe stärker. Der Mond zieht sanfter und gleichmäßiger.</small>
+          </span>
+          <select id="celestial-mode-setting">
+            <option value="sun">Sonne</option>
+            <option value="moon">Mond</option>
+          </select>
+        </label>
+
+        <p class="settings-section-label">Aussehen</p>
+
+        <label class="setting-row setting-select">
+          <span>
+            <strong>Sonne und Mond</strong>
+            <small>Naturnah wird prozedural gezeichnet – ohne externe Bilder oder Tracking.</small>
+          </span>
+          <select id="celestial-style-setting">
+            <option value="graphic">Grafisch</option>
+            <option value="natural">Naturnah</option>
+          </select>
+        </label>
+
+        <label class="setting-row setting-select">
+          <span>
+            <strong>Kometen-Skin</strong>
+            <small>Nur das Aussehen ändert sich; Hitbox und Physik bleiben gleich.</small>
+          </span>
+          <select id="comet-skin-setting">
+            <option value="mint">Mint</option>
+            <option value="ember">Feuer</option>
+            <option value="ice">Eis</option>
+            <option value="hat">Komet mit Hut</option>
+          </select>
+        </label>
+
+        <p class="settings-section-label">Komfort</p>
 
         <label class="setting-row">
           <span>
