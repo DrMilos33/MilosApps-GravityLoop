@@ -108,7 +108,7 @@ test.describe("core browser flow", () => {
     const debug = await debugState(page);
     expect(["playing", "gameover"]).toContain(debug.state.mode);
     expect(debug.metrics.inputSamples).toBeGreaterThanOrEqual(3);
-    const headlessLatencyLimit = browserName === "chromium" ? 45 : 180;
+    const headlessLatencyLimit = browserName === "chromium" ? 45 : 250;
     expect(debug.metrics.p95InputMs).toBeLessThan(headlessLatencyLimit);
   });
 

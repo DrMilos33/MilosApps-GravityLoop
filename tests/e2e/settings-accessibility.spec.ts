@@ -118,7 +118,8 @@ test("renders procedural moon and hat skin as real canvas changes", async ({
       ),
     )
     .toBe("moon");
-  await page.waitForTimeout(100);
+  await expect.poll(async () => (await sampleCanvas()).core).not.toEqual(before.core);
+  await expect.poll(async () => (await sampleCanvas()).player).not.toEqual(before.player);
   const after = await sampleCanvas();
 
   expect(after.core).not.toEqual(before.core);

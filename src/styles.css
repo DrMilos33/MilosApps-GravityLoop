@@ -495,7 +495,6 @@ kbd {
   overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior: contain;
-  scrollbar-gutter: stable;
   padding: 0;
   border: 1px solid rgba(165, 235, 229, 0.28);
   border-radius: 1.5rem;
@@ -510,6 +509,7 @@ kbd {
 }
 
 .settings-dialog form {
+  min-width: 0;
   padding: clamp(1rem, 4vw, 1.5rem);
 }
 
