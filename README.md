@@ -28,8 +28,10 @@ pnpm install
 pnpm dev
 ```
 
-Danach läuft die App unter `http://127.0.0.1:4173/`; der lokale
-Readiness-Healthcheck liegt unter `http://127.0.0.1:4173/health.json`.
+Danach läuft die App unter `http://127.0.0.1:4317/`; der lokale
+Readiness-Healthcheck liegt unter `http://127.0.0.1:4317/health.json`. Der feste
+DEV-Port ist absichtlich app-spezifisch; Vite bricht bei einer Kollision ab,
+statt versehentlich einen anderen lokalen Dienst zu akzeptieren.
 
 ```powershell
 pnpm test

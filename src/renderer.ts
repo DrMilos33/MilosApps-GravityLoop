@@ -39,6 +39,9 @@ function mix(left: number, right: number, alpha: number): number {
 
 export class GameRenderer {
   private readonly context: CanvasRenderingContext2D;
+  private readonly staticCanvas = document.createElement("canvas");
+  private readonly staticContext: CanvasRenderingContext2D;
+  private staticContrast: boolean | null = null;
   private layout: Layout = {
     width: 1,
     height: 1,
@@ -62,6 +65,11 @@ export class GameRenderer {
       throw new Error("Canvas 2D wird von diesem Browser nicht unterstützt.");
     }
     this.context = context;
+    const staticContext = this.staticCanvas.getContext("2d", { alpha: false });
+    if (!staticContext) {
+      throw new Error("Statische Canvas-Ebene konnte nicht initialisiert werden.");
+    }
+    this.staticContext = staticContext;
     this.buildStarField(seed);
     this.resizeObserver = new ResizeObserver(() => this.resize());
     this.resizeObserver.observe(canvas);
@@ -87,6 +95,7 @@ export class GameRenderer {
         alpha: 0.14 + alphaResult.value * 0.32,
       });
     }
+    this.staticContrast = null;
   }
 
   reset(seed: number, playerPosition: Vector): void {
@@ -122,6 +131,9 @@ export class GameRenderer {
     if (this.canvas.width !== pixelWidth || this.canvas.height !== pixelHeight) {
       this.canvas.width = pixelWidth;
       this.canvas.height = pixelHeight;
+      this.staticCanvas.width = pixelWidth;
+      this.staticCanvas.height = pixelHeight;
+      this.staticContrast = null;
     }
 
     this.layout = {
@@ -141,10 +153,37 @@ export class GameRenderer {
     };
   }
 
-  private beginFrame(): CanvasRenderingContext2D {
+  private ensureStaticLayer(highContrast: boolean): void {
+    if (
+      this.staticContrast === highContrast &&
+      this.staticCanvas.width === this.canvas.width &&
+      this.staticCanvas.height === this.canvas.height
+    ) {
+      return;
+    }
+
+    if (
+      this.staticCanvas.width !== this.canvas.width ||
+      this.staticCanvas.height !== this.canvas.height
+    ) {
+      this.staticCanvas.width = this.canvas.width;
+      this.staticCanvas.height = this.canvas.height;
+    }
+    this.staticContext.setTransform(1, 0, 0, 1, 0, 0);
+    this.staticContext.clearRect(0, 0, this.staticCanvas.width, this.staticCanvas.height);
+    this.staticContext.setTransform(this.layout.dpr, 0, 0, this.layout.dpr, 0, 0);
+    this.drawBackground(this.staticContext, highContrast);
+    this.drawArena(this.staticContext, highContrast);
+    this.staticContrast = highContrast;
+  }
+
+  private beginFrame(highContrast: boolean): CanvasRenderingContext2D {
+    this.ensureStaticLayer(highContrast);
     const context = this.context;
+    context.setTransform(1, 0, 0, 1, 0, 0);
+    context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    context.drawImage(this.staticCanvas, 0, 0);
     context.setTransform(this.layout.dpr, 0, 0, this.layout.dpr, 0, 0);
-    context.clearRect(0, 0, this.layout.width, this.layout.height);
     return context;
   }
 
@@ -419,7 +458,7 @@ export class GameRenderer {
   }
 
   draw(state: GameState, alpha: number, settings: RenderSettings): void {
-    const context = this.beginFrame();
+    const context = this.beginFrame(settings.highContrast);
     const now = performance.now();
     const deltaSeconds = Math.min(0.1, Math.max(0, (now - this.previousRenderedAt) / 1_000));
     this.previousRenderedAt = now;
@@ -428,8 +467,6 @@ export class GameRenderer {
       y: mix(state.player.previousPosition.y, state.player.position.y, alpha),
     };
 
-    this.drawBackground(context, settings.highContrast);
-    this.drawArena(context, settings.highContrast);
     this.drawTrail(context, settings);
     this.drawHazards(context, state, settings);
     if (state.held) {

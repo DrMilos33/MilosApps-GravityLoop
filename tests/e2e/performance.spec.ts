@@ -1,0 +1,76 @@
+import { expect, test, type Page } from "@playwright/test";
+
+interface Metrics {
+  frameSamples: number;
+  averageFrameMs: number;
+  p95FrameMs: number;
+  worstFrameMs: number;
+  estimatedFps: number;
+  inputSamples: number;
+  averageInputMs: number;
+  p95InputMs: number;
+  worstInputMs: number;
+  droppedSimulationMs: number;
+}
+
+async function exercise(page: Page): Promise<Metrics> {
+  await page.goto("/?test=1");
+  await page.getByRole("button", { name: "Losfliegen" }).click();
+  await expect(page.getByTestId("game-overlay")).toBeHidden();
+  const canvas = page.getByTestId("game-canvas");
+  const box = await canvas.boundingBox();
+  if (!box) {
+    throw new Error("Canvas has no layout box.");
+  }
+
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await page.mouse.down();
+  await page.waitForTimeout(220);
+  await page.mouse.up();
+  await page.waitForTimeout(1_800);
+  await page.mouse.down();
+  await page.waitForTimeout(180);
+  await page.mouse.up();
+  await page.waitForTimeout(1_000);
+
+  return page.evaluate(() => window.__gravityLoopTestApi!.getDebugState().metrics);
+}
+
+test("keeps frame and input latency responsive at normal CPU speed", async ({
+  page,
+}, testInfo) => {
+  const metrics = await exercise(page);
+  console.log("normal-cpu-metrics", JSON.stringify(metrics));
+  await testInfo.attach("normal-cpu-metrics.json", {
+    body: JSON.stringify(metrics, null, 2),
+    contentType: "application/json",
+  });
+
+  expect(metrics.frameSamples).toBeGreaterThan(120);
+  expect(metrics.estimatedFps).toBeGreaterThan(45);
+  expect(metrics.p95FrameMs).toBeLessThan(36);
+  expect(metrics.inputSamples).toBeGreaterThanOrEqual(3);
+  expect(metrics.p95InputMs).toBeLessThan(45);
+  expect(metrics.droppedSimulationMs).toBeLessThan(250);
+});
+
+test("remains playable under four-times CPU throttling", async ({
+  page,
+  context,
+}, testInfo) => {
+  const client = await context.newCDPSession(page);
+  await client.send("Emulation.setCPUThrottlingRate", { rate: 4 });
+  const metrics = await exercise(page);
+  console.log("four-times-cpu-metrics", JSON.stringify(metrics));
+  await testInfo.attach("four-times-cpu-metrics.json", {
+    body: JSON.stringify(metrics, null, 2),
+    contentType: "application/json",
+  });
+  await client.send("Emulation.setCPUThrottlingRate", { rate: 1 });
+
+  expect(metrics.frameSamples).toBeGreaterThan(90);
+  expect(metrics.estimatedFps).toBeGreaterThan(30);
+  expect(metrics.p95FrameMs).toBeLessThan(51);
+  expect(metrics.p95InputMs).toBeLessThan(60);
+  expect(metrics.droppedSimulationMs).toBeLessThan(500);
+});

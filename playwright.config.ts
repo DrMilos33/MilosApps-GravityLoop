@@ -8,7 +8,7 @@ export default defineConfig({
   workers: 1,
   reporter: [["list"], ["html", { open: "never" }]],
   use: {
-    baseURL: "http://127.0.0.1:4173",
+    baseURL: "http://127.0.0.1:4317",
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
     video: "retain-on-failure",
@@ -20,9 +20,9 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: "pnpm exec vite --host 127.0.0.1 --port 4173",
-    url: "http://127.0.0.1:4173/health.json",
-    reuseExistingServer: !process.env.CI,
+    command: "pnpm exec vite --host 127.0.0.1 --port 4317 --strictPort",
+    url: "http://127.0.0.1:4317/health.json",
+    reuseExistingServer: false,
     timeout: 120_000,
   },
 });
