@@ -1,0 +1,18 @@
+{
+  "name": "Gravity Loop",
+  "short_name": "Gravity Loop",
+  "description": "Ein reaktionsschnelles Einfinger-Orbitspiel von MilosApps.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#07111e",
+  "theme_color": "#091727",
+  "lang": "de",
+  "icons": [
+    {
+      "src": "/gravity-loop-mark.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
