@@ -16,5 +16,11 @@
     "noEmit": true,
     "types": ["node", "vite/client", "vitest/globals"]
   },
-  "include": ["src", "tests/unit", "vite.config.ts", "playwright.config.ts"]
+  "include": [
+    "src",
+    "tests/unit",
+    "vite.config.ts",
+    "playwright.config.ts",
+    "playwright.dev.config.ts"
+  ]
 }

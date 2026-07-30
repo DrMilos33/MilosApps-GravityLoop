@@ -15,7 +15,7 @@ test("handles real touch start, long hold, cancel and rapid alternation", async 
     isMobile: true,
   });
   const page = await context.newPage();
-  await page.goto("/?test=1");
+  await page.goto("./?test=1");
   const client = await context.newCDPSession(page);
   const canvas = page.getByTestId("game-canvas");
   const box = await canvas.boundingBox();

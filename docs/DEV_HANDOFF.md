@@ -12,7 +12,7 @@ Production: nicht freigegeben
 | Kurzbeschreibung | Halten krümmt die Flugbahn eines kleinen Kometen. Loslassen nimmt den Schwung mit – sammle Lichtfunken und finde deinen Rhythmus zwischen Kern und Rand. |
 | Sprache | Deutsch (`de`) |
 | Klasse | öffentlich, ohne Anmeldung |
-| Status | hochwertiger lokaler DEV-Stand; externe DEV-Bereitstellung blockiert |
+| Status | öffentlicher unabhängiger DEV-Stand, extern verifiziert |
 | Plattformen | Web, mobil und Desktop |
 | Eingaben | Touch, Pointer/Stift, Maus, Leertaste oder Pfeil hoch; `P` Pause, `R` Neustart |
 | Daten | Bestwert, Funkenserie und Einstellungen ausschließlich in lokalem Browser-Speicher; keine Cookies, kein Konto, keine Datenbank |
@@ -25,7 +25,10 @@ Production: nicht freigegeben
 - Ziel der Portalroute: Redirect auf die spätere unabhängige HTTPS-DEV-URL;
 - lokale DEV-URL: `http://127.0.0.1:4317/`;
 - lokaler Healthcheck: `http://127.0.0.1:4317/health.json`;
-- externer Healthcheck: spätere `HTTPS-DEV-URL + /health.json`;
+- öffentliche DEV-URL:
+  `https://drmilos33.github.io/MilosApps-GravityLoop/`;
+- externer Healthcheck:
+  `https://drmilos33.github.io/MilosApps-GravityLoop/health.json`;
 - erwarteter Readiness-Body:
 
 ```json
@@ -52,15 +55,28 @@ Der lokale Dienst startet mit `strictPort` und bricht bei einer Kollision ab.
 
 ## Externer DEV-Status
 
-Eine stabile externe HTTPS-DEV-URL existiert noch nicht und wird nicht
-erfunden. Der Blocker ist extern:
+Der unabhängige öffentliche DEV-Dienst ist aktiv:
 
-1. Im App-Register ist kein GitHub-Repository eingetragen.
-2. Es gibt kein freigegebenes DEV-Hostingziel und keine DEV-Zugangsdaten.
-3. Sites-Deployments wären Production-Deployments und sind ausdrücklich nicht
-   freigegeben.
+- GitHub-Repository:
+  `https://github.com/DrMilos33/MilosApps-GravityLoop`;
+- Hosting: GitHub Pages aus dem app-eigenen Branch `gh-pages`;
+- deployter vollständiger App-Commit:
+  `a713482c1db746f72aeb4c2665d20e8856c84ca9`;
+- daraus gebauter DEV-Artefakt-Commit:
+  `28dbdd173b98dc61cc2611286f1e52b99acea587`;
+- erfolgreiche Pages-Deployment-Ausführung:
+  `https://github.com/DrMilos33/MilosApps-GravityLoop/actions/runs/30534546197`;
+- Production: `false`, nicht freigegeben.
 
-Bis ein eigenes DEV-Ziel bereitsteht, ist `http://127.0.0.1:4317/` der
-vollständig getestete lokale DEV-Dienst. Nach Bereitstellung werden nur die
-HTTPS-DEV-URL und der daraus abgeleitete Healthcheck ergänzt; Route, Metadaten
-und Loginfreiheit bleiben rückwärtskompatibel.
+Direktaufruf, Health-Identität, Loginfreiheit, Chromium, Firefox und WebKit
+wurden gegen die öffentliche URL geprüft. Der Browser benötigt weder
+Portal-Cookies noch Milos-Login; die App lädt keine Portal- oder
+Shared-Abhängigkeit. Details, Rollback und letzte gesunde Revision stehen in
+`docs/DEV_DEPLOYMENT.md`.
+
+Verbleibende Grenzen sind reale Android-/iOS-Hardware, Android WebView sowie
+manuelle Tests mit TalkBack, VoiceOver oder NVDA. Headless WebKit zeigte bei
+Video-/Trace-Aufzeichnung einen intermittierenden Latenzmesswert von
+222–229 ms; der isolierte Retry bestand, alle funktionalen WebKit-Eingabe- und
+Lifecycle-Flüsse bestanden. Die Chromium-Referenz blieb mit 22,2 ms Input-p95
+normal und 19,2 ms bei vierfacher CPU-Drosselung klar innerhalb des Vertrags.

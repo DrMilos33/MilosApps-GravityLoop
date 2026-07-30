@@ -2,7 +2,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
 test.beforeEach(async ({ page }) => {
-  await page.goto("/?test=1");
+  await page.goto("./?test=1");
 });
 
 test("persists sound, motion and contrast locally without cookies", async ({ page }) => {

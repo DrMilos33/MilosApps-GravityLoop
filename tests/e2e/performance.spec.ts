@@ -19,7 +19,7 @@ interface Metrics {
 }
 
 async function exercise(page: Page): Promise<Metrics> {
-  await page.goto("/?test=1");
+  await page.goto("./?test=1");
   await page.getByRole("button", { name: "Losfliegen" }).click();
   await expect(page.getByTestId("game-overlay")).toBeHidden();
   const canvas = page.getByTestId("game-canvas");

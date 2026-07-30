@@ -18,7 +18,22 @@ geschickt umflogen werden.
 
 Siehe [Produktbrief](docs/PRODUCT_BRIEF.md), [QA-Plan](docs/QA_PLAN.md),
 [QA-Ergebnisse](docs/QA_RESULTS.md), [DEV-/Portalübergabe](docs/DEV_HANDOFF.md)
-und [Erkenntnisse](docs/LEARNINGS.md).
+und [DEV-Deployment](docs/DEV_DEPLOYMENT.md) sowie
+[Erkenntnisse](docs/LEARNINGS.md).
+
+## Öffentliches DEV
+
+- App: <https://drmilos33.github.io/MilosApps-GravityLoop/>
+- Readiness: <https://drmilos33.github.io/MilosApps-GravityLoop/health.json>
+- GitHub: <https://github.com/DrMilos33/MilosApps-GravityLoop>
+- deployter App-Quellstand:
+  `a713482c1db746f72aeb4c2665d20e8856c84ca9`
+- DEV-Artefakt: Branch `gh-pages`, Commit
+  `28dbdd173b98dc61cc2611286f1e52b99acea587`
+
+Die URL ist ein unabhängiger öffentlicher GitHub-Pages-DEV-Dienst ohne Login.
+Production ist nicht freigegeben. Build, Validierung, Aktualisierung und
+Rollback sind in [docs/DEV_DEPLOYMENT.md](docs/DEV_DEPLOYMENT.md) beschrieben.
 
 ## Lokaler DEV-Start
 
@@ -38,6 +53,9 @@ statt versehentlich einen anderen lokalen Dienst zu akzeptieren.
 pnpm test
 pnpm build
 pnpm test:e2e
+
+$env:GRAVITY_LOOP_DEV_URL = "https://drmilos33.github.io/MilosApps-GravityLoop/"
+pnpm test:e2e:dev
 ```
 
 Die Runtime besteht aus Vanilla TypeScript, CSS und Canvas. Vite dient nur dem

@@ -189,6 +189,43 @@ Ausgangspunkt war Commit `d30f2f8`.
   macOS-Einstellung „Full Keyboard Access“ abhängig. Direkte Tastaturflüsse,
   Fokusdarstellung, Semantik und Axe-Prüfungen sind in den anwendbaren Engines
   bestanden.
-- Eine externe HTTPS-DEV-URL fehlt, weil kein GitHub-Repository und kein
-  freigegebenes DEV-Hostingziel eingetragen sind. Der vollständig getestete
-  lokale Dienst verwendet `http://127.0.0.1:4317/`.
+- Der lokale Dienst bleibt für reproduzierbare Offline-Entwicklung unter
+  `http://127.0.0.1:4317/` verfügbar. Die danach ergänzte externe
+  DEV-Verifikation ist im folgenden Abschnitt dokumentiert.
+
+## Externe DEV-Verifikation
+
+Am 30. Juli 2026 wurde exakt der verifizierte App-Commit
+`a713482c1db746f72aeb4c2665d20e8856c84ca9` als unabhängiges GitHub-Pages-DEV
+unter `https://drmilos33.github.io/MilosApps-GravityLoop/` veröffentlicht. Das
+aus diesem Commit gebaute statische Artefakt ist
+`28dbdd173b98dc61cc2611286f1e52b99acea587`.
+
+### Verifiziert
+
+- Pages-Deployment-Run `30534546197` erfolgreich;
+- `GET /health.json`: HTTP 200, `application/json` und exakt
+  `status: ok`, `app: gravity-loop`, `environment: dev`;
+- direkter Aufruf ohne Portal-Cookie, Milos-Login, Konto oder Redirect;
+- keine Console-Errors im sichtbaren Live-Smoke;
+- vollständige externe Playwright-Matrix in Chromium, Firefox und WebKit:
+  46 Tests im ersten Gesamtlauf bestanden, 19 engine-spezifische Tests
+  planmäßig übersprungen;
+- der einzige erste WebKit-Latenzfehler bestand im isolierten Wiederholungslauf
+  und blieb funktional korrekt; alle übrigen WebKit-Eingabe-, Pause-, Resume-,
+  Speicher-, Zoom- und Accessibility-Flüsse bestanden;
+- Chromium normal: 47,36 FPS, Frame-p95 33,4 ms, Input-p95 22,2 ms,
+  0 ms verlorene Simulation;
+- Chromium bei vierfacher CPU-Drosselung: 36,08 FPS, Frame-p95 50,0 ms,
+  Input-p95 19,2 ms, 0 ms verlorene Simulation;
+- Smartphone-, Landscape-, Tablet-, Desktop- und DPR-Matrix gegen die
+  öffentliche URL bestanden.
+
+### Testwerkzeuggrenze
+
+Headless WebKit lieferte mit Video-/Trace-Instrumentierung in zwei Messungen
+222 beziehungsweise 229 ms Input-p95 statt unter 180 ms; der nächste isolierte
+Retry bestand. Maus-, Tastatur- und Pointerzustände wechselten in allen Läufen
+korrekt und blieben nie hängen. Die harte Performance-Referenz ist weiterhin
+Chromium; dies ist als intermittierende Engine-/Instrumentierungsgrenze
+dokumentiert und kein bestätigter Hosting- oder Spiellogikdefekt.

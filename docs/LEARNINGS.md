@@ -100,3 +100,19 @@ Nutzerdaten eintragen.
   zugänglichen Reflow. Modale Inhalte und verschachtelte Flex-/Grid-Kinder
   benötigen eigene Messungen; Abschneiden oder kleinere Schrift sind keine
   zulässige Korrektur.
+
+## 2026-07-30 – DEV-Unterpfade brauchen relative Build- und Testnavigation
+
+- Ausgangspunkt: App-Commit `a713482`; GitHub Pages unter dem Projektpfad
+  `/MilosApps-GravityLoop/`.
+- Beobachtung: Absolute Asset- oder E2E-Pfade wie `/assets/...` und
+  `page.goto("/")` verlassen bei Projekt-Hosting den App-Unterpfad.
+- Änderung: Das unveränderte App-Artefakt wird mit `vite build --base ./`
+  erzeugt. Browsertests verwenden relative Navigation und besitzen eine
+  HTTPS-only-Konfiguration ohne lokalen `webServer`.
+- Regression: 3-Engine-Live-Matrix gegen die absolute Pages-DEV-URL samt
+  Readiness, Responsive/DPR, Touch, Lifecycle, Accessibility und Performance.
+- Allgemeine Bedeutung: Quell-SHA und Deployment-Artefakt-SHA müssen getrennt
+  dokumentiert sein. Ein Unterpfad-Host gilt erst als bereit, wenn App,
+  Assets, Healthcheck und Browsernavigation alle innerhalb desselben
+  App-Pfads verifiziert wurden.

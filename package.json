@@ -14,6 +14,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
+    "test:e2e:dev": "playwright test --config playwright.dev.config.ts",
     "test:e2e:headed": "playwright test --headed",
     "test:all": "pnpm test && pnpm build && pnpm test:e2e",
     "qa:perf": "playwright test tests/e2e/performance.spec.ts --project=chromium"

@@ -31,7 +31,7 @@ async function inspectViewport(browser: Browser, viewport: ViewportCase) {
   const page = await context.newPage();
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
-  await page.goto("/?test=1");
+  await page.goto("./?test=1");
   const layout = await page.evaluate(() => {
     const canvas = document.querySelector("canvas");
     const canvasRect = canvas?.getBoundingClientRect();
@@ -78,7 +78,7 @@ test("pauses an active flight on orientation change and preserves progress", asy
     isMobile: true,
   });
   const page = await context.newPage();
-  await page.goto("/?test=1");
+  await page.goto("./?test=1");
   await page.getByRole("button", { name: "Losfliegen" }).click();
   const before = await page.evaluate(() => window.__gravityLoopTestApi!.getDebugState().state);
 

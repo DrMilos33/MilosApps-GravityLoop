@@ -48,7 +48,7 @@ test.describe("core browser flow", () => {
         runtimeErrors.push(message.text());
       }
     });
-    await page.goto("/?test=1");
+    await page.goto("./?test=1");
   });
 
   test.afterEach(() => {
@@ -62,7 +62,7 @@ test.describe("core browser flow", () => {
     await expect(page.getByRole("button", { name: "Losfliegen" })).toBeVisible();
     await expect(page.getByText("Heutiger Orbit", { exact: false })).toBeVisible();
 
-    const health = await request.get("/health.json");
+    const health = await request.get("./health.json");
     expect(health.ok()).toBe(true);
     await expect(health.json()).resolves.toEqual({
       status: "ok",
