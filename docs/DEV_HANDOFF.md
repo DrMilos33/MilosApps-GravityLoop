@@ -9,7 +9,7 @@ Production: nicht freigegeben
 | Feld | Wert |
 |---|---|
 | Titel | Gravity Loop |
-| Kurzbeschreibung | Halten krümmt die Flugbahn eines kleinen Kometen. Loslassen nimmt den Schwung mit – sammle Lichtfunken und finde deinen Rhythmus zwischen Kern und Rand. |
+| Kurzbeschreibung | Halten krümmt die Flugbahn eines kleinen Kometen. Meistere Sonnen- oder Mondgravitation in drei Schwierigkeitsgraden, sammle Lichtfunken und wähle deinen Kometen-Skin. |
 | Sprache | Deutsch (`de`) |
 | Klasse | öffentlich, ohne Anmeldung |
 | Status | öffentlicher unabhängiger DEV-Stand, extern verifiziert |
@@ -22,7 +22,7 @@ Production: nicht freigegeben
 ## Routen und Readiness
 
 - reservierte Portalroute: `/apps/gravity-loop`;
-- Ziel der Portalroute: Redirect auf die spätere unabhängige HTTPS-DEV-URL;
+- Ziel der Portalroute: Redirect auf die bestehende unabhängige HTTPS-DEV-URL;
 - lokale DEV-URL: `http://127.0.0.1:4317/`;
 - lokaler Healthcheck: `http://127.0.0.1:4317/health.json`;
 - öffentliche DEV-URL:
@@ -61,11 +61,13 @@ Der unabhängige öffentliche DEV-Dienst ist aktiv:
   `https://github.com/DrMilos33/MilosApps-GravityLoop`;
 - Hosting: GitHub Pages aus dem app-eigenen Branch `gh-pages`;
 - deployter vollständiger App-Commit:
-  `a713482c1db746f72aeb4c2665d20e8856c84ca9`;
+  `69f4444748e4918987824a8940b354377ec636c7`;
 - daraus gebauter DEV-Artefakt-Commit:
-  `28dbdd173b98dc61cc2611286f1e52b99acea587`;
+  `47c53cad1bacc0e1cbda02d9b15148846ff7d46b`;
 - erfolgreiche Pages-Deployment-Ausführung:
-  `https://github.com/DrMilos33/MilosApps-GravityLoop/actions/runs/30534546197`;
+  `https://github.com/DrMilos33/MilosApps-GravityLoop/actions/runs/30546553237`;
+- erfolgreiche vollständige App-CI:
+  `https://github.com/DrMilos33/MilosApps-GravityLoop/actions/runs/30546531157`;
 - Production: `false`, nicht freigegeben.
 
 Direktaufruf, Health-Identität, Loginfreiheit, Chromium, Firefox und WebKit
@@ -74,9 +76,11 @@ Portal-Cookies noch Milos-Login; die App lädt keine Portal- oder
 Shared-Abhängigkeit. Details, Rollback und letzte gesunde Revision stehen in
 `docs/DEV_DEPLOYMENT.md`.
 
-Verbleibende Grenzen sind reale Android-/iOS-Hardware, Android WebView sowie
-manuelle Tests mit TalkBack, VoiceOver oder NVDA. Headless WebKit zeigte bei
-Video-/Trace-Aufzeichnung einen intermittierenden Latenzmesswert von
-222–229 ms; der isolierte Retry bestand, alle funktionalen WebKit-Eingabe- und
-Lifecycle-Flüsse bestanden. Die Chromium-Referenz blieb mit 22,2 ms Input-p95
-normal und 19,2 ms bei vierfacher CPU-Drosselung klar innerhalb des Vertrags.
+Der aktuelle externe Abschlusslauf bestand 54 anwendbare Tests in Chromium,
+Firefox und WebKit ohne Fehler oder Retry; 21 nicht anwendbare
+Engine-/CDP-Kombinationen wurden bewusst übersprungen. Die Chromium-Referenz
+lag bei 58,94 FPS und 19,40 ms Input-p95 normal, 57,26 FPS und 11,70 ms
+Input-p95 mit naturnahem Mond plus Hut sowie 53,71 FPS und 11,90 ms Input-p95
+bei vierfacher CPU-Drosselung. Verbleibende Grenzen sind reale
+Android-/iOS-Hardware, Android WebView sowie manuelle Tests mit TalkBack,
+VoiceOver oder NVDA.

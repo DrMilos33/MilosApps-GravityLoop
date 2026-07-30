@@ -229,3 +229,72 @@ Retry bestand. Maus-, Tastatur- und Pointerzustände wechselten in allen Läufen
 korrekt und blieben nie hängen. Die harte Performance-Referenz ist weiterhin
 Chromium; dies ist als intermittierende Engine-/Instrumentierungsgrenze
 dokumentiert und kein bestätigter Hosting- oder Spiellogikdefekt.
+
+## QA-Runde 4: Schwierigkeit, Sonne, Mond und Skins
+
+Ausgangspunkt war das Nutzerfeedback zu mehreren Schwierigkeitsgraden,
+verlorenen Sonnenstürzen, einem Mondmodus, naturnahen Himmelskörpern und
+Kometen-Skins. Funktionsmeilenstein war `cbd27f8`, der cross-platform
+gehärtete und veröffentlichte Quellstand ist
+`69f4444748e4918987824a8940b354377ec636c7`.
+
+### Umgesetzt und verifiziert
+
+- `Leicht`, `Normal` und `Schwer` staffeln Starttempo, Zugkraft,
+  Gefahrenrhythmus, Maximalzahl/-tempo der Trabanten und Punkte deterministisch;
+- der Sonnensog steigt zur Mitte hin deutlich an; eine gesweepte Kollision mit
+  der Sonne beendet die Runde auch bei großen Simulationsschritten;
+- der Mondmodus verwendet eine schwächere, gleichmäßigere Zugkurve und ein
+  ruhigeres Grundtempo; ein Mundeinschlag beendet die Runde;
+- grafische und naturnahe, vollständig prozedurale Sonne-/Mond-Darstellung ohne
+  externe Assets;
+- vier rein kosmetische Kometen-Skins: Mint, Feuer, Eis und ein goldener Hut;
+- lokales Settings-Schema Version 3 mit verlustfreier Migration aus Version 2
+  und sicherem Komplettreset;
+- regelverändernde Optionen starten atomar eine neue faire Runde, kosmetische
+  Optionen verändern weder Hitbox noch Physik;
+- alle neuen Auswahlfelder, Dialogzustände und dynamischen Canvas-Namen sind
+  tastatur- und screenreaderverständlich.
+
+### Drei vollständige Verbesserungsrunden
+
+1. Physik-/Speicher-Baseline: neue Unit-Tests schlugen zunächst erwartbar fehl;
+   danach waren Schwierigkeit, Sonnen-/Mondzug, Kollision, Gefahrenrhythmus,
+   Migration und feindselige Speicherwerte deterministisch abgedeckt.
+2. Browser-/Layout-Runde: neue Settings, Canvas-Pixeländerung,
+   Smartphone/Querformat/Tablet/Desktop/DPR, 200-%-Reflow, Reduced Motion und
+   Axe A/AA. Veraltete Selektoren und der asynchrone Dialog-Close wurden als
+   Regressionen korrigiert.
+3. Performance-/Plattform-Runde: Eingabetelemetrie an den sichtbaren Frame
+   verschoben, Hutkontrast nach Screenshotprüfung erhöht,
+   Linux-Scrollbar-Gutter-Reflow korrigiert und der visuelle WebKit-Test auf
+   einen nachgewiesenen Renderframe synchronisiert.
+
+### Finale lokale und externe Evidenz
+
+- Unit: 27/27 bestanden.
+- Abdeckung: 97,15 % Statements, 86,36 % Branches, 94,59 % Funktionen und
+  97,14 % Zeilen für Kernlogik und Speicher.
+- Build: 32,76 kB JavaScript (10,59 kB gzip), 11,69 kB CSS
+  (3,60 kB gzip), keine Runtime-Pakete oder externen Bildassets.
+- Lokale Drei-Engine-Matrix: 54 anwendbare Tests bestanden,
+  21 engine-spezifisch übersprungen, 0 fehlgeschlagen.
+- Externe Drei-Engine-Matrix gegen die öffentliche HTTPS-DEV-URL:
+  54 bestanden, 21 übersprungen, 0 fehlgeschlagen, 0 Retry/Flakes.
+- Extern Chromium normal: 58,94 FPS, Frame-p95 16,80 ms,
+  Input-p95 19,40 ms, 0 ms verlorene Simulation.
+- Extern naturnaher Mond plus Hut: 57,26 FPS, Frame-p95 16,80 ms,
+  Input-p95 11,70 ms, 0 ms verlorene Simulation.
+- Extern bei vierfacher CPU-Drosselung: 53,71 FPS,
+  Frame-p95 16,80 ms, Input-p95 11,90 ms, 0 ms verlorene Simulation.
+- `main`-CI-Run `30546531157`: vollständig erfolgreich.
+- Pages-Run `30546553237`: vollständig erfolgreich.
+- DEV-Quellstand: `69f4444748e4918987824a8940b354377ec636c7`.
+- DEV-Artefakt: `47c53cad1bacc0e1cbda02d9b15148846ff7d46b`.
+
+### Verbleibende Grenzen
+
+Reale Android-/iOS-Hardware, Android WebView, TalkBack, VoiceOver und NVDA
+standen weiterhin nicht zur Verfügung. Die automatisierten Touch-, Pointer-,
+Tastatur-, Semantik-, Reflow- und Engine-Prüfungen sind vollständig grün.
+Production blieb unverändert und ist nicht freigegeben.

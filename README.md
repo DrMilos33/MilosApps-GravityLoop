@@ -4,8 +4,9 @@ Eigenständiges öffentliches MilosApps-Minispiel mit dem App-Key
 `gravity-loop`.
 
 Gedrückthalten krümmt die Flugbahn eines kleinen Kometen, Loslassen lässt ihn
-weiterfliegen. Sterne werden gesammelt, Planeten und andere Gefahren müssen
-geschickt umflogen werden.
+weiterfliegen. Drei Schwierigkeitsgrade, Sonnen- und Mondgravitation sowie
+mehrere Kometen-Skins verändern kurze, direkt neu startbare Runden. Sonne,
+Mond, Komet und Effekte sind vollständig codebasiert gezeichnet.
 
 ## Feste Grenzen
 
@@ -27,9 +28,9 @@ und [DEV-Deployment](docs/DEV_DEPLOYMENT.md) sowie
 - Readiness: <https://drmilos33.github.io/MilosApps-GravityLoop/health.json>
 - GitHub: <https://github.com/DrMilos33/MilosApps-GravityLoop>
 - deployter App-Quellstand:
-  `a713482c1db746f72aeb4c2665d20e8856c84ca9`
+  `69f4444748e4918987824a8940b354377ec636c7`
 - DEV-Artefakt: Branch `gh-pages`, Commit
-  `28dbdd173b98dc61cc2611286f1e52b99acea587`
+  `47c53cad1bacc0e1cbda02d9b15148846ff7d46b`
 
 Die URL ist ein unabhängiger öffentlicher GitHub-Pages-DEV-Dienst ohne Login.
 Production ist nicht freigegeben. Build, Validierung, Aktualisierung und

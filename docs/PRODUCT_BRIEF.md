@@ -9,9 +9,25 @@ Risiko und Fluggefühl zu vielen kurzen Runden einlädt.
 
 1. Direkt spielen, ohne Menüpflicht.
 2. Halten krümmt die Flugbahn; Loslassen verändert den Kurs.
-3. Sterne und Multiplikatoren sammeln.
-4. Kollision oder Verlassen des sicheren Bereichs beendet die Runde.
+3. Lichtfunken sammeln und mit fair skalierten Gefahren umgehen.
+4. Kollision mit Sonne, Mond, Trabant oder Rand beendet die Runde.
 5. Sofort neu starten und Bestwert lokal vergleichen.
+
+## Spielvarianten im öffentlichen DEV
+
+- `Leicht`, `Normal` und `Schwer` staffeln Starttempo, Zugkraft,
+  Gefahrenrhythmus und Punkte transparent.
+- Im Sonnenmodus wächst die Zugkraft spürbar zur Mitte hin. Wer zu lange hält,
+  wird in die Sonne gezogen und verliert die Runde.
+- Der Mondmodus verwendet eine schwächere, gleichmäßigere Zugkraft und ein
+  ruhigeres Grundtempo. Ein Einschlag auf dem Mond beendet die Runde ebenfalls.
+- Sonne und Mond können grafisch oder naturnah gewählt werden. Beide Varianten
+  werden deterministisch und prozedural im Canvas gezeichnet; es gibt keine
+  externen Fotos, Assets oder Trackingaufrufe.
+- Die Skins `Mint`, `Feuer`, `Eis` und `Komet mit Hut` verändern ausschließlich
+  die Darstellung. Hitbox und Physik bleiben identisch.
+- Spielregelwechsel initialisieren die Runde fair neu; kosmetische Optionen
+  verändern keine laufende Simulation.
 
 ## MVP
 

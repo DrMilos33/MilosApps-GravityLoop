@@ -116,3 +116,59 @@ Nutzerdaten eintragen.
   dokumentiert sein. Ein Unterpfad-Host gilt erst als bereit, wenn App,
   Assets, Healthcheck und Browsernavigation alle innerhalb desselben
   App-Pfads verifiziert wurden.
+
+## 2026-07-30 – Spielregeloptionen brauchen einen atomaren Rundenwechsel
+
+- Ausgangspunkt: Commit `69f4444`; Vitest und Drei-Engine-Playwright.
+- Beobachtung: Schwierigkeit und Gravitationsmodell während einer laufenden
+  Runde umzuschalten wäre zwar technisch einfach, aber weder fair noch
+  deterministisch reproduzierbar.
+- Änderung: Physikoptionen sind Teil des vollständigen Spielzustands. Ein
+  Wechsel initialisiert Seed, Schrittzähler, Position und Score gemeinsam neu;
+  rein kosmetische Optionen bleiben davon getrennt. Der lokale Datensatz
+  migriert verlustfrei von Version 2 auf Version 3.
+- Regression: geordnete Startgeschwindigkeit und Gefahrenrhythmen, verschiedene
+  Sonnen-/Mond-Zugkurven, atomarer Browser-Reset sowie Speicherung, Migration
+  und feindselige lokale Werte.
+- Allgemeine Bedeutung: Persistierte Regelparameter dürfen nicht nebenläufig
+  in eine aktive Simulation einsickern. Sie brauchen einen klaren
+  Zustandsübergang, während Darstellung separat aktualisierbar bleiben sollte.
+
+## 2026-07-30 – Eingabereaktion am sichtbaren Frame messen
+
+- Ausgangspunkt: Commit `69f4444`; Chromium normal und mit vierfacher
+  CPU-Drosselung.
+- Beobachtung: Die erste Telemetrie quittierte Eingaben erst im nächsten
+  Physikschritt. Nach einem Rundenende konnte deshalb ein alter Pending-Wert bis
+  zum nächsten Start liegen bleiben, obwohl die sichtbare Held-Markierung
+  bereits im nächsten Frame korrekt reagierte.
+- Änderung: Pending Input wird einmal am Beginn jedes Renderframes übernommen;
+  die feste 120-Hz-Simulation bleibt davon unverändert.
+- Regression: Maus, Touch, Pointer-Cancel und Tastatur plus separate
+  Performanceprofile für Standardgrafik und naturnahen Mond mit Hut.
+- Evidenz: externer Abschlusslauf 19,40 ms Input-p95 normal, 11,70 ms mit
+  naturnahem Mond und Hut sowie 11,90 ms unter 4× CPU-Drosselung; jeweils 0 ms
+  verlorene Simulation.
+- Allgemeine Bedeutung: Eingabelatenz muss an dem Punkt gemessen werden, an dem
+  Nutzer die Reaktion sehen. Simulations- und Rendertakt dürfen dabei weiterhin
+  getrennt bleiben.
+
+## 2026-07-30 – Prozedurale Detailgrafik braucht stabile Bild-Regressionen
+
+- Ausgangspunkt: Commit `69f4444`; Canvas 2D, DPR 1 bis 3, Chromium, Firefox
+  und WebKit.
+- Beobachtung: Ein einzelner Pixelvergleich direkt nach dem Schließen eines
+  nativen Dialogs konnte in WebKit vor dem nächsten Renderframe abtasten.
+  Gleichzeitig machte ein dunkler Hut auf dunklem Hintergrund die Form trotz
+  korrekter Geometrie schwer erkennbar.
+- Änderung: deterministisch vorerzeugte Oberflächenmarken für Sonne und Mond,
+  kontrastreicher goldener Hut, Canvas-Vergleich erst nach nachgewiesenem
+  Framewechsel. Die aufwendigste Optik besitzt ein eigenes Performanceprofil.
+- Regression: echte Pixeländerung an Himmelskörper und Komet, visuelle
+  Screenshot-Evidenz, High Contrast, Reduced Motion sowie externe
+  Drei-Engine-Matrix.
+- Evidenz: naturnaher Mond plus Hut erreicht extern 57,26 FPS,
+  16,80 ms Frame-p95, 11,70 ms Input-p95 und 0 ms verlorene Simulation.
+- Allgemeine Bedeutung: Canvas-Tests sollten auf semantische Zustände und einen
+  nachgewiesenen Renderframe warten. Prozedurale Details bleiben performant,
+  wenn Zufall und Geometrie vorbereitet statt pro Frame neu erzeugt werden.

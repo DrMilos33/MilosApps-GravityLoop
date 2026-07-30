@@ -15,15 +15,16 @@ Production: `false`, nicht freigegeben
 | Readiness | `https://drmilos33.github.io/MilosApps-GravityLoop/health.json` |
 | Hosting | GitHub Pages, unabhängig vom Portal |
 | Source-Branch | `main` |
-| deployter App-Commit | `a713482c1db746f72aeb4c2665d20e8856c84ca9` |
+| deployter App-Commit | `69f4444748e4918987824a8940b354377ec636c7` |
 | Deployment-Branch | `gh-pages` |
-| Artefakt-Commit | `28dbdd173b98dc61cc2611286f1e52b99acea587` |
-| Pages-Run | `30534546197`, erfolgreich |
+| Artefakt-Commit | `47c53cad1bacc0e1cbda02d9b15148846ff7d46b` |
+| Pages-Run | `30546553237`, erfolgreich |
+| App-CI | `30546531157`, erfolgreich |
 | Login | keiner |
 | Shared-/Portal-Abhängigkeiten | keine |
 
 Der Branch `main` hält den vollständig verifizierten App-Quellstand
-`a713482`. Der Branch `gh-pages` enthält ausschließlich das daraus erzeugte
+`69f4444`. Der Branch `gh-pages` enthält ausschließlich das daraus erzeugte
 statische Artefakt. Änderungen an Dokumentation oder Test-Lifecycle werden
 nicht automatisch veröffentlicht.
 
@@ -73,7 +74,14 @@ nicht.
 
 ## Rollback
 
-Die app-eigene letzte gesunde DEV-Revision ist:
+Die aktive gesunde DEV-Revision ist:
+
+- App-Quellstand:
+  `69f4444748e4918987824a8940b354377ec636c7`;
+- Pages-Artefakt:
+  `47c53cad1bacc0e1cbda02d9b15148846ff7d46b`.
+
+Der vorherige gesunde Rollbackstand ist:
 
 - App-Quellstand:
   `a713482c1db746f72aeb4c2665d20e8856c84ca9`;
@@ -86,9 +94,9 @@ den letzten gesunden Artefakt-Commit zurückgesetzt und mit
 externe Smoke-Matrix erneut grün sein. `main`, Portal und Production werden für
 den Rollback nicht verändert.
 
-Da dies die erste Pages-Revision ist, besitzt der aktuelle Artefakt-Commit
-keinen älteren gesunden Vorgänger. Er kann jederzeit reproduzierbar aus dem
-oben genannten App-Commit neu gebaut werden.
+Der aktuelle Artefakt-Commit kann jederzeit reproduzierbar aus dem oben
+genannten aktiven App-Commit neu gebaut werden. Ein Rollback verändert nur
+`gh-pages`; Portal und Production bleiben unberührt.
 
 ## Grenzen
 
