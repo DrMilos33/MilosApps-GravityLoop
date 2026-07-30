@@ -83,3 +83,20 @@ Nutzerdaten eintragen.
   200-Prozent-Reflow und Reduced Motion in drei Engines.
 - Allgemeine Bedeutung: Reduced Motion darf Regeln und Timing nicht verändern;
   Screenreader brauchen stabile DOM-Zustände rund um die visuelle Spielfläche.
+
+## 2026-07-30 – Textzoom deckt Min-Content-Überläufe auf
+
+- Ausgangspunkt: Commit `d30f2f8`; Chromium, Firefox und WebKit bei
+  `360×800` und 200 Prozent Root-Textgröße.
+- Beobachtung: Dreispaltige Scores erweiterten die Seite auf 403 Pixel; nach
+  deren Korrektur blieb im Einstellungsdialog ein interner Überlauf von
+  477 Pixel.
+- Änderung: Grid-/Flex-Kinder erhalten `min-width: 0`, lange Beschriftungen
+  dürfen umbrechen, und Settings sowie Bestätigungsaktionen werden auf sehr
+  schmalen Viewports einspaltig.
+- Regression: Browserprüfung misst Seiten- und Dialog-`scrollWidth`, öffnet den
+  Einstellungsdialog und zeigt die Reset-Bestätigung bei 200 Prozent.
+- Allgemeine Bedeutung: Ein überlauffreier Seitenrahmen beweist noch keinen
+  zugänglichen Reflow. Modale Inhalte und verschachtelte Flex-/Grid-Kinder
+  benötigen eigene Messungen; Abschneiden oder kleinere Schrift sind keine
+  zulässige Korrektur.

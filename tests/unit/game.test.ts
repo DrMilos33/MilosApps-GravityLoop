@@ -142,7 +142,7 @@ describe("game state and physics", () => {
     const state = runningState(91_772);
     let held = false;
 
-    for (let step = 0; step < 120 * 20 && state.mode === "playing"; step += 1) {
+    for (let step = 0; step < 120 * 60 && state.mode === "playing"; step += 1) {
       const radius = Math.hypot(state.player.position.x, state.player.position.y);
       const radialVelocity =
         (state.player.position.x * state.player.velocity.x +
@@ -158,7 +158,7 @@ describe("game state and physics", () => {
       advanceGame(state, FIXED_STEP_SECONDS);
     }
 
-    expect(state.elapsedSeconds).toBeCloseTo(20, 8);
+    expect(state.elapsedSeconds).toBeCloseTo(60, 8);
     expect(state.mode).toBe("playing");
     expect(state.collected).toBeGreaterThanOrEqual(1);
   });

@@ -169,8 +169,15 @@ button {
 .score-strip > div {
   display: grid;
   justify-items: center;
+  min-width: 0;
   gap: 0.12rem;
   padding: 0.65rem 0.8rem;
+}
+
+.score-strip .metric-label {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  text-align: center;
 }
 
 .score-strip > div + div {
@@ -289,6 +296,67 @@ button {
   cursor: pointer;
 }
 
+.secondary-button,
+.text-button,
+.danger-button {
+  min-height: 2.75rem;
+  padding: 0.58rem 0.85rem;
+  border-radius: 0.75rem;
+  font-weight: 780;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+
+.secondary-button {
+  flex: 0 0 auto;
+  border: 1px solid var(--line);
+  color: var(--ink);
+  background: #142f43;
+}
+
+.secondary-button:disabled {
+  color: var(--mint);
+  cursor: default;
+  opacity: 0.8;
+}
+
+.text-button {
+  border: 1px solid var(--line);
+  color: var(--muted);
+  background: transparent;
+}
+
+.danger-button {
+  border: 1px solid rgba(255, 159, 148, 0.55);
+  color: #fff7f4;
+  background: #743e47;
+}
+
+.reset-confirmation {
+  margin: 0 -0.25rem;
+  padding: 0.85rem;
+  border: 1px solid rgba(255, 159, 148, 0.32);
+  border-radius: 1rem;
+  background: rgba(86, 42, 53, 0.38);
+}
+
+.reset-confirmation[hidden] {
+  display: none;
+}
+
+.reset-confirmation p {
+  margin: 0 0 0.72rem;
+  color: var(--muted);
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.reset-confirmation > div {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.55rem;
+}
+
 .primary-button:hover {
   filter: brightness(1.06);
 }
@@ -350,6 +418,7 @@ button {
 
 .control-button {
   display: flex;
+  min-width: 0;
   align-items: center;
   justify-content: center;
   min-height: 3.8rem;
@@ -359,6 +428,12 @@ button {
   background: rgba(9, 24, 37, 0.7);
   font-weight: 730;
   cursor: pointer;
+}
+
+.control-button span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  text-align: center;
 }
 
 .control-button + .control-button {
@@ -400,6 +475,7 @@ button {
 
 .daily-seed {
   margin-top: 0.38rem;
+  overflow-wrap: anywhere;
 }
 
 kbd {
@@ -441,10 +517,19 @@ kbd {
   margin-bottom: 0.8rem;
 }
 
+.dialog-header > div {
+  min-width: 0;
+}
+
+.dialog-header .eyebrow {
+  overflow-wrap: anywhere;
+}
+
 .dialog-header h2 {
   margin: 0.15rem 0 0;
   font-size: 1.65rem;
   letter-spacing: -0.035em;
+  overflow-wrap: anywhere;
 }
 
 .icon-button {
@@ -472,6 +557,7 @@ kbd {
 
 .setting-row span {
   display: grid;
+  min-width: 0;
   gap: 0.18rem;
 }
 
@@ -598,12 +684,41 @@ kbd {
     padding-block: 0.9rem;
   }
 
+  .setting-row .secondary-button {
+    align-self: center;
+  }
+
   .setting-select {
     display: grid;
   }
 
   .setting-select select {
     max-width: none;
+    width: 100%;
+  }
+
+  .reset-confirmation > div {
+    flex-direction: column;
+  }
+
+  .reset-confirmation button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 370px) {
+  .setting-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.65rem;
+  }
+
+  .setting-row input[role="switch"],
+  .setting-row .secondary-button {
+    justify-self: start;
+  }
+
+  .setting-row .secondary-button {
     width: 100%;
   }
 }

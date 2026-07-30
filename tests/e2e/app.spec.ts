@@ -240,4 +240,27 @@ test.describe("core browser flow", () => {
     expect(paused.state.held).toBe(false);
     await expect(page.getByRole("button", { name: "Weiterfliegen" })).toBeVisible();
   });
+
+  test("survives offline play after load and resumes explicitly from page cache", async ({
+    page,
+    context,
+  }) => {
+    await launch(page);
+    const beforeOffline = await debugState(page);
+    await context.setOffline(true);
+    await expect
+      .poll(async () => (await debugState(page)).state.stepCount)
+      .toBeGreaterThan(beforeOffline.state.stepCount);
+
+    await page.evaluate(() => {
+      window.dispatchEvent(new PageTransitionEvent("pagehide", { persisted: true }));
+      window.dispatchEvent(new PageTransitionEvent("pageshow", { persisted: true }));
+    });
+    const afterResume = await debugState(page);
+    expect(afterResume.state.mode).toBe("paused");
+    expect(afterResume.state.pauseReason).toBe("hidden");
+    await context.setOffline(false);
+    await page.getByRole("button", { name: "Weiterfliegen" }).click();
+    await expect.poll(async () => (await debugState(page)).state.mode).toBe("playing");
+  });
 });

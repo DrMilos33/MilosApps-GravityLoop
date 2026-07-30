@@ -6,6 +6,7 @@ import { GameRenderer, type RenderSettings } from "./renderer";
 import { GameRuntime, type DebugState } from "./runtime";
 import { SoundController } from "./sound";
 import {
+  DEFAULT_PROGRESS,
   loadProgress,
   saveProgress,
   type MotionPreference,
@@ -50,6 +51,10 @@ const settingsDialog = element<HTMLDialogElement>("settings-dialog");
 const soundSetting = element<HTMLInputElement>("sound-setting");
 const motionSetting = element<HTMLSelectElement>("motion-setting");
 const contrastSetting = element<HTMLInputElement>("contrast-setting");
+const resetProgressButton = element<HTMLButtonElement>("reset-progress-button");
+const resetConfirmation = element<HTMLDivElement>("reset-confirmation");
+const resetCancelButton = element<HTMLButtonElement>("reset-cancel-button");
+const resetConfirmButton = element<HTMLButtonElement>("reset-confirm-button");
 
 let progress: ProgressRecord = loadProgress(window.localStorage);
 const today = new Date();
@@ -196,6 +201,9 @@ settingsButton.addEventListener("click", () => {
   soundSetting.checked = progress.settings.sound;
   motionSetting.value = progress.settings.motion;
   contrastSetting.checked = progress.settings.highContrast;
+  resetConfirmation.hidden = true;
+  resetProgressButton.disabled = false;
+  resetProgressButton.textContent = "Zurücksetzen";
   settingsDialog.showModal();
 });
 
@@ -210,6 +218,30 @@ settingsDialog.addEventListener("close", () => {
 
 contrastSetting.addEventListener("change", () => {
   document.documentElement.classList.toggle("high-contrast", contrastSetting.checked);
+});
+
+resetProgressButton.addEventListener("click", () => {
+  resetConfirmation.hidden = false;
+  resetCancelButton.focus();
+});
+
+resetCancelButton.addEventListener("click", () => {
+  resetConfirmation.hidden = true;
+  resetProgressButton.focus();
+});
+
+resetConfirmButton.addEventListener("click", () => {
+  progress = structuredClone(DEFAULT_PROGRESS);
+  soundSetting.checked = progress.settings.sound;
+  motionSetting.value = progress.settings.motion;
+  contrastSetting.checked = progress.settings.highContrast;
+  document.documentElement.classList.remove("high-contrast");
+  save();
+  runtime.reset();
+  resetConfirmation.hidden = true;
+  resetProgressButton.textContent = "Zurückgesetzt";
+  resetProgressButton.disabled = true;
+  liveStatus.textContent = "Alle lokalen Gravity-Loop-Daten wurden zurückgesetzt.";
 });
 
 document.addEventListener("visibilitychange", () => {

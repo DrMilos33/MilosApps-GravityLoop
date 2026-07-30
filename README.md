@@ -16,8 +16,9 @@ geschickt umflogen werden.
 - keine Shared-Abhängigkeit ohne veröffentlichten Release;
 - Portal-DEV bindet nur per dokumentierter URL und Metadaten an.
 
-Siehe [Produktbrief](docs/PRODUCT_BRIEF.md), [QA-Plan](docs/QA_PLAN.md) und
-[Erkenntnisse](docs/LEARNINGS.md).
+Siehe [Produktbrief](docs/PRODUCT_BRIEF.md), [QA-Plan](docs/QA_PLAN.md),
+[QA-Ergebnisse](docs/QA_RESULTS.md), [DEV-/Portalübergabe](docs/DEV_HANDOFF.md)
+und [Erkenntnisse](docs/LEARNINGS.md).
 
 ## Lokaler DEV-Start
 

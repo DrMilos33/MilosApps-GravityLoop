@@ -86,6 +86,7 @@ test("keeps all controls keyboard reachable with visible focus", async ({
 });
 
 test("reflows at 200 percent text zoom without horizontal page overflow", async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 800 });
   await page.evaluate(() => {
     document.documentElement.style.fontSize = "200%";
   });
@@ -101,6 +102,26 @@ test("reflows at 200 percent text zoom without horizontal page overflow", async 
   expect(layout.scrollWidth).toBeLessThanOrEqual(layout.clientWidth);
   expect(layout.canvasHeight).toBeGreaterThan(250);
   expect(layout.restartHeight).toBeGreaterThanOrEqual(44);
+
+  await page.getByRole("button", { name: "Einstellungen" }).click();
+  await page.getByRole("button", { name: "Zurücksetzen" }).click();
+  await expect(page.getByRole("group", { name: "Lokale Daten zurücksetzen" })).toBeVisible();
+  const dialogLayout = await page.evaluate(() => {
+    const dialog = document.getElementById("settings-dialog");
+    const rect = dialog?.getBoundingClientRect();
+    return {
+      viewportWidth: document.documentElement.clientWidth,
+      pageScrollWidth: document.documentElement.scrollWidth,
+      dialogLeft: rect?.left ?? -1,
+      dialogRight: rect?.right ?? Number.POSITIVE_INFINITY,
+      dialogClientWidth: dialog?.clientWidth ?? 0,
+      dialogScrollWidth: dialog?.scrollWidth ?? Number.POSITIVE_INFINITY,
+    };
+  });
+  expect(dialogLayout.pageScrollWidth).toBeLessThanOrEqual(dialogLayout.viewportWidth);
+  expect(dialogLayout.dialogLeft).toBeGreaterThanOrEqual(0);
+  expect(dialogLayout.dialogRight).toBeLessThanOrEqual(dialogLayout.viewportWidth);
+  expect(dialogLayout.dialogScrollWidth).toBeLessThanOrEqual(dialogLayout.dialogClientWidth);
 });
 
 test("honors system reduced motion and keeps physics available", async ({ page }) => {
@@ -116,4 +137,46 @@ test("honors system reduced motion and keeps physics available", async ({ page }
     () => window.__gravityLoopTestApi?.getDebugState().state.mode,
   );
   expect(mode).toBe("playing");
+});
+
+test("resets all local data only after explicit second confirmation", async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem(
+      "gravity-loop:progress",
+      JSON.stringify({
+        version: 2,
+        bestScore: 4_200,
+        bestSeries: 12,
+        settings: { sound: true, motion: "reduce", highContrast: true },
+      }),
+    );
+  });
+  await page.reload();
+  await expect(page.getByTestId("best")).toHaveText("4.200");
+  await page.getByRole("button", { name: "Einstellungen" }).click();
+  await page.getByRole("button", { name: "Zurücksetzen" }).click();
+  await expect(page.getByRole("group", { name: "Lokale Daten zurücksetzen" })).toBeVisible();
+
+  await page.getByRole("button", { name: "Abbrechen" }).click();
+  await expect(page.getByRole("group", { name: "Lokale Daten zurücksetzen" })).toBeHidden();
+  expect(
+    await page.evaluate(
+      () => JSON.parse(localStorage.getItem("gravity-loop:progress") ?? "{}").bestScore,
+    ),
+  ).toBe(4_200);
+
+  await page.getByRole("button", { name: "Zurücksetzen" }).click();
+  await page.getByRole("button", { name: "Jetzt zurücksetzen" }).click();
+  await expect(page.getByRole("button", { name: "Zurückgesetzt" })).toBeDisabled();
+  await expect(page.getByTestId("best")).toHaveText("0");
+  const record = await page.evaluate(() =>
+    JSON.parse(localStorage.getItem("gravity-loop:progress") ?? "{}"),
+  );
+  expect(record).toEqual({
+    version: 2,
+    bestScore: 0,
+    bestSeries: 0,
+    settings: { sound: false, motion: "system", highContrast: false },
+  });
+  await expect(page.locator("html")).not.toHaveClass(/high-contrast/);
 });

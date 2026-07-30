@@ -129,4 +129,66 @@ Ausgangspunkt war Commit `4cfa453`.
 
 ## QA-Runde 3
 
-Ausstehend.
+Ausgangspunkt war Commit `d30f2f8`.
+
+### Verifiziert
+
+- 60 Sekunden deterministischer Referenzflug mit verständlicher radialer
+  Pulsregel und mindestens einem gesammelten Funken;
+- Offline-Weiterlauf nach vollständigem Laden ohne Netzwerkzugriff;
+- `pagehide`/`pageshow` mit Back-Forward-Cache-Simulation: aktive Runde pausiert,
+  bleibt unverändert und wird nur explizit fortgesetzt;
+- zweistufig bestätigter Reset von Bestwert, Funkenserie, Einstellungen und
+  aktueller Runde; Abbrechen verändert keine lokalen Daten;
+- Smartphone `360×800` bei 200 Prozent Textzoom: Startzustand,
+  Steuerleiste, Einstellungsdialog und Reset-Bestätigung ohne Seiten- oder
+  Dialogüberlauf;
+- vollständiger Wiederholungslauf in Chromium, Firefox und WebKit;
+- reproduzierbarer `pnpm install --frozen-lockfile`, Strict-TypeScript-Build und
+  eigene GitHub-Actions-CI-Definition.
+
+### Bestätigte Befunde und Änderungen
+
+1. Der QA-Plan verlangte einen lokalen Reset, die erste Oberfläche konnte
+   Einstellungen aber nur einzeln zurückstellen. Der neue Bereich „Lokale
+   Daten“ zeigt erst eine Erklärung und verlangt danach eine zweite explizite
+   Bestätigung. Die laufende Runde wird ebenfalls reproduzierbar neu
+   initialisiert.
+2. Bei 360 Pixel Breite und 200 Prozent Textzoom hielten Score-Zellen ihre
+   Min-Content-Breite und vergrößerten die Seite auf 403 Pixel. Danach zeigte
+   der Dialog noch einen internen Min-Content-Überlauf von 477 Pixel.
+   `min-width: 0`, gezieltes Wort-Wrapping und einspaltige mobile
+   Einstellungs-/Bestätigungsaktionen beseitigen beide Überläufe, ohne Text zu
+   verkleinern oder abzuschneiden.
+3. Der externe DEV-Lifecycle war nicht ausführbar dokumentiert. Ein eigener
+   Übergabevertrag hält jetzt lokale URL, Health-Identität, Portalroute,
+   Eingabemethoden, Daten- und Rechteangaben sowie den fehlenden externen
+   HTTPS-DEV-Dienst fest. Production bleibt unberührt.
+
+### Finale Test- und Performanceevidenz
+
+- Abhängigkeitsinstallation: `pnpm install --frozen-lockfile` bestanden.
+- Unit: 22/22 bestanden.
+- Abdeckung: 86,02 % Statements, 71,62 % Branches, 90,62 % Funktionen,
+  86,48 % Zeilen für Kernlogik und Speicher.
+- Browser: 47 bestanden, 19 bewusst engine-spezifisch übersprungen,
+  0 fehlgeschlagen.
+- Build: 26,23 kB JavaScript (8,71 kB gzip), 11,30 kB CSS (3,51 kB gzip);
+  keine Runtime-Pakete oder externen Assets.
+- Chromium normal: 59,28 FPS, Frame-p95 16,80 ms, Input-p95 14,80 ms,
+  0 ms verlorene Simulation.
+- Chromium bei vierfacher CPU-Drosselung: 55,96 FPS, Frame-p95 16,80 ms,
+  Input-p95 7,10 ms, 0 ms verlorene Simulation.
+
+### Verbleibende Grenzen
+
+- Reale Android-/iOS-Hardware, Android WebView, TalkBack, VoiceOver und NVDA
+  waren in dieser lokalen Umgebung nicht verfügbar. Das ist eine Testgrenze,
+  kein bestätigter App-Defekt.
+- Die WebKit-Tabreihenfolge ist im Headless-Lauf von der hostseitigen
+  macOS-Einstellung „Full Keyboard Access“ abhängig. Direkte Tastaturflüsse,
+  Fokusdarstellung, Semantik und Axe-Prüfungen sind in den anwendbaren Engines
+  bestanden.
+- Eine externe HTTPS-DEV-URL fehlt, weil kein GitHub-Repository und kein
+  freigegebenes DEV-Hostingziel eingetragen sind. Der vollständig getestete
+  lokale Dienst verwendet `http://127.0.0.1:4317/`.

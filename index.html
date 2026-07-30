@@ -142,6 +142,34 @@
           <input id="contrast-setting" type="checkbox" role="switch" />
         </label>
 
+        <div class="setting-row">
+          <span>
+            <strong>Lokale Daten</strong>
+            <small>Bestwert, Funkenserie und Einstellungen auf diesem Gerät.</small>
+          </span>
+          <button class="secondary-button" id="reset-progress-button" type="button">
+            Zurücksetzen
+          </button>
+        </div>
+
+        <div
+          class="reset-confirmation"
+          id="reset-confirmation"
+          role="group"
+          aria-label="Lokale Daten zurücksetzen"
+          hidden
+        >
+          <p>
+            Wirklich alles lokal zurücksetzen? Deine aktuelle Runde beginnt ebenfalls neu.
+          </p>
+          <div>
+            <button class="text-button" id="reset-cancel-button" type="button">Abbrechen</button>
+            <button class="danger-button" id="reset-confirm-button" type="button">
+              Jetzt zurücksetzen
+            </button>
+          </div>
+        </div>
+
         <button class="primary-button dialog-done" value="default">Fertig</button>
       </form>
     </dialog>
