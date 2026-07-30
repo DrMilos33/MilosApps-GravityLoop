@@ -73,9 +73,59 @@ Video-/Trace-Infrastruktur und sind deshalb bewusst konservativ.
 - Andere Browser-Engines folgen in den weiteren Runden; Runde 1 ist bewusst die
   Chromium-Referenz.
 
-## QA-Runde 2
+## QA-Runde 2: Spielgefühl, echte Eingaben und Engine-Grenzen
 
-Ausstehend.
+Ausgangspunkt war Commit `4cfa453`.
+
+### Verifiziert
+
+- einfache radiale Pulsregel hält eine Referenzrunde 20 Sekunden am Leben und
+  sammelt mindestens einen Funken; dadurch ist die Grundbahn nicht von
+  framegenauem Expertenwissen abhängig;
+- echter Chromium-Touchstream bei `390×844 @3x`: 520 ms langes Halten,
+  `touchCancel` und zehn schnelle Start-/End-Wechsel ohne hängenbleibende
+  Gravitation;
+- globaler Pointer-Up-/Cancel-Fallback zusätzlich zu Pointer Capture; damit
+  bleibt Loslassen auch in älteren oder eingebetteten WebViews zuverlässig;
+- Fokusverlust durch anderes Fenster/Systemdialog pausiert die Runde und löst
+  aktive Maus-, Touch- oder Stifteingaben;
+- Chromium, Firefox und WebKit bestehen Start, Maus, Tastatur, Pointer-Cancel,
+  Pause, Resume, Neustart, Speicher, Axe, Zoom und Reduced Motion;
+- manuelle Browser-Sichtprüfung bei `390×844` und `844×390`, jeweils Startkarte
+  und laufender Flug.
+
+### Bestätigte Befunde und Änderungen
+
+1. Ohne funktionierendes Pointer Capture konnte ein Loslassen außerhalb des
+   Canvas unbemerkt bleiben. Window-weite `pointerup`- und `pointercancel`-
+   Fallbacks sind idempotent ergänzt und als Multi-Pointer-Regression geprüft.
+2. Sichtbarer Fokusverlust löste zwar Eingaben, pausierte aber die Simulation
+   nicht. Ein Systemdialog konnte die Runde deshalb im Hintergrund beenden.
+   `window.blur` pausiert jetzt mit dem verständlichen Grund `focus`.
+3. Im kurzen Smartphone-Querformat blieb ein abgeschnittener Rest der
+   Kopfzeilenhilfe hinter dem Score-Balken sichtbar. Die dort redundante Hilfe
+   wird an diesem Breakpoint ausgeblendet; Score, Spielfeld und drei
+   Hauptaktionen bleiben vollständig im Viewport.
+4. Firefox und WebKit drosseln `requestAnimationFrame` im seriellen
+   Headless-/Video-Lauf zeitweise stärker als Chromium. Zustandsreaktion und
+   Eingabefunktion bleiben sofort korrekt; die harte 45-ms-Latenzgrenze gilt
+   deshalb für die Chromium-Referenzmessung. Andere Engines besitzen weiterhin
+   einen Hänger-Grenzwert von 180 ms.
+
+### Abschlussmatrix Runde 2
+
+- Unit: 22/22 bestanden.
+- Browser: 41 bestanden, 19 bewusst engine-spezifisch übersprungen, 0
+  fehlgeschlagen.
+- Chromium: 20/20 der anwendbaren Tests bestanden.
+- Firefox: 11/11 der anwendbaren Tests bestanden.
+- WebKit: 10/10 der anwendbaren Tests bestanden; der reine Tab-Reihenfolgetest
+  ist wegen der hostabhängigen macOS-Einstellung „Full Keyboard Access“
+  ausgenommen. Direkte P-/R-/Leertastenflüsse bestehen.
+- Abschlussmessung Chromium normal: 56,09 FPS, Frame-p95 33,20 ms,
+  Input-p95 20,40 ms, 0 ms verlorene Simulation.
+- Abschlussmessung Chromium bei vierfacher CPU-Drosselung: 54,05 FPS,
+  Frame-p95 16,80 ms, Input-p95 19,90 ms, 0 ms verlorene Simulation.
 
 ## QA-Runde 3
 

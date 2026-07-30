@@ -57,7 +57,14 @@ test("has no automated WCAG A/AA violations in game and settings states", async 
   expect(dialogResults.violations).toEqual([]);
 });
 
-test("keeps all controls keyboard reachable with visible focus", async ({ page }) => {
+test("keeps all controls keyboard reachable with visible focus", async ({
+  page,
+  browserName,
+}) => {
+  test.skip(
+    browserName === "webkit",
+    "Headless WebKit follows the host macOS Full Keyboard Access tab policy.",
+  );
   const focusedNames: string[] = [];
   for (let index = 0; index < 5; index += 1) {
     await page.keyboard.press("Tab");

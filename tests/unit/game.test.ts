@@ -137,4 +137,29 @@ describe("game state and physics", () => {
     expect(resumeGame(state)).toHaveLength(1);
     expect(resumeGame(state)).toEqual([]);
   });
+
+  it("supports a readable pulse rhythm for a sustained reference flight", () => {
+    const state = runningState(91_772);
+    let held = false;
+
+    for (let step = 0; step < 120 * 20 && state.mode === "playing"; step += 1) {
+      const radius = Math.hypot(state.player.position.x, state.player.position.y);
+      const radialVelocity =
+        (state.player.position.x * state.player.velocity.x +
+          state.player.position.y * state.player.velocity.y) /
+        radius;
+
+      if (!held && radius > 0.69 && radialVelocity > 0.04) {
+        held = true;
+      } else if (held && (radius < 0.42 || radialVelocity < -0.26)) {
+        held = false;
+      }
+      setHeld(state, held);
+      advanceGame(state, FIXED_STEP_SECONDS);
+    }
+
+    expect(state.elapsedSeconds).toBeCloseTo(20, 8);
+    expect(state.mode).toBe("playing");
+    expect(state.collected).toBeGreaterThanOrEqual(1);
+  });
 });

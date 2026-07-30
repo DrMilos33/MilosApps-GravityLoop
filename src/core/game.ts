@@ -9,7 +9,7 @@ export const CONTROL_ACCELERATION = 0.82;
 export const STARTING_SPEED = 0.68;
 
 export type GameMode = "ready" | "playing" | "paused" | "gameover";
-export type PauseReason = "manual" | "settings" | "hidden" | "rotation" | null;
+export type PauseReason = "manual" | "settings" | "hidden" | "focus" | "rotation" | null;
 export type GameOverReason = "core" | "edge" | "hazard" | null;
 
 export interface Player {

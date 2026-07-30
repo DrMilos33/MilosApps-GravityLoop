@@ -1,5 +1,10 @@
 import { expect, test, type Page } from "@playwright/test";
 
+test.skip(
+  ({ browserName }) => browserName !== "chromium",
+  "CPU throttling and the frame reference use Chromium CDP.",
+);
+
 interface Metrics {
   frameSamples: number;
   averageFrameMs: number;

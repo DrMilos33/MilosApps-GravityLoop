@@ -19,10 +19,11 @@ export class InputController {
     canvas.addEventListener("pointerup", this.onPointerEnd);
     canvas.addEventListener("pointercancel", this.onPointerEnd);
     canvas.addEventListener("lostpointercapture", this.onPointerEnd);
+    window.addEventListener("pointerup", this.onPointerEnd);
+    window.addEventListener("pointercancel", this.onPointerEnd);
     canvas.addEventListener("contextmenu", this.preventContextMenu);
     window.addEventListener("keydown", this.onKeyDown);
     window.addEventListener("keyup", this.onKeyUp);
-    window.addEventListener("blur", this.releaseAll);
   }
 
   private syncHoldState(): void {

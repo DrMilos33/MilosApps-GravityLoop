@@ -83,6 +83,8 @@ function reasonCopy(reason: PauseReason): string {
       return "Das Spiel pausiert, sobald der Tab nicht sichtbar ist.";
     case "rotation":
       return "Die Ausrichtung hat sich geändert. Deine Runde ist sicher pausiert.";
+    case "focus":
+      return "Ein anderes Fenster war im Vordergrund. Deine Runde ist sicher pausiert.";
     case "settings":
       return "Deine Runde wartet, während du Einstellungen änderst.";
     default:
@@ -214,6 +216,13 @@ document.addEventListener("visibilitychange", () => {
   if (document.hidden) {
     input.releaseAll();
     runtime.pause("hidden");
+  }
+});
+
+window.addEventListener("blur", () => {
+  if (!settingsDialog.open) {
+    input.releaseAll();
+    runtime.pause("focus");
   }
 });
 

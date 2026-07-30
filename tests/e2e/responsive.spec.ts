@@ -1,5 +1,10 @@
 import { expect, test, type Browser } from "@playwright/test";
 
+test.skip(
+  ({ browserName }) => browserName !== "chromium",
+  "The complete device/DPR matrix is the Chromium mobile reference.",
+);
+
 interface ViewportCase {
   name: string;
   width: number;
