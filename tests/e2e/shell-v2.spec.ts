@@ -211,6 +211,15 @@ test("fits the shared shell at 1440x900 and 390x844 without footer whitespace", 
 
 test("renders the shared shell under a self-only style CSP", async ({ page }) => {
   const cspErrors: string[] = [];
+  const cspHeader = [
+    "default-src 'self'",
+    "script-src 'self'",
+    "style-src 'self'",
+    "img-src 'self' data:",
+    "connect-src 'self'",
+    "object-src 'none'",
+    "base-uri 'self'",
+  ].join("; ");
   page.on("console", (message) => {
     if (
       message.type() === "error" &&
@@ -220,41 +229,52 @@ test("renders the shared shell under a self-only style CSP", async ({ page }) =>
     }
   });
 
-  await page.route("**/csp-shell-fixture.html", async (route) => {
-    await route.fulfill({
-      status: 200,
-      contentType: "text/html; charset=utf-8",
-      headers: {
-        "Content-Security-Policy": [
-          "default-src 'self'",
-          "script-src 'self'",
-          "style-src 'self'",
-          "img-src 'self' data:",
-          "connect-src 'self'",
-          "object-src 'none'",
-          "base-uri 'self'",
-        ].join("; "),
-      },
-      body: `<!doctype html>
-        <html lang="de">
-          <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <script type="module" src="./vendor/milosapps-shell/v2/bootstrap.js"></script>
-          </head>
-          <body>
-            <milos-app-shell>
-              <svg slot="app-icon" aria-hidden="true" viewBox="0 0 48 48">
-                <circle cx="24" cy="24" r="12"></circle>
-              </svg>
-              <main id="main" slot="main"><h1>Gravity Loop</h1></main>
-            </milos-app-shell>
-          </body>
-        </html>`,
-    });
-  });
+  const testsBuiltDocument =
+    page.url().startsWith("https://") ||
+    process.env.GRAVITY_LOOP_E2E_ARTIFACT === "built";
 
-  await page.goto("./csp-shell-fixture.html");
+  if (testsBuiltDocument) {
+    await page.route(
+      (url) => url.searchParams.get("csp-shell-test") === "1",
+      async (route) => {
+        const response = await route.fetch();
+        await route.fulfill({
+          response,
+          headers: {
+            ...response.headers(),
+            "Content-Security-Policy": cspHeader,
+          },
+        });
+      },
+    );
+    await page.goto("./?csp-shell-test=1");
+  } else {
+    await page.route("**/csp-shell-fixture.html", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "text/html; charset=utf-8",
+        headers: { "Content-Security-Policy": cspHeader },
+        body: `<!doctype html>
+          <html lang="de">
+            <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <script type="module" src="./vendor/milosapps-shell/v2/bootstrap.js"></script>
+            </head>
+            <body>
+              <milos-app-shell>
+                <svg slot="app-icon" aria-hidden="true" viewBox="0 0 48 48">
+                  <circle cx="24" cy="24" r="12"></circle>
+                </svg>
+                <main id="main" slot="main"><h1>Gravity Loop</h1></main>
+              </milos-app-shell>
+            </body>
+          </html>`,
+      });
+    });
+    await page.goto("./csp-shell-fixture.html");
+  }
+
   await expect(page.getByText("DEV", { exact: true })).toBeVisible();
   const shell = page.locator("milos-app-shell");
   await expect
@@ -277,6 +297,21 @@ test("renders the shared shell under a self-only style CSP", async ({ page }) =>
       }),
     )
     .toBeGreaterThanOrEqual(44);
+  const stylesheetUrls = await shell.evaluate((host) => {
+    const componentStylesheet = host.shadowRoot?.querySelector<HTMLLinkElement>(
+      'link[data-milos-app-shell-component]',
+    )?.href;
+    const themeStylesheet = document.querySelector<HTMLLinkElement>(
+      'link[data-milos-app-shell-theme="gravity-loop"]',
+    )?.href;
+    return [componentStylesheet, themeStylesheet];
+  });
+  expect(stylesheetUrls).toHaveLength(2);
+  expect(
+    stylesheetUrls.every(
+      (url) => url && new URL(url).origin === new URL(page.url()).origin,
+    ),
+  ).toBe(true);
   await page.waitForTimeout(100);
   expect(cspErrors).toEqual([]);
 });

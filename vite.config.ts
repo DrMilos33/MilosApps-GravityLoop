@@ -14,6 +14,10 @@ export default defineConfig({
   build: {
     target: "es2022",
     sourcemap: true,
+    // The public shell loads its theme and Shadow DOM stylesheets under a
+    // strict `style-src 'self'` CSP. Keep even small CSS assets as same-origin
+    // files instead of converting them to `data:` URLs in production builds.
+    assetsInlineLimit: 0,
   },
   test: {
     environment: "node",
