@@ -15,16 +15,16 @@ Production: `false`, nicht freigegeben
 | Readiness | `https://drmilos33.github.io/MilosApps-GravityLoop/health.json` |
 | Hosting | GitHub Pages, unabhängig vom Portal |
 | Source-Branch | `main` |
-| deployter App-Commit | `bfa148ba68dcec9dfedbb3e3804102a923111695` |
+| deployter App-Commit | `b3b18c900c87d6e48c50e09404c00527ba821d6a` |
 | Deployment-Branch | `gh-pages` |
-| Artefakt-Commit | `e5bf3855d12a919b11b8c95628c2e5d01b83ea04` |
-| Pages-Run | `30703430131`, erfolgreich |
-| App-CI | `30703160956`, erfolgreich |
+| Artefakt-Commit | `fd7823e6fdc9113ca65052f7b5804b26c40987e5` |
+| Pages-Run | `30706693209`, erfolgreich |
+| App-CI | `30706511129`, erfolgreich |
 | Login | keiner |
 | Shared-/Portal-Abhängigkeiten | `public-app-shell/v2.0.3` fest vendort; keine Runtime- oder Portalabhängigkeit |
 
 Der Branch `main` hält den vollständig verifizierten App-Quellstand
-`bfa148b`. Der Branch `gh-pages` enthält ausschließlich das daraus erzeugte
+`b3b18c9`. Der Branch `gh-pages` enthält ausschließlich das daraus erzeugte
 statische Artefakt. Änderungen an Dokumentation oder Test-Lifecycle werden
 nicht automatisch veröffentlicht.
 
@@ -77,16 +77,16 @@ nicht.
 Die aktive gesunde DEV-Revision ist:
 
 - App-Quellstand:
-  `bfa148ba68dcec9dfedbb3e3804102a923111695`;
+  `b3b18c900c87d6e48c50e09404c00527ba821d6a`;
 - Pages-Artefakt:
-  `e5bf3855d12a919b11b8c95628c2e5d01b83ea04`.
+  `fd7823e6fdc9113ca65052f7b5804b26c40987e5`.
 
 Der vorherige gesunde Rollbackstand ist:
 
 - App-Quellstand:
-  `69f4444748e4918987824a8940b354377ec636c7`;
+  `bfa148ba68dcec9dfedbb3e3804102a923111695`;
 - Pages-Artefakt:
-  `47c53cad1bacc0e1cbda02d9b15148846ff7d46b`.
+  `e5bf3855d12a919b11b8c95628c2e5d01b83ea04`.
 
 Bei einem späteren fehlerhaften DEV-Release wird aus dem letzten gesunden
 Quellstand erneut gebaut und dessen Dateibaum als normaler Nachfolger auf

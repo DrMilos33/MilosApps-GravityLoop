@@ -397,7 +397,7 @@ Spielwirkung der Sterne. Baseline war der gesunde DEV-Quellstand `bfa148b`.
    Pointer-Lifecycle, Offline, Pause/Resume, DE/EN, Axe, Reduced Motion,
    Self-only-CSP und 360×800 bei 200 Prozent.
 
-### Lokale Abschlussevidenz vor DEV-Publish
+### Lokale Abschlussevidenz
 
 - Shared-Validator/5er-Lock: PASS.
 - Unit: 32/32 bestanden.
@@ -417,7 +417,31 @@ Spielwirkung der Sterne. Baseline war der gesunde DEV-Quellstand `bfa148b`.
 
 ### Verbleibende Grenzen
 
+### Externe DEV-Evidenz
+
+- veröffentlichter Source:
+  `b3b18c900c87d6e48c50e09404c00527ba821d6a`;
+- daraus gebautes Pages-Artefakt:
+  `fd7823e6fdc9113ca65052f7b5804b26c40987e5`;
+- App-CI-Run `30706511129` und Pages-Run `30706693209`: vollständig
+  erfolgreich;
+- Readiness: HTTP 200, `application/json; charset=utf-8` und exakt
+  `status: ok`, `app: gravity-loop`, `environment: dev`;
+- frische öffentliche Drei-Engine-Matrix: 68 anwendbare Tests bestanden,
+  25 planmäßige Engine-/CDP-Skips, 0 Fehler und 0 Retries;
+- direkter Aufruf ohne Login, Portal-Cookie oder Redirect; bestehende
+  Portal-DEV-Route weiterhin 302 auf dieselbe unabhängige App-URL;
+- strikte Self-only-CSP, getrennte HTTPS-Same-Origin-Shell-CSS,
+  DE/EN-Persistenz, Axe, Reduced Motion, Touch außerhalb des Canvas und
+  360×800 bei 200 Prozent bestanden;
+- Chromium normal: 59,73 FPS, Frame-p95 16,80 ms, Input-p95 16,00 ms;
+  naturnaher Mond plus Hut: 58,00 FPS, Frame-p95 16,80 ms,
+  Input-p95 26,40 ms; vierfache CPU-Drosselung: 55,06 FPS,
+  Frame-p95 16,80 ms, Input-p95 15,70 ms; jeweils 0 ms verlorene Simulation.
+
+### Verbleibende Grenzen
+
 Reale Android-/iOS-Hardware, Android WebView sowie manuelle Tests mit
-TalkBack, VoiceOver oder NVDA standen nicht zur Verfügung. Der öffentliche
-DEV-Stand wird erst nach SHA-genauer Publish-Koordination aktualisiert;
-Production bleibt unverändert und nicht freigegeben.
+TalkBack, VoiceOver oder NVDA standen nicht zur Verfügung. Production blieb
+unverändert, die Production-Portalroute antwortet weiterhin mit 404 und ist
+nicht freigegeben.

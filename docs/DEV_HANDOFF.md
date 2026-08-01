@@ -61,13 +61,13 @@ Der unabhängige öffentliche DEV-Dienst ist aktiv:
   `https://github.com/DrMilos33/MilosApps-GravityLoop`;
 - Hosting: GitHub Pages aus dem app-eigenen Branch `gh-pages`;
 - deployter vollständiger App-Commit:
-  `bfa148ba68dcec9dfedbb3e3804102a923111695`;
+  `b3b18c900c87d6e48c50e09404c00527ba821d6a`;
 - daraus gebauter DEV-Artefakt-Commit:
-  `e5bf3855d12a919b11b8c95628c2e5d01b83ea04`;
+  `fd7823e6fdc9113ca65052f7b5804b26c40987e5`;
 - erfolgreiche Pages-Deployment-Ausführung:
-  `https://github.com/DrMilos33/MilosApps-GravityLoop/actions/runs/30703430131`;
+  `https://github.com/DrMilos33/MilosApps-GravityLoop/actions/runs/30706693209`;
 - erfolgreiche vollständige App-CI:
-  `https://github.com/DrMilos33/MilosApps-GravityLoop/actions/runs/30703160956`;
+  `https://github.com/DrMilos33/MilosApps-GravityLoop/actions/runs/30706511129`;
 - Production: `false`, nicht freigegeben.
 
 Direktaufruf, Health-Identität, Loginfreiheit, Chromium, Firefox und WebKit
@@ -76,14 +76,15 @@ Portal-Cookies noch Milos-Login; die App lädt keine Portal- oder
 Shared-Abhängigkeit. Details, Rollback und letzte gesunde Revision stehen in
 `docs/DEV_DEPLOYMENT.md`.
 
-Der aktuelle externe Abschlusslauf bestand 64 anwendbare Tests in Chromium,
-Firefox und WebKit ohne Fehler oder Retry; 23 nicht anwendbare
+Der aktuelle externe Abschlusslauf bestand 68 anwendbare Tests in Chromium,
+Firefox und WebKit ohne Fehler oder Retry; 25 nicht anwendbare
 Engine-/CDP-Kombinationen wurden bewusst übersprungen. Dabei wurden die echte
 HTTPS-Ausgabe unter strikter Self-only-CSP, beide Shell-Stylesheet-Origins,
-DE/EN samt Reload-Persistenz und 360×800 bei 200 Prozent geprüft. Die
-Chromium-Referenz lag bei 58,14 FPS und 14,60 ms Input-p95 normal, 57,30 FPS
-und 10,80 ms Input-p95 mit naturnaher Grafik plus Hut sowie 55,19 FPS und
-13,20 ms Input-p95 bei vierfacher CPU-Drosselung; verlorene Simulationszeit
-blieb in allen Profilen 0 ms. Verbleibende Grenzen sind reale
+DE/EN samt Reload-Persistenz, mobile Touchsteuerung außerhalb des Canvas,
+Sternenschild und 360×800 bei 200 Prozent geprüft. Die Chromium-Referenz lag
+bei 59,73 FPS und 16,00 ms Input-p95 normal, 58,00 FPS und 26,40 ms Input-p95
+mit naturnaher Grafik plus Hut sowie 55,06 FPS und 15,70 ms Input-p95 bei
+vierfacher CPU-Drosselung; verlorene Simulationszeit blieb in allen Profilen
+0 ms. Verbleibende Grenzen sind reale
 Android-/iOS-Hardware, Android WebView sowie manuelle Tests mit TalkBack,
 VoiceOver oder NVDA.
