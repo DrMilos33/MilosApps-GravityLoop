@@ -298,3 +298,75 @@ Reale Android-/iOS-Hardware, Android WebView, TalkBack, VoiceOver und NVDA
 standen weiterhin nicht zur Verfügung. Die automatisierten Touch-, Pointer-,
 Tastatur-, Semantik-, Reflow- und Engine-Prüfungen sind vollständig grün.
 Production blieb unverändert und ist nicht freigegeben.
+
+## QA-Runde 5: Public-App-Shell v2.0.3 und CSP-sicheres Pages-Artefakt
+
+Der veröffentlichte Quellstand ist
+`bfa148ba68dcec9dfedbb3e3804102a923111695`; das daraus erzeugte
+Pages-Artefakt ist `e5bf3855d12a919b11b8c95628c2e5d01b83ea04`.
+Die Shell ist auf `public-app-shell/v2.0.3` und Shared-Commit
+`ed898412306e22c6ae1b10ee8953df29f8acd627` fest gepinnt. Alle fünf
+vendorten Artefakte werden durch `shell-lock.json` und den portablen
+Shared-Validator geprüft.
+
+### Umgesetzt und verifiziert
+
+- app-eigene Public-App-Shell mit Inline-SVG-Icon, DEV-Kennzeichnung,
+  absoluten DEV-/Legal-Links und kompaktem Footer; kein CDN oder
+  Shared-Runtimeimport;
+- vollständige deutsche und englische Fachoberfläche; Shell-Event und
+  Initialisierung aus `document.documentElement.lang`, lokale Persistenz und
+  sicherer Komplettreset auf Deutsch;
+- externe Same-Origin-Stylesheets für Shell, Shadow DOM und App-Theme unter
+  `default-src 'self'; script-src 'self'; style-src 'self'`;
+- Vite baut auch kleine CSS-Dateien als echte Dateien. Der E2E-Test setzt die
+  strikte CSP am tatsächlich gebauten beziehungsweise externen Hauptdokument
+  und prüft beide Stylesheet-Origins. Dadurch kann eine erneute `data:`-
+  Einbettung nicht unbemerkt veröffentlicht werden;
+- Header, Footer, Fokus, 44-Pixel-Ziele, Reduced Motion, 1440×900, 390×844
+  sowie 360×800 bei 200 Prozent ohne horizontalen Überlauf oder Leerraum unter
+  dem Footer;
+- Spiel-, Canvas-, Pointer-, Lifecycle-, Pause-, Offline- und
+  Performanceverträge blieben unverändert grün.
+
+### Lokale Evidenz
+
+- Shared-Validator/5er-Lock: PASS.
+- Unit: 30/30 bestanden.
+- TypeScript-/Vite-Build: 49,08 kB JavaScript (15,97 kB gzip), 11,26 kB
+  App-CSS (3,50 kB gzip), 5,47 kB Shell-CSS (1,55 kB gzip) und 0,37 kB
+  Theme-CSS (0,21 kB gzip); keine CSS-`data:`-URL im JavaScript.
+- Fokussiertes CSP-/200-Prozent-Gate: 6/6 in Chromium, Firefox und WebKit.
+- Vollständiges gebautes Artefakt: 62 Fachtests bestanden, 23 planmäßige
+  Engine-Skips. Ein Playwright-internes Firefox-Problem trat erst beim
+  Schließen eines Browserkontexts auf; der betroffene Firefox-Kernfluss
+  bestand direkt danach isoliert 7/7.
+- GitHub-CI für `main`: Run `30703160956`, vollständig erfolgreich. Der
+  identische Featurebranch-Run `30703160837` war ebenfalls grün.
+
+### Externe DEV-Evidenz
+
+- Pages-Run `30703430131`: Build und Deployment vollständig erfolgreich.
+- `GET /health.json`: HTTP 200, `application/json; charset=utf-8` und exakt
+  `status: ok`, `app: gravity-loop`, `environment: dev`.
+- Frische öffentliche Drei-Engine-Matrix: 64 bestanden, 23 planmäßig
+  übersprungen, 0 fehlgeschlagen, 0 Retry/Flakes.
+- Strikte Self-only-CSP, Themefarbe, Host-Grid, 44-Pixel-Ziele und beide
+  HTTPS-Same-Origin-Stylesheets wurden am echten Pages-Build geprüft; keine
+  CSP-Konsolenfehler.
+- Direkter Aufruf und Portal-DEV-Redirect funktionierten cookie-los und ohne
+  Milos-Login. Sichtprüfung bei 390×844 und 1440×900 bestätigte DE/EN samt
+  Reload-Persistenz, lesbare Spielzustände und fehlenden horizontalen
+  Überlauf.
+- Extern Chromium normal: 58,14 FPS, Frame-p95 16,80 ms,
+  Input-p95 14,60 ms, 0 ms verlorene Simulation.
+- Extern naturnahe Grafik plus Hut: 57,30 FPS, Frame-p95 16,80 ms,
+  Input-p95 10,80 ms, 0 ms verlorene Simulation.
+- Extern bei vierfacher CPU-Drosselung: 55,19 FPS,
+  Frame-p95 16,80 ms, Input-p95 13,20 ms, 0 ms verlorene Simulation.
+
+### Verbleibende Grenzen
+
+Reale Android-/iOS-Hardware, Android WebView sowie manuelle Tests mit
+TalkBack, VoiceOver oder NVDA standen nicht zur Verfügung. Production blieb
+unverändert und ist weiterhin nicht freigegeben.

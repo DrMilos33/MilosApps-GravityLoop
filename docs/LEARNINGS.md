@@ -172,3 +172,55 @@ Nutzerdaten eintragen.
 - Allgemeine Bedeutung: Canvas-Tests sollten auf semantische Zustände und einen
   nachgewiesenen Renderframe warten. Prozedurale Details bleiben performant,
   wenn Zufall und Geometrie vorbereitet statt pro Frame neu erzeugt werden.
+
+## 2026-08-01 – CSP muss am gebauten Artefakt geprüft werden
+
+- Ausgangspunkt: Commit `bfa148b`; Vite-Produktionsbuild, GitHub Pages sowie
+  Chromium, Firefox und WebKit.
+- Beobachtung: Die vendorte v2.0.3-Shell verwies korrekt auf externe
+  Same-Origin-CSS. Vite wandelte die kleine Theme-CSS im Produktionsbuild
+  dennoch in eine `data:`-URL um. Der Quellcode-Test blieb grün, während eine
+  echte `style-src 'self'`-CSP das Theme blockierte.
+- Änderung: `assetsInlineLimit: 0` hält Shell- und Theme-CSS als eigene
+  Builddateien. Der CSP-Test setzt den Header am tatsächlich gebauten oder
+  externen Hauptdokument und prüft zusätzlich, dass beide Stylesheet-URLs
+  denselben Origin wie die App besitzen.
+- Regression: fokussiert 6/6 CSP-/200-Prozent-Fälle in drei Engines; extern
+  64/64 anwendbare Fachtests und keine CSP-Konsolenfehler.
+- Allgemeine Bedeutung: CSP-Sicherheit ist eine Eigenschaft des ausgelieferten
+  Artefakts, nicht nur des Quellvertrags. Bundler-Inlining muss explizit
+  kontrolliert und nach dem Build geprüft werden.
+
+## 2026-08-01 – Shell-Sprache und Fachsprache brauchen einen gemeinsamen Startzustand
+
+- Ausgangspunkt: Commit `a1382ac`; Public-App-Shell v2.0.3 und vollständige
+  DE/EN-Fachübersetzung.
+- Beobachtung: Ein Locale-Event allein deckt den ersten Seitenaufbau nicht ab,
+  weil die Shell ihre gespeicherte Sprache bereits vor dem App-Listener setzen
+  kann.
+- Änderung: Das Fach-Locale-Modul hört `milosapps:localechange` und liest beim
+  Start zusätzlich `document.documentElement.lang`. Der vollständige lokale
+  Reset entfernt auch den Shell-Sprachschlüssel und setzt sichtbar Deutsch.
+- Regression: jede sichtbare Fachbeschriftung, DE/EN-Schalter,
+  Reload-Persistenz, Tastaturfokus und Komplettreset in der Drei-Engine-Matrix.
+- Allgemeine Bedeutung: Ereignisse synchronisieren Änderungen; ein expliziter
+  Snapshot synchronisiert den Start. Öffentliche Apps benötigen beides.
+
+## 2026-08-01 – Lokale E2E-Dienste unter Windows explizit besitzen
+
+- Ausgangspunkt: Commit `bfa148b`; Windows, Vite auf Port 4317 und
+  Playwright-Matrix.
+- Beobachtung: Vom Test-Runner verwaltete Server konnten nach abgebrochenen
+  Läufen beim Prozess-Cleanup hängen, obwohl die App-Tests bereits beendet
+  waren. Eine bloße Porterreichbarkeit hätte zudem weiterhin eine fremde App
+  akzeptieren können.
+- Änderung: Für große lokale QA-Läufe wird der app-eigene Vite-Prozess im
+  Vordergrund gestartet und Playwright mit `GRAVITY_LOOP_E2E_SERVER=external`
+  verbunden. Global Setup prüft vor Fachtests die vollständige Health-Identität;
+  beim Abschluss wird nur die bekannte eigene PID beendet und Port 4317
+  erneut geprüft.
+- Regression: vollständige gebaute Matrix, fokussierte Engine-Läufe und
+  anschließender freier Port 4317.
+- Allgemeine Bedeutung: Prozessbesitz, App-Identität und Test-Lifecycle sind
+  getrennte Verträge. Server-Wiederverwendung ist nur nach fail-closed
+  Identitätsprüfung sicher.

@@ -1,6 +1,6 @@
 # Gravity Loop: unabhängiges DEV-Deployment
 
-Stand: 2026-07-30
+Stand: 2026-08-01
 
 App-Key: `gravity-loop`
 
@@ -15,16 +15,16 @@ Production: `false`, nicht freigegeben
 | Readiness | `https://drmilos33.github.io/MilosApps-GravityLoop/health.json` |
 | Hosting | GitHub Pages, unabhängig vom Portal |
 | Source-Branch | `main` |
-| deployter App-Commit | `69f4444748e4918987824a8940b354377ec636c7` |
+| deployter App-Commit | `bfa148ba68dcec9dfedbb3e3804102a923111695` |
 | Deployment-Branch | `gh-pages` |
-| Artefakt-Commit | `47c53cad1bacc0e1cbda02d9b15148846ff7d46b` |
-| Pages-Run | `30546553237`, erfolgreich |
-| App-CI | `30546531157`, erfolgreich |
+| Artefakt-Commit | `e5bf3855d12a919b11b8c95628c2e5d01b83ea04` |
+| Pages-Run | `30703430131`, erfolgreich |
+| App-CI | `30703160956`, erfolgreich |
 | Login | keiner |
-| Shared-/Portal-Abhängigkeiten | keine |
+| Shared-/Portal-Abhängigkeiten | `public-app-shell/v2.0.3` fest vendort; keine Runtime- oder Portalabhängigkeit |
 
 Der Branch `main` hält den vollständig verifizierten App-Quellstand
-`69f4444`. Der Branch `gh-pages` enthält ausschließlich das daraus erzeugte
+`bfa148b`. Der Branch `gh-pages` enthält ausschließlich das daraus erzeugte
 statische Artefakt. Änderungen an Dokumentation oder Test-Lifecycle werden
 nicht automatisch veröffentlicht.
 
@@ -77,22 +77,22 @@ nicht.
 Die aktive gesunde DEV-Revision ist:
 
 - App-Quellstand:
-  `69f4444748e4918987824a8940b354377ec636c7`;
+  `bfa148ba68dcec9dfedbb3e3804102a923111695`;
 - Pages-Artefakt:
-  `47c53cad1bacc0e1cbda02d9b15148846ff7d46b`.
+  `e5bf3855d12a919b11b8c95628c2e5d01b83ea04`.
 
 Der vorherige gesunde Rollbackstand ist:
 
 - App-Quellstand:
-  `a713482c1db746f72aeb4c2665d20e8856c84ca9`;
+  `69f4444748e4918987824a8940b354377ec636c7`;
 - Pages-Artefakt:
-  `28dbdd173b98dc61cc2611286f1e52b99acea587`.
+  `47c53cad1bacc0e1cbda02d9b15148846ff7d46b`.
 
-Bei einem späteren fehlerhaften DEV-Release wird ausschließlich `gh-pages` auf
-den letzten gesunden Artefakt-Commit zurückgesetzt und mit
-`--force-with-lease` gepusht. Danach müssen Pages-Run, Health-Identität und
-externe Smoke-Matrix erneut grün sein. `main`, Portal und Production werden für
-den Rollback nicht verändert.
+Bei einem späteren fehlerhaften DEV-Release wird aus dem letzten gesunden
+Quellstand erneut gebaut und dessen Dateibaum als normaler Nachfolger auf
+`gh-pages` veröffentlicht. Die Branch-Historie wird nicht umgeschrieben.
+Danach müssen Pages-Run, Health-Identität und externe Smoke-Matrix erneut grün
+sein. `main`, Portal und Production werden für den Rollback nicht verändert.
 
 Der aktuelle Artefakt-Commit kann jederzeit reproduzierbar aus dem oben
 genannten aktiven App-Commit neu gebaut werden. Ein Rollback verändert nur
