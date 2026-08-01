@@ -11,8 +11,8 @@
     <link rel="icon" href="./gravity-loop-mark.svg" type="image/svg+xml" />
     <link rel="manifest" href="./manifest.webmanifest" />
     <title>Gravity Loop · MilosApps</title>
-    <script type="module" crossorigin src="./assets/index-BALjHqwa.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-Cjm880gU.css">
+    <script type="module" crossorigin src="./assets/index-BaDoC_1r.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-BhVcKlht.css">
   </head>
   <body>
     <milos-app-shell>
@@ -40,8 +40,12 @@
           <strong id="score-value" data-testid="score">0</strong>
         </div>
         <div>
-          <span class="metric-label" data-i18n="sparks">Funken</span>
+          <span class="metric-label" data-i18n="sparks">Sterne</span>
           <strong id="combo-value" data-testid="combo">0</strong>
+        </div>
+        <div class="shield-metric">
+          <span class="metric-label" data-i18n="shield">Schild</span>
+          <strong id="shield-value" data-testid="shield-status">0/3</strong>
         </div>
         <div>
           <span class="metric-label" data-i18n="best">Bestwert</span>
@@ -117,133 +121,82 @@
       <div class="sr-only" id="live-status" aria-live="polite" aria-atomic="true"></div>
 
     <dialog class="settings-dialog" id="settings-dialog" aria-labelledby="settings-title">
-      <form method="dialog">
+      <form id="settings-form">
         <div class="dialog-header">
           <div>
             <span class="eyebrow" data-i18n="settingsEyebrow">Dein Fluggefühl</span>
             <h2 id="settings-title" data-i18n="settingsTitle">Einstellungen</h2>
+            <p data-i18n="settingsIntro">Richte Runde, Aussehen und Komfort in klaren Bereichen ein.</p>
           </div>
-          <button
-            class="icon-button"
-            value="cancel"
-            aria-label="Einstellungen schließen"
-            data-i18n-aria-label="closeSettings"
-          >
+          <button class="icon-button" id="settings-close-button" type="button" aria-label="Einstellungen schließen" data-i18n-aria-label="closeSettings">
             <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18" /></svg>
           </button>
         </div>
 
-        <p class="settings-section-label" data-i18n="settingsGame">Spiel</p>
+        <div class="settings-content">
+          <div class="settings-grid">
+            <section class="settings-panel settings-panel-game" aria-labelledby="settings-game-title">
+              <div class="settings-panel-heading">
+                <span class="settings-panel-icon" aria-hidden="true">01</span>
+                <div>
+                  <h3 id="settings-game-title" data-i18n="settingsGame">Spiel</h3>
+                  <p data-i18n="settingsGameHelp">Bestimme Tempo und Gravitationsmodell deiner nächsten Runde.</p>
+                </div>
+              </div>
 
-        <label class="setting-row setting-select">
-          <span>
-            <strong data-i18n="difficulty">Schwierigkeit</strong>
-            <small data-i18n="difficultyHelp">Tempo, Gefahren und Punkte. Ein Wechsel startet die Runde fair neu.</small>
-          </span>
-          <select id="difficulty-setting">
-            <option value="easy" data-i18n="difficultyEasy">Leicht</option>
-            <option value="normal" data-i18n="difficultyNormal">Normal</option>
-            <option value="hard" data-i18n="difficultyHard">Schwer</option>
-          </select>
-        </label>
+              <fieldset class="choice-group" aria-describedby="difficulty-help">
+                <legend data-i18n="difficulty">Schwierigkeit</legend>
+                <p id="difficulty-help" data-i18n="difficultyHelp">Tempo, Gefahren und Punkte.</p>
+                <div class="choice-grid choice-grid-three">
+                  <label class="choice-card"><input type="radio" name="difficulty-setting" value="easy" /><span><strong data-i18n="difficultyEasy">Leicht</strong><small data-i18n="difficultyEasyHelp">Mehr Ruhe, weniger Trabanten.</small></span></label>
+                  <label class="choice-card"><input type="radio" name="difficulty-setting" value="normal" /><span><strong data-i18n="difficultyNormal">Normal</strong><small data-i18n="difficultyNormalHelp">Ausgewogenes Tempo und Risiko.</small></span></label>
+                  <label class="choice-card"><input type="radio" name="difficulty-setting" value="hard" /><span><strong data-i18n="difficultyHard">Schwer</strong><small data-i18n="difficultyHardHelp">Schneller, dichter, mehr Punkte.</small></span></label>
+                </div>
+              </fieldset>
 
-        <label class="setting-row setting-select">
-          <span>
-            <strong data-i18n="celestialBody">Zentralkörper</strong>
-            <small data-i18n="celestialBodyHelp">Die Sonne zieht nahe stärker. Der Mond zieht sanfter und gleichmäßiger.</small>
-          </span>
-          <select id="celestial-mode-setting">
-            <option value="sun" data-i18n="sun">Sonne</option>
-            <option value="moon" data-i18n="moon">Mond</option>
-          </select>
-        </label>
+              <fieldset class="choice-group" aria-describedby="celestial-help">
+                <legend data-i18n="celestialBody">Zentralkörper</legend>
+                <p id="celestial-help" data-i18n="celestialBodyHelp">Wähle die Art der Gravitation.</p>
+                <div class="choice-grid choice-grid-two">
+                  <label class="choice-card choice-card-celestial"><input type="radio" name="celestial-mode-setting" value="sun" /><span class="celestial-preview celestial-preview-sun" aria-hidden="true"></span><span><strong data-i18n="sun">Sonne</strong><small data-i18n="sunHelp">Stärker, je näher du kommst.</small></span></label>
+                  <label class="choice-card choice-card-celestial"><input type="radio" name="celestial-mode-setting" value="moon" /><span class="celestial-preview celestial-preview-moon" aria-hidden="true"></span><span><strong data-i18n="moon">Mond</strong><small data-i18n="moonHelp">Sanfter und gleichmäßiger.</small></span></label>
+                </div>
+              </fieldset>
 
-        <p class="settings-section-label" data-i18n="settingsAppearance">Aussehen</p>
+              <div class="round-reset-note" id="round-reset-note" role="status" aria-live="polite">
+                <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M5 8v5h5M6.4 17a8 8 0 1 0 .1-10.1L5 8" /></svg>
+                <p><strong data-i18n="roundResetTitle">Fairer Neustart</strong><span data-i18n="roundResetCopy">Schwierigkeit und Zentralkörper werden erst beim Übernehmen aktiv und starten die Runde neu.</span></p>
+              </div>
+            </section>
 
-        <label class="setting-row setting-select">
-          <span>
-            <strong data-i18n="celestialStyle">Sonne und Mond</strong>
-            <small data-i18n="celestialStyleHelp">Naturnah wird prozedural gezeichnet – ohne externe Bilder oder Tracking.</small>
-          </span>
-          <select id="celestial-style-setting">
-            <option value="graphic" data-i18n="graphic">Grafisch</option>
-            <option value="natural" data-i18n="natural">Naturnah</option>
-          </select>
-        </label>
+            <section class="settings-panel" aria-labelledby="settings-appearance-title">
+              <div class="settings-panel-heading"><span class="settings-panel-icon" aria-hidden="true">02</span><div><h3 id="settings-appearance-title" data-i18n="settingsAppearance">Aussehen</h3><p data-i18n="settingsAppearanceHelp">Nur die Darstellung ändert sich.</p></div></div>
+              <label class="setting-field"><span><strong data-i18n="celestialStyle">Sonne und Mond</strong><small data-i18n="celestialStyleHelp">Naturnah wird prozedural gezeichnet – ohne externe Bilder oder Tracking.</small></span><select id="celestial-style-setting"><option value="graphic" data-i18n="graphic">Grafisch</option><option value="natural" data-i18n="natural">Naturnah</option></select></label>
+              <label class="setting-field"><span><strong data-i18n="cometSkin">Kometen-Skin</strong><small data-i18n="cometSkinHelp">Hitbox und Physik bleiben gleich.</small></span><select id="comet-skin-setting"><option value="mint" data-i18n="skinMint">Mint</option><option value="ember" data-i18n="skinEmber">Feuer</option><option value="ice" data-i18n="skinIce">Eis</option><option value="hat" data-i18n="skinHat">Komet mit Hut</option></select></label>
+            </section>
 
-        <label class="setting-row setting-select">
-          <span>
-            <strong data-i18n="cometSkin">Kometen-Skin</strong>
-            <small data-i18n="cometSkinHelp">Nur das Aussehen ändert sich; Hitbox und Physik bleiben gleich.</small>
-          </span>
-          <select id="comet-skin-setting">
-            <option value="mint" data-i18n="skinMint">Mint</option>
-            <option value="ember" data-i18n="skinEmber">Feuer</option>
-            <option value="ice" data-i18n="skinIce">Eis</option>
-            <option value="hat" data-i18n="skinHat">Komet mit Hut</option>
-          </select>
-        </label>
+            <section class="settings-panel" aria-labelledby="settings-comfort-title">
+              <div class="settings-panel-heading"><span class="settings-panel-icon" aria-hidden="true">03</span><div><h3 id="settings-comfort-title" data-i18n="settingsComfort">Komfort</h3><p data-i18n="settingsComfortHelp">Passe Rückmeldung und Lesbarkeit an.</p></div></div>
+              <label class="setting-toggle"><span><strong data-i18n="sounds">Klänge</strong><small data-i18n="soundsHelp">Kurze Signale, standardmäßig stumm.</small></span><input id="sound-setting" type="checkbox" role="switch" /></label>
+              <label class="setting-field"><span><strong data-i18n="motion">Bewegung</strong><small data-i18n="motionHelp">Nur dekorative Effekte, nie die Physik.</small></span><select id="motion-setting"><option value="system" data-i18n="motionSystem">Systemeinstellung</option><option value="reduce" data-i18n="motionReduce">Reduziert</option><option value="full" data-i18n="motionFull">Lebendig</option></select></label>
+              <label class="setting-toggle"><span><strong data-i18n="highContrast">Hoher Kontrast</strong><small data-i18n="highContrastHelp">Verstärkt Bahnen, Ziele und Bedienelemente.</small></span><input id="contrast-setting" type="checkbox" role="switch" /></label>
+            </section>
 
-        <p class="settings-section-label" data-i18n="settingsComfort">Komfort</p>
-
-        <label class="setting-row">
-          <span>
-            <strong data-i18n="sounds">Klänge</strong>
-            <small data-i18n="soundsHelp">Kurze, synthetische Signale. Standardmäßig stumm.</small>
-          </span>
-          <input id="sound-setting" type="checkbox" role="switch" />
-        </label>
-
-        <label class="setting-row setting-select">
-          <span>
-            <strong data-i18n="motion">Bewegung</strong>
-            <small data-i18n="motionHelp">Beeinflusst nur dekorative Effekte, nie die Physik.</small>
-          </span>
-          <select id="motion-setting">
-            <option value="system" data-i18n="motionSystem">Systemeinstellung</option>
-            <option value="reduce" data-i18n="motionReduce">Reduziert</option>
-            <option value="full" data-i18n="motionFull">Lebendig</option>
-          </select>
-        </label>
-
-        <label class="setting-row">
-          <span>
-            <strong data-i18n="highContrast">Hoher Kontrast</strong>
-            <small data-i18n="highContrastHelp">Verstärkt Bahnen, Ziele und Bedienelemente.</small>
-          </span>
-          <input id="contrast-setting" type="checkbox" role="switch" />
-        </label>
-
-        <div class="setting-row">
-          <span>
-            <strong data-i18n="localData">Lokale Daten</strong>
-            <small data-i18n="localDataHelp">Bestwert, Funkenserie, Sprache und Einstellungen auf diesem Gerät.</small>
-          </span>
-          <button class="secondary-button" id="reset-progress-button" type="button">
-            <span data-i18n="reset">Zurücksetzen</span>
-          </button>
-        </div>
-
-        <div
-          class="reset-confirmation"
-          id="reset-confirmation"
-          role="group"
-          aria-label="Lokale Daten zurücksetzen"
-          data-i18n-aria-label="resetGroup"
-          hidden
-        >
-          <p data-i18n="resetQuestion">
-            Wirklich alles lokal zurücksetzen? Deine aktuelle Runde beginnt ebenfalls neu.
-          </p>
-          <div>
-            <button class="text-button" id="reset-cancel-button" type="button" data-i18n="cancel">Abbrechen</button>
-            <button class="danger-button" id="reset-confirm-button" type="button">
-              <span data-i18n="confirmReset">Jetzt zurücksetzen</span>
-            </button>
+            <section class="settings-panel settings-panel-data" aria-labelledby="settings-data-title">
+              <div class="settings-panel-heading"><span class="settings-panel-icon" aria-hidden="true">04</span><div><h3 id="settings-data-title" data-i18n="localData">Lokale Daten</h3><p data-i18n="localDataHelp">Bestwert, Sternenserie, Sprache und Einstellungen auf diesem Gerät.</p></div></div>
+              <button class="secondary-button" id="reset-progress-button" type="button"><span data-i18n="reset">Zurücksetzen</span></button>
+              <div class="reset-confirmation" id="reset-confirmation" role="group" aria-label="Lokale Daten zurücksetzen" data-i18n-aria-label="resetGroup" hidden>
+                <p data-i18n="resetQuestion">Wirklich alles lokal zurücksetzen? Deine aktuelle Runde beginnt ebenfalls neu.</p>
+                <div><button class="text-button" id="reset-cancel-button" type="button" data-i18n="cancel">Abbrechen</button><button class="danger-button" id="reset-confirm-button" type="button"><span data-i18n="confirmReset">Jetzt zurücksetzen</span></button></div>
+              </div>
+            </section>
           </div>
         </div>
 
-        <button class="primary-button dialog-done" value="default" data-i18n="done">Fertig</button>
+        <div class="dialog-actions">
+          <button class="text-button" id="settings-cancel-button" type="button" data-i18n="cancelChanges">Verwerfen</button>
+          <button class="primary-button" id="settings-apply-button" type="submit" data-i18n="applySettings">Übernehmen</button>
+        </div>
       </form>
       </dialog>
       </main>
