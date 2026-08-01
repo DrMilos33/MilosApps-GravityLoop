@@ -42,6 +42,10 @@ body {
   overscroll-behavior: none;
 }
 
+[hidden] {
+  display: none !important;
+}
+
 button,
 select,
 input {
@@ -62,31 +66,10 @@ button {
   outline-offset: 3px;
 }
 
-.skip-link {
-  position: fixed;
-  z-index: 30;
-  top: 0.8rem;
-  left: 0.8rem;
-  padding: 0.8rem 1rem;
-  border-radius: 0.8rem;
-  color: #07111e;
-  background: var(--focus);
-  font-weight: 800;
-  transform: translateY(-180%);
-}
-
-.skip-link:focus {
-  transform: translateY(0);
-}
-
 .app-shell {
-  width: min(100% - 2rem, 1020px);
-  margin-inline: auto;
-  padding:
+  padding-block:
     max(1.1rem, env(safe-area-inset-top))
-    max(0rem, env(safe-area-inset-right))
-    max(1.5rem, env(safe-area-inset-bottom))
-    max(0rem, env(safe-area-inset-left));
+    max(1.5rem, env(safe-area-inset-bottom));
 }
 
 .app-header {
@@ -97,19 +80,7 @@ button {
   margin-bottom: 1rem;
 }
 
-.brand-lockup {
-  display: flex;
-  align-items: center;
-  min-width: 0;
-  gap: 0.72rem;
-}
-
-.brand-lockup > span {
-  display: grid;
-}
-
 .brand-mark {
-  width: 2.9rem;
   flex: 0 0 auto;
   overflow: visible;
 }
@@ -389,7 +360,7 @@ button {
   pointer-events: none;
 }
 
-.hold-indicator span {
+.hold-indicator-dot {
   width: 0.52rem;
   height: 0.52rem;
   border-radius: 50%;
@@ -405,9 +376,13 @@ button {
   transform: translateX(-50%) scale(1.02);
 }
 
-.hold-indicator.is-active span {
+.hold-indicator.is-active .hold-indicator-dot {
   background: var(--mint-strong);
   box-shadow: 0 0 12px var(--mint);
+}
+
+.hold-indicator-label {
+  min-width: 0;
 }
 
 .control-row {
@@ -668,7 +643,6 @@ kbd {
 
 @media (max-width: 620px) {
   .app-shell {
-    width: min(100% - 1rem, 1020px);
     padding-top: max(0.7rem, env(safe-area-inset-top));
   }
 
@@ -750,7 +724,6 @@ kbd {
 
 @media (max-height: 620px) and (orientation: landscape) {
   .app-shell {
-    width: min(100% - 1rem, 1060px);
     padding-block: 0.45rem;
   }
 

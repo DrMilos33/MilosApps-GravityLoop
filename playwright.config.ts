@@ -1,7 +1,11 @@
 import { defineConfig, devices } from "@playwright/test";
 
+const usesManagedLocalServer =
+  process.env.GRAVITY_LOOP_E2E_SERVER !== "external";
+
 export default defineConfig({
   testDir: "./tests/e2e",
+  globalSetup: "./tests/e2e/global-setup.ts",
   fullyParallel: false,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 1 : 0,
@@ -27,10 +31,13 @@ export default defineConfig({
       use: { ...devices["Desktop Safari"] },
     },
   ],
-  webServer: {
-    command: "pnpm exec vite --host 127.0.0.1 --port 4317 --strictPort",
-    url: "http://127.0.0.1:4317/health.json",
-    reuseExistingServer: false,
-    timeout: 120_000,
-  },
+  webServer: usesManagedLocalServer
+    ? {
+        command:
+          "node node_modules/vite/bin/vite.js --host 127.0.0.1 --port 4317 --strictPort",
+        url: "http://127.0.0.1:4317/health.json",
+        reuseExistingServer: false,
+        timeout: 120_000,
+      }
+    : undefined,
 });

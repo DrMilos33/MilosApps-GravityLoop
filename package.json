@@ -11,12 +11,13 @@
     "dev": "vite --host 127.0.0.1",
     "build": "tsc -b && vite build",
     "preview": "vite preview --host 127.0.0.1",
+    "verify:shell": "node vendor/milosapps-shell/v2/verify.mjs --app-root . --manifest milos-app.json",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "test:e2e:dev": "playwright test --config playwright.dev.config.ts",
     "test:e2e:headed": "playwright test --headed",
-    "test:all": "pnpm test && pnpm build && pnpm test:e2e",
+    "test:all": "pnpm verify:shell && pnpm test && pnpm build && pnpm test:e2e",
     "qa:perf": "playwright test tests/e2e/performance.spec.ts --project=chromium"
   },
   "devDependencies": {

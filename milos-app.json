@@ -1,0 +1,37 @@
+{
+  "$schema": "../MilosApps-Shared/contracts/public-app-shell/v2/app-manifest.schema.json",
+  "appKey": "gravity-loop",
+  "ownerTask": "MilosApps – Gravity Loop",
+  "public": true,
+  "loginRequired": false,
+  "shellContract": {
+    "id": "public-app-shell/v2",
+    "version": "2.0.2",
+    "sharedCommit": "97f695be3bdfcfdc51ad286c6ed231c4b9585295",
+    "vendorDirectory": "vendor/milosapps-shell/v2",
+    "entryHtml": "index.html",
+    "localeModule": "src/main.ts"
+  },
+  "environment": "dev",
+  "description": {
+    "de": "Kurze Gravitationsrunden mit Sonne, Mond und deinem eigenen Kometen – direkt, lokal und ohne Login.",
+    "en": "Short gravity runs with the Sun, Moon and your own comet – direct, local and without login."
+  },
+  "theme": {
+    "accent": "#8be7de",
+    "accentContrast": "#082329",
+    "surface": "#07111e",
+    "text": "#f7fbfa",
+    "muted": "#a9bdc2",
+    "border": "#31505b",
+    "focus": "#fff0a5"
+  },
+  "integration": {
+    "portalRoute": "/apps/gravity-loop"
+  },
+  "dev": {
+    "url": "https://drmilos33.github.io/MilosApps-GravityLoop/",
+    "healthUrl": "https://drmilos33.github.io/MilosApps-GravityLoop/health.json"
+  },
+  "productionApproved": false
+}

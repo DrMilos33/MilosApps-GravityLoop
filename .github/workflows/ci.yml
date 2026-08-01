@@ -32,6 +32,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Verify pinned public app shell
+        run: pnpm verify:shell
+
       - name: Unit tests
         run: pnpm test
 

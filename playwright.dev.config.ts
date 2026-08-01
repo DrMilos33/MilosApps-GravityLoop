@@ -19,6 +19,7 @@ const baseURL = parsedDevUrl.toString().endsWith("/")
 
 export default defineConfig({
   testDir: "./tests/e2e",
+  globalSetup: "./tests/e2e/global-setup.ts",
   fullyParallel: false,
   forbidOnly: true,
   retries: 2,

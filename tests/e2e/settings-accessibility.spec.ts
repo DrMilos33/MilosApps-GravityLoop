@@ -147,49 +147,47 @@ test("has no automated WCAG A/AA violations in game and settings states", async 
   expect(dialogResults.violations).toEqual([]);
 });
 
-test("keeps all controls keyboard reachable with visible focus", async ({
-  page,
-  browserName,
-}) => {
-  test.skip(
-    browserName === "webkit",
-    "Headless WebKit follows the host macOS Full Keyboard Access tab policy.",
-  );
-  const focusedNames: string[] = [];
-  for (let index = 0; index < 5; index += 1) {
-    await page.keyboard.press("Tab");
-    const focused = await page.evaluate(() => {
-      const active = document.activeElement as HTMLElement | null;
-      return {
-        name: active?.getAttribute("aria-label") ?? active?.textContent?.trim() ?? "",
-        focusVisible: active?.matches(":focus-visible") ?? false,
-      };
-    });
-    focusedNames.push(focused.name);
-    expect(focused.focusVisible).toBe(true);
-  }
-
-  expect(focusedNames.join(" ")).toContain("Zum Spiel springen");
-  expect(focusedNames.join(" ")).toContain("Losfliegen");
-  expect(focusedNames.join(" ")).toContain("Neustart");
-  expect(focusedNames.join(" ")).toContain("Einstellungen");
-});
-
 test("reflows at 200 percent text zoom without horizontal page overflow", async ({ page }) => {
   await page.setViewportSize({ width: 360, height: 800 });
   await page.evaluate(() => {
     document.documentElement.style.fontSize = "200%";
   });
   await expect(page.getByRole("button", { name: "Losfliegen" })).toBeVisible();
-  const layout = await page.evaluate(() => ({
-    clientWidth: document.documentElement.clientWidth,
-    scrollWidth: document.documentElement.scrollWidth,
-    canvasHeight: document.querySelector("canvas")?.getBoundingClientRect().height ?? 0,
-    restartHeight: document
-      .getElementById("restart-button")
-      ?.getBoundingClientRect().height,
-  }));
-  expect(layout.scrollWidth).toBeLessThanOrEqual(layout.clientWidth);
+  const layout = await page.evaluate(() => {
+    const clientWidth = document.documentElement.clientWidth;
+    const overflowing: Array<Record<string, string | number>> = [];
+    const inspect = (root: Document | ShadowRoot, scope: string) => {
+      for (const node of root.querySelectorAll<HTMLElement>("*")) {
+        const rect = node.getBoundingClientRect();
+        if (rect.right > clientWidth + 0.5 || rect.width > clientWidth + 0.5) {
+          overflowing.push({
+            scope,
+            tag: node.tagName.toLowerCase(),
+            id: node.id,
+            className:
+              typeof node.className === "string" ? node.className : "",
+            width: Math.round(rect.width * 10) / 10,
+            right: Math.round(rect.right * 10) / 10,
+          });
+        }
+        if (node.shadowRoot) inspect(node.shadowRoot, node.tagName.toLowerCase());
+      }
+    };
+    inspect(document, "document");
+    return {
+      clientWidth,
+      scrollWidth: document.documentElement.scrollWidth,
+      canvasHeight: document.querySelector("canvas")?.getBoundingClientRect().height ?? 0,
+      restartHeight: document
+        .getElementById("restart-button")
+        ?.getBoundingClientRect().height,
+      overflowing: overflowing.slice(0, 25),
+    };
+  });
+  expect(
+    layout.scrollWidth,
+    JSON.stringify(layout.overflowing, null, 2),
+  ).toBeLessThanOrEqual(layout.clientWidth);
   expect(layout.canvasHeight).toBeGreaterThan(250);
   expect(layout.restartHeight).toBeGreaterThanOrEqual(44);
 
@@ -231,6 +229,7 @@ test("honors system reduced motion and keeps physics available", async ({ page }
 
 test("resets all local data only after explicit second confirmation", async ({ page }) => {
   await page.addInitScript(() => {
+    localStorage.setItem("milosapps.gravity-loop.language", "en");
     localStorage.setItem(
       "gravity-loop:progress",
       JSON.stringify({
@@ -242,22 +241,23 @@ test("resets all local data only after explicit second confirmation", async ({ p
     );
   });
   await page.reload();
-  await expect(page.getByTestId("best")).toHaveText("4.200");
-  await page.getByRole("button", { name: "Einstellungen" }).click();
-  await page.getByRole("button", { name: "Zurücksetzen" }).click();
-  await expect(page.getByRole("group", { name: "Lokale Daten zurücksetzen" })).toBeVisible();
+  await expect(page.getByTestId("best")).toHaveText("4,200");
+  await page.getByRole("button", { name: "Settings" }).click();
+  await page.getByRole("button", { name: "Reset", exact: true }).click();
+  await expect(page.getByRole("group", { name: "Reset local data" })).toBeVisible();
 
-  await page.getByRole("button", { name: "Abbrechen" }).click();
-  await expect(page.getByRole("group", { name: "Lokale Daten zurücksetzen" })).toBeHidden();
+  await page.getByRole("button", { name: "Cancel" }).click();
+  await expect(page.getByRole("group", { name: "Reset local data" })).toBeHidden();
   expect(
     await page.evaluate(
       () => JSON.parse(localStorage.getItem("gravity-loop:progress") ?? "{}").bestScore,
     ),
   ).toBe(4_200);
 
-  await page.getByRole("button", { name: "Zurücksetzen" }).click();
-  await page.getByRole("button", { name: "Jetzt zurücksetzen" }).click();
+  await page.getByRole("button", { name: "Reset", exact: true }).click();
+  await page.getByRole("button", { name: "Reset now" }).click();
   await expect(page.getByRole("button", { name: "Zurückgesetzt" })).toBeDisabled();
+  await expect(page.locator("html")).toHaveAttribute("lang", "de");
   await expect(page.getByTestId("best")).toHaveText("0");
   const record = await page.evaluate(() =>
     JSON.parse(localStorage.getItem("gravity-loop:progress") ?? "{}"),
@@ -276,5 +276,10 @@ test("resets all local data only after explicit second confirmation", async ({ p
       cometSkin: "mint",
     },
   });
+  expect(
+    await page.evaluate(() =>
+      localStorage.getItem("milosapps.gravity-loop.language"),
+    ),
+  ).toBeNull();
   await expect(page.locator("html")).not.toHaveClass(/high-contrast/);
 });

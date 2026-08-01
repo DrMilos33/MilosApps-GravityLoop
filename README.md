@@ -14,7 +14,9 @@ Mond, Komet und Effekte sind vollständig codebasiert gezeichnet.
 - Bestwert, Serie und Einstellungen nur lokal;
 - eigener DEV-Lifecycle, Production nicht freigegeben;
 - keine fremden Spiele, Assets oder Designs kopieren;
-- keine Shared-Abhängigkeit ohne veröffentlichten Release;
+- gemeinsame Public-App-Shell ausschließlich lokal vendort und auf den
+  veröffentlichten Vertrag `public-app-shell/v2.0.2` fest gepinnt; kein CDN
+  und kein Shared-Runtimeimport;
 - Portal-DEV bindet nur per dokumentierter URL und Metadaten an.
 
 Siehe [Produktbrief](docs/PRODUCT_BRIEF.md), [QA-Plan](docs/QA_PLAN.md),
@@ -51,6 +53,7 @@ DEV-Port ist absichtlich app-spezifisch; Vite bricht bei einer Kollision ab,
 statt versehentlich einen anderen lokalen Dienst zu akzeptieren.
 
 ```powershell
+pnpm verify:shell
 pnpm test
 pnpm build
 pnpm test:e2e
@@ -61,4 +64,7 @@ pnpm test:e2e:dev
 
 Die Runtime besteht aus Vanilla TypeScript, CSS und Canvas. Vite dient nur dem
 DEV-/Build-Lifecycle; Spielphysik, Zufall, Zustand und lokale Speicherung sind
-in frameworkunabhängigen Modulen testbar.
+in frameworkunabhängigen Modulen testbar. Die vollständige sichtbare
+Fachoberfläche und die vendorte MilosApps-Shell lassen sich zwischen Deutsch
+und Englisch umschalten; die Sprache bleibt lokal gespeichert und wird beim
+vollständigen lokalen Datenreset sicher auf Deutsch zurückgesetzt.

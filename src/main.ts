@@ -4,9 +4,15 @@ import type {
   Difficulty,
   GameEvent,
   GameState,
-  PauseReason,
 } from "./core/game";
 import { localDateKey, seedFromDate } from "./core/rng";
+import {
+  formatDate,
+  formatNumber,
+  getMessages,
+  type Language,
+  type StaticTranslationKey,
+} from "./i18n";
 import { InputController } from "./input";
 import { GameRenderer, type RenderSettings } from "./renderer";
 import { GameRuntime, type DebugState } from "./runtime";
@@ -25,6 +31,8 @@ declare global {
   interface Window {
     __gravityLoopTestApi?: {
       getDebugState: () => DebugState;
+      getLanguage: () => Language;
+      getShellEnvironment: () => "dev";
       reset: () => void;
       pause: () => void;
       resumeWithHold: () => void;
@@ -64,30 +72,50 @@ const celestialModeSetting = element<HTMLSelectElement>("celestial-mode-setting"
 const celestialStyleSetting = element<HTMLSelectElement>("celestial-style-setting");
 const cometSkinSetting = element<HTMLSelectElement>("comet-skin-setting");
 const resetProgressButton = element<HTMLButtonElement>("reset-progress-button");
+const resetProgressLabel =
+  resetProgressButton.querySelector<HTMLElement>("[data-i18n]");
 const resetConfirmation = element<HTMLDivElement>("reset-confirmation");
 const resetCancelButton = element<HTMLButtonElement>("reset-cancel-button");
 const resetConfirmButton = element<HTMLButtonElement>("reset-confirm-button");
+const metaDescription = document.querySelector<HTMLMetaElement>(
+  'meta[name="description"]',
+);
 
 let progress: ProgressRecord = loadProgress(window.localStorage);
+let language: Language = document.documentElement.lang === "en" ? "en" : "de";
 const today = new Date();
 const dailySeedValue = seedFromDate(today);
+
+function applyStaticTranslations(): void {
+  const messages = getMessages(language);
+  document.documentElement.lang = language;
+  document.title = messages.static.documentTitle;
+  if (metaDescription) {
+    metaDescription.content = messages.static.metaDescription;
+  }
+
+  document.querySelectorAll<HTMLElement>("[data-i18n]").forEach((node) => {
+    const key = node.dataset.i18n;
+    if (key && key in messages.static) {
+      node.textContent = messages.static[key as StaticTranslationKey];
+    }
+  });
+  document
+    .querySelectorAll<HTMLElement>("[data-i18n-aria-label]")
+    .forEach((node) => {
+      const key = node.dataset.i18nAriaLabel;
+      if (key && key in messages.static) {
+        node.setAttribute(
+          "aria-label",
+          messages.static[key as StaticTranslationKey],
+        );
+      }
+    });
+}
+
+applyStaticTranslations();
+
 const renderer = new GameRenderer(canvas, dailySeedValue);
-const formattedToday = new Intl.DateTimeFormat("de-DE", {
-  day: "2-digit",
-  month: "long",
-  year: "numeric",
-}).format(today);
-
-const difficultyNames: Record<Difficulty, string> = {
-  easy: "Leicht",
-  normal: "Normal",
-  hard: "Schwer",
-};
-
-const celestialNames: Record<CelestialMode, string> = {
-  sun: "Sonnenorbit",
-  moon: "Mondorbit",
-};
 
 function prefersReducedMotion(): boolean {
   if (progress.settings.motion === "reduce") {
@@ -112,72 +140,45 @@ function save(): void {
   saveProgress(window.localStorage, progress);
 }
 
-function reasonCopy(reason: PauseReason): string {
-  switch (reason) {
-    case "hidden":
-      return "Das Spiel pausiert, sobald der Tab nicht sichtbar ist.";
-    case "rotation":
-      return "Die Ausrichtung hat sich geändert. Deine Runde ist sicher pausiert.";
-    case "focus":
-      return "Ein anderes Fenster war im Vordergrund. Deine Runde ist sicher pausiert.";
-    case "settings":
-      return "Deine Runde wartet, während du Einstellungen änderst.";
-    default:
-      return "Atme kurz durch. Deine Position bleibt erhalten.";
-  }
-}
-
-function gameOverCopy(state: GameState): string {
-  switch (state.gameOverReason) {
-    case "core":
-      return state.options.celestialMode === "sun"
-        ? "In die Sonne gezogen. Lass früher los – ihre Kraft steigt in der Nähe deutlich an."
-        : "Auf dem Mond eingeschlagen. Lass früher los und nimm den sanften Schwung mit.";
-    case "hazard":
-      return "Ein Trabant kreuzte deine Bahn. Sein Ring zeigt dir den nächsten Weg.";
-    default:
-      return "Über den sicheren Rand hinaus. Halte etwas länger, um enger einzudrehen.";
-  }
-}
-
 function updateOrbitContext(state: GameState): void {
-  const isMoon = state.options.celestialMode === "moon";
-  dailySeed.textContent = `${celestialNames[state.options.celestialMode]} · ${
-    difficultyNames[state.options.difficulty]
-  } · ${formattedToday} · ${localDateKey(today)}`;
-  canvas.setAttribute(
-    "aria-label",
-    `Gravity Loop Spielfeld im ${isMoon ? "Mondmodus" : "Sonnenmodus"}. ` +
-      `Schwierigkeit ${difficultyNames[state.options.difficulty]}. Halte mit Finger oder Maus ` +
-      `oder halte die Leertaste, um den Kometen ${
-        isMoon ? "zum Mond" : "zur Sonne"
-      } zu lenken. ` +
-      `Loslassen lässt ihn geradeaus fliegen. Eine Berührung mit ${
-        isMoon ? "dem Mond" : "der Sonne"
-      } beendet die Runde.`,
+  const messages = getMessages(language);
+  dailySeed.textContent = messages.orbitCaption(
+    messages.celestial[state.options.celestialMode],
+    messages.difficulty[state.options.difficulty],
+    formatDate(today, language),
+    localDateKey(today),
   );
+  canvas.setAttribute("aria-label", messages.canvasLabel(state));
 }
 
 function announceEvents(events: GameEvent[], state: GameState): void {
+  const messages = getMessages(language);
   for (const event of events) {
     if (event.type === "pickup") {
-      liveStatus.textContent = `Lichtfunke ${event.collected} gesammelt. ${event.score} Punkte.`;
+      liveStatus.textContent = messages.pickupAnnouncement(
+        formatNumber(event.collected, language),
+        formatNumber(event.score, language),
+      );
       sound.pickup(event.collected);
     } else if (event.type === "gameover") {
-      liveStatus.textContent = `Runde beendet. ${event.score} Punkte, ${state.collected} Lichtfunken.`;
+      liveStatus.textContent = messages.gameOverAnnouncement(
+        formatNumber(event.score, language),
+        formatNumber(state.collected, language),
+      );
       sound.gameOver();
     } else if (event.type === "started") {
-      liveStatus.textContent = "Flug gestartet.";
+      liveStatus.textContent = messages.static.startedAnnouncement;
       sound.start();
     } else if (event.type === "paused") {
-      liveStatus.textContent = "Spiel pausiert.";
+      liveStatus.textContent = messages.static.pausedAnnouncement;
     } else if (event.type === "resumed") {
-      liveStatus.textContent = "Flug fortgesetzt.";
+      liveStatus.textContent = messages.static.resumedAnnouncement;
     }
   }
 }
 
 function updateUi(state: GameState, events: GameEvent[]): void {
+  const messages = getMessages(language);
   let storageChanged = false;
   if (state.collected > progress.bestSeries) {
     progress.bestSeries = state.collected;
@@ -191,42 +192,50 @@ function updateUi(state: GameState, events: GameEvent[]): void {
     save();
   }
 
-  scoreValue.textContent = state.score.toLocaleString("de-DE");
-  comboValue.textContent = state.collected.toLocaleString("de-DE");
-  bestValue.textContent = progress.bestScore.toLocaleString("de-DE");
+  scoreValue.textContent = formatNumber(state.score, language);
+  comboValue.textContent = formatNumber(state.collected, language);
+  bestValue.textContent = formatNumber(progress.bestScore, language);
   holdIndicator.classList.toggle("is-active", state.held);
   canvas.classList.toggle("is-held", state.held);
   pauseButton.disabled = state.mode === "ready" || state.mode === "gameover";
-  pauseButton.querySelector("span")!.textContent = state.mode === "paused" ? "Weiter" : "Pause";
-  pauseButton.setAttribute("aria-pressed", state.mode === "paused" ? "true" : "false");
+  pauseButton.querySelector("span")!.textContent =
+    state.mode === "paused" ? messages.static.resume : messages.static.pause;
+  pauseButton.setAttribute(
+    "aria-pressed",
+    state.mode === "paused" ? "true" : "false",
+  );
   updateOrbitContext(state);
 
   overlay.classList.toggle("is-hidden", state.mode === "playing");
   if (state.mode === "ready") {
-    overlayKicker.textContent = `${difficultyNames[state.options.difficulty]} · ${
-      celestialNames[state.options.celestialMode]
+    overlayKicker.textContent = `${messages.difficulty[state.options.difficulty]} · ${
+      messages.celestial[state.options.celestialMode]
     }`;
     if (state.options.celestialMode === "moon") {
-      overlayTitle.textContent = "Halten lenkt dich zum Mond.";
-      overlayCopy.textContent =
-        "Die Mondgravitation zieht sanfter und gleichmäßiger. Ein Einschlag beendet die Runde.";
+      overlayTitle.textContent = messages.static.readyMoonTitle;
+      overlayCopy.textContent = messages.static.readyMoonCopy;
     } else {
-      overlayTitle.textContent = "Halten zieht dich zur Sonne.";
-      overlayCopy.textContent =
-        "Je näher du kommst, desto stärker zieht sie. Eine Berührung beendet die Runde.";
+      overlayTitle.textContent = messages.static.readySunTitle;
+      overlayCopy.textContent = messages.static.readySunCopy;
     }
-    overlayAction.textContent = "Losfliegen";
+    overlayAction.textContent = messages.static.launch;
   } else if (state.mode === "paused") {
-    overlayKicker.textContent = "Sicher pausiert";
-    overlayTitle.textContent = "Deine Bahn wartet.";
-    overlayCopy.textContent = reasonCopy(state.pauseReason);
-    overlayAction.textContent = "Weiterfliegen";
+    overlayKicker.textContent = messages.static.pausedKicker;
+    overlayTitle.textContent = messages.static.pausedTitle;
+    overlayCopy.textContent =
+      messages.pauseReason[state.pauseReason ?? "default"];
+    overlayAction.textContent = messages.static.continue;
   } else if (state.mode === "gameover") {
-    overlayKicker.textContent = `${state.score.toLocaleString("de-DE")} Punkte · ${state.collected} Funken`;
+    overlayKicker.textContent = messages.gameOverKicker(
+      formatNumber(state.score, language),
+      formatNumber(state.collected, language),
+    );
     overlayTitle.textContent =
-      state.score >= progress.bestScore && state.score > 0 ? "Neuer Bestwert!" : "Fast im Rhythmus.";
-    overlayCopy.textContent = gameOverCopy(state);
-    overlayAction.textContent = "Nochmal";
+      state.score >= progress.bestScore && state.score > 0
+        ? messages.static.newBest
+        : messages.static.almost;
+    overlayCopy.textContent = messages.gameOverCopy(state);
+    overlayAction.textContent = messages.static.again;
   }
 
   announceEvents(events, state);
@@ -245,6 +254,23 @@ const runtime = new GameRuntime(
 );
 const input = new InputController(canvas, runtime);
 
+function changeLanguage(nextLanguage: Language, announce = true): void {
+  if (nextLanguage === language) {
+    return;
+  }
+  language = nextLanguage;
+  applyStaticTranslations();
+  updateUi(runtime.getState(), []);
+  if (announce) {
+    liveStatus.textContent = getMessages(language).static.languageChanged;
+  }
+}
+
+window.addEventListener("milosapps:localechange", (event) => {
+  const locale = (event as CustomEvent<{ locale?: string }>).detail?.locale;
+  changeLanguage(locale === "en" ? "en" : "de");
+});
+
 overlayAction.addEventListener("click", () => {
   runtime.beginHold();
   window.setTimeout(() => runtime.endHold(), 90);
@@ -260,7 +286,8 @@ restartButton.addEventListener("click", () => {
   input.releaseAll();
   runtime.reset();
   canvas.focus({ preventScroll: true });
-  liveStatus.textContent = "Runde neu gestartet.";
+  liveStatus.textContent =
+    getMessages(language).static.restartedAnnouncement;
 });
 
 settingsButton.addEventListener("click", () => {
@@ -275,7 +302,9 @@ settingsButton.addEventListener("click", () => {
   cometSkinSetting.value = progress.settings.cometSkin;
   resetConfirmation.hidden = true;
   resetProgressButton.disabled = false;
-  resetProgressButton.textContent = "Zurücksetzen";
+  if (resetProgressLabel) {
+    resetProgressLabel.textContent = getMessages(language).static.reset;
+  }
   settingsDialog.showModal();
 });
 
@@ -293,19 +322,27 @@ settingsDialog.addEventListener("close", () => {
   progress.settings.celestialStyle =
     celestialStyleSetting.value as CelestialStyle;
   progress.settings.cometSkin = cometSkinSetting.value as CometSkin;
-  document.documentElement.classList.toggle("high-contrast", progress.settings.highContrast);
+  document.documentElement.classList.toggle(
+    "high-contrast",
+    progress.settings.highContrast,
+  );
   save();
   if (gameplayChanged) {
     runtime.configure({ difficulty, celestialMode });
-    liveStatus.textContent = `${celestialNames[celestialMode]}, Schwierigkeit ${
-      difficultyNames[difficulty]
-    }. Die Runde wurde neu vorbereitet.`;
+    const messages = getMessages(language);
+    liveStatus.textContent = messages.settingsApplied(
+      messages.celestial[celestialMode],
+      messages.difficulty[difficulty],
+    );
   }
   settingsButton.focus();
 });
 
 contrastSetting.addEventListener("change", () => {
-  document.documentElement.classList.toggle("high-contrast", contrastSetting.checked);
+  document.documentElement.classList.toggle(
+    "high-contrast",
+    contrastSetting.checked,
+  );
 });
 
 resetProgressButton.addEventListener("click", () => {
@@ -320,6 +357,12 @@ resetCancelButton.addEventListener("click", () => {
 
 resetConfirmButton.addEventListener("click", () => {
   progress = structuredClone(DEFAULT_PROGRESS);
+  language = "de";
+  try {
+    window.localStorage.removeItem("milosapps.gravity-loop.language");
+  } catch {
+    // Local storage is optional; resetting the active UI still succeeds.
+  }
   soundSetting.checked = progress.settings.sound;
   motionSetting.value = progress.settings.motion;
   contrastSetting.checked = progress.settings.highContrast;
@@ -329,14 +372,22 @@ resetConfirmButton.addEventListener("click", () => {
   cometSkinSetting.value = progress.settings.cometSkin;
   document.documentElement.classList.remove("high-contrast");
   save();
+  applyStaticTranslations();
+  const shell = document.querySelector("milos-app-shell") as
+    | (HTMLElement & { applyLocale(locale: string, persist?: boolean): void })
+    | null;
+  shell?.applyLocale("de", false);
   runtime.configure({
     difficulty: progress.settings.difficulty,
     celestialMode: progress.settings.celestialMode,
   });
   resetConfirmation.hidden = true;
-  resetProgressButton.textContent = "Zurückgesetzt";
+  if (resetProgressLabel) {
+    resetProgressLabel.textContent =
+      getMessages(language).static.resetDone;
+  }
   resetProgressButton.disabled = true;
-  liveStatus.textContent = "Alle lokalen Gravity-Loop-Daten wurden zurückgesetzt.";
+  liveStatus.textContent = getMessages(language).static.resetAnnouncement;
 });
 
 document.addEventListener("visibilitychange", () => {
@@ -371,12 +422,17 @@ window.matchMedia("(orientation: portrait)").addEventListener("change", () => {
   runtime.pauseForOrientationChange();
 });
 
-document.documentElement.classList.toggle("high-contrast", progress.settings.highContrast);
+document.documentElement.classList.toggle(
+  "high-contrast",
+  progress.settings.highContrast,
+);
 
 const searchParameters = new URLSearchParams(window.location.search);
 if (searchParameters.get("test") === "1") {
   window.__gravityLoopTestApi = {
     getDebugState: () => runtime.getDebugState(),
+    getLanguage: () => language,
+    getShellEnvironment: () => "dev",
     reset: () => runtime.reset(),
     pause: () => runtime.pause("manual"),
     resumeWithHold: () => runtime.beginHold(),
