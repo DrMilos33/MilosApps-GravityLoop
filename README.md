@@ -15,7 +15,7 @@ Mond, Komet und Effekte sind vollständig codebasiert gezeichnet.
 - eigener DEV-Lifecycle, Production nicht freigegeben;
 - keine fremden Spiele, Assets oder Designs kopieren;
 - gemeinsame Public-App-Shell ausschließlich lokal vendort und auf den
-  veröffentlichten Vertrag `public-app-shell/v2.0.2` fest gepinnt; kein CDN
+  veröffentlichten Vertrag `public-app-shell/v2.0.3` fest gepinnt; kein CDN
   und kein Shared-Runtimeimport;
 - Portal-DEV bindet nur per dokumentierter URL und Metadaten an.
 

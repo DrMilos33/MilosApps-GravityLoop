@@ -1,13 +1,15 @@
 {
   "contract": "public-app-shell/v2",
-  "version": "2.0.2",
-  "sharedCommit": "97f695be3bdfcfdc51ad286c6ed231c4b9585295",
+  "version": "2.0.3",
+  "sharedCommit": "ed898412306e22c6ae1b10ee8953df29f8acd627",
   "appKey": "gravity-loop",
   "manifest": "milos-app.json",
   "vendorDirectory": "vendor/milosapps-shell/v2",
   "artifacts": {
-    "milos-app-shell.js": "sha256:78508eb1b5a29540656d1074dc2f72f629227ba8d185ac8b48b43f9f48353d65",
-    "bootstrap.js": "sha256:072e61bc87e329a189f4681c2d1659dfd8542e1d16d127b4e686e53e1de56e9c",
-    "verify.mjs": "sha256:7858069b65e4fe07b7d3e5e50d78d7b7d9d24f41b77864d4678948893aa066f6"
+    "milos-app-shell.js": "sha256:bff9c09ae64e453d186508a4372a1cacc17b4dcd30b770046c7f4efee53731b3",
+    "milos-app-shell.css": "sha256:662093d5dce4147b7e962a882b570b478a437a78c77d92242eb3c96191a019a9",
+    "bootstrap.js": "sha256:4a50cabb00f987c85f130bb99653684046622a7383e2a03f19449626349a7d63",
+    "milos-app-shell-theme.css": "sha256:8dcc766a5803a4fb2ae4580dd203e41d5e3b97478a8975eeed7adec7c8099492",
+    "verify.mjs": "sha256:59dd5776bf9a71ac1e096fee9f2afce7627912bd3d8a134bb3ca91f82dd65126"
   }
 }

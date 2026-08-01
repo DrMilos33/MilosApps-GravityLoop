@@ -208,3 +208,75 @@ test("fits the shared shell at 1440x900 and 390x844 without footer whitespace", 
     expect(Math.abs(layout.footerBottom - layout.documentBottom)).toBeLessThanOrEqual(1);
   }
 });
+
+test("renders the shared shell under a self-only style CSP", async ({ page }) => {
+  const cspErrors: string[] = [];
+  page.on("console", (message) => {
+    if (
+      message.type() === "error" &&
+      /content security policy|style-src/i.test(message.text())
+    ) {
+      cspErrors.push(message.text());
+    }
+  });
+
+  await page.route("**/csp-shell-fixture.html", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "text/html; charset=utf-8",
+      headers: {
+        "Content-Security-Policy": [
+          "default-src 'self'",
+          "script-src 'self'",
+          "style-src 'self'",
+          "img-src 'self' data:",
+          "connect-src 'self'",
+          "object-src 'none'",
+          "base-uri 'self'",
+        ].join("; "),
+      },
+      body: `<!doctype html>
+        <html lang="de">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <script type="module" src="./vendor/milosapps-shell/v2/bootstrap.js"></script>
+          </head>
+          <body>
+            <milos-app-shell>
+              <svg slot="app-icon" aria-hidden="true" viewBox="0 0 48 48">
+                <circle cx="24" cy="24" r="12"></circle>
+              </svg>
+              <main id="main" slot="main"><h1>Gravity Loop</h1></main>
+            </milos-app-shell>
+          </body>
+        </html>`,
+    });
+  });
+
+  await page.goto("./csp-shell-fixture.html");
+  await expect(page.getByText("DEV", { exact: true })).toBeVisible();
+  const shell = page.locator("milos-app-shell");
+  await expect
+    .poll(() => shell.evaluate((host) => getComputedStyle(host).display))
+    .toBe("grid");
+  await expect
+    .poll(() =>
+      shell.evaluate((host) => getComputedStyle(host).backgroundColor),
+    )
+    .toBe("rgb(7, 17, 30)");
+  await expect
+    .poll(() =>
+      shell.evaluate((host) => {
+        const root = host.shadowRoot;
+        if (!root) throw new Error("Open shell shadow root is missing.");
+        return (
+          root.querySelector<HTMLElement>(".control")?.getBoundingClientRect()
+            .height ?? 0
+        );
+      }),
+    )
+    .toBeGreaterThanOrEqual(44);
+  await page.waitForTimeout(100);
+  expect(cspErrors).toEqual([]);
+});
