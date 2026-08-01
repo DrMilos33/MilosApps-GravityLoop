@@ -113,12 +113,10 @@ test("translates the complete app UI through the shell event and persists EN", a
   await expectCompleteAppLocale(page, "en");
 
   await page.getByRole("button", { name: "Settings" }).click();
-  await expect(
-    page.getByRole("combobox", { name: "Difficulty" }),
-  ).toBeVisible();
-  await expect(page.getByRole("combobox", { name: "Central body" })).toBeVisible();
+  await expect(page.getByRole("radio", { name: /Easy/ })).toBeVisible();
+  await expect(page.getByRole("radio", { name: /Moon/ })).toBeVisible();
   await expect(page.getByRole("combobox", { name: "Comet skin" })).toBeVisible();
-  await page.getByRole("button", { name: "Done" }).click();
+  await page.getByRole("button", { name: "Discard" }).click();
 
   expect(
     await page.evaluate(() =>

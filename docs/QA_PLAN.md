@@ -6,7 +6,8 @@ Abschlussmeldung sind mindestens drei dokumentierte Verbesserungsrunden nötig.
 ## Automatisierbare Logik
 
 - feste Simulationsschritte bei verschiedenen Renderfrequenzen;
-- Gravitation, Kurskrümmung, Kollisionsgrenzen und Punktezählung;
+- Gravitation, Kurskrümmung, Kollisionsgrenzen, Sternenschild und
+  Punktezählung;
 - reproduzierbare Level- und Tageschallenge-Seeds;
 - Pause, Neustart, Game-over und schneller Mehrfachstart;
 - lokale Bestwerte, Serien, Reset und Speicherformatmigration;
@@ -15,6 +16,8 @@ Abschlussmeldung sind mindestens drei dokumentierte Verbesserungsrunden nötig.
 ## Simulierte Nutzung
 
 - kurzes Tippen, langes Halten, schneller Wechsel und gleichzeitige Eingaben;
+- Touch innerhalb und außerhalb des Canvas, während interaktive Ziele nie als
+  Gravitationsfläche behandelt werden;
 - Pointer-Cancel, verlorener Fokus, Tabwechsel, Systemdialog und App-Rückkehr;
 - Touch, Maus, Tastatur, Trackpad und hohe Eingabelatenz;
 - kleine und große Viewports, Hoch-/Querformat, hoher Gerätepixelfaktor;

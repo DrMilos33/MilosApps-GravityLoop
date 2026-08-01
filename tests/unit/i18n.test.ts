@@ -22,10 +22,10 @@ describe("Gravity Loop localization", () => {
     expect(getMessages("de").canvasLabel(moon)).toContain("Mondmodus");
     expect(getMessages("en").canvasLabel(moon)).toContain("Moon mode");
     expect(getMessages("de").gameOverKicker("1.200", "4")).toBe(
-      "1.200 Punkte · 4 Funken",
+      "1.200 Punkte · 4 Sterne",
     );
     expect(getMessages("en").gameOverKicker("1,200", "4")).toBe(
-      "1,200 points · 4 sparks",
+      "1,200 points · 4 stars",
     );
   });
 

@@ -63,6 +63,8 @@ export class GameRuntime {
         for (const event of stepEvents) {
           if (event.type === "pickup") {
             this.renderer.recordPickup(event.position);
+          } else if (event.type === "shield-used") {
+            this.renderer.recordShield(event.position);
           }
         }
         events = events.concat(stepEvents);

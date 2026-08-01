@@ -49,6 +49,7 @@ function element<T extends HTMLElement>(id: string): T {
 }
 
 const canvas = element<HTMLCanvasElement>("game-canvas");
+const appShell = element<HTMLElement>("main");
 const overlay = element<HTMLDivElement>("game-overlay");
 const overlayKicker = element<HTMLParagraphElement>("overlay-kicker");
 const overlayTitle = element<HTMLHeadingElement>("overlay-title");
@@ -56,6 +57,7 @@ const overlayCopy = element<HTMLParagraphElement>("overlay-copy");
 const overlayAction = element<HTMLButtonElement>("overlay-action");
 const scoreValue = element<HTMLElement>("score-value");
 const comboValue = element<HTMLElement>("combo-value");
+const shieldValue = element<HTMLElement>("shield-value");
 const bestValue = element<HTMLElement>("best-value");
 const pauseButton = element<HTMLButtonElement>("pause-button");
 const restartButton = element<HTMLButtonElement>("restart-button");
@@ -64,11 +66,24 @@ const holdIndicator = element<HTMLDivElement>("hold-indicator");
 const liveStatus = element<HTMLDivElement>("live-status");
 const dailySeed = element<HTMLParagraphElement>("daily-seed");
 const settingsDialog = element<HTMLDialogElement>("settings-dialog");
+const settingsForm = element<HTMLFormElement>("settings-form");
+const settingsCloseButton = element<HTMLButtonElement>("settings-close-button");
+const settingsCancelButton = element<HTMLButtonElement>("settings-cancel-button");
+const settingsApplyButton = element<HTMLButtonElement>("settings-apply-button");
+const roundResetNote = element<HTMLDivElement>("round-reset-note");
 const soundSetting = element<HTMLInputElement>("sound-setting");
 const motionSetting = element<HTMLSelectElement>("motion-setting");
 const contrastSetting = element<HTMLInputElement>("contrast-setting");
-const difficultySetting = element<HTMLSelectElement>("difficulty-setting");
-const celestialModeSetting = element<HTMLSelectElement>("celestial-mode-setting");
+const difficultySettings = [
+  ...document.querySelectorAll<HTMLInputElement>(
+    'input[name="difficulty-setting"]',
+  ),
+];
+const celestialModeSettings = [
+  ...document.querySelectorAll<HTMLInputElement>(
+    'input[name="celestial-mode-setting"]',
+  ),
+];
 const celestialStyleSetting = element<HTMLSelectElement>("celestial-style-setting");
 const cometSkinSetting = element<HTMLSelectElement>("comet-skin-setting");
 const resetProgressButton = element<HTMLButtonElement>("reset-progress-button");
@@ -85,6 +100,46 @@ let progress: ProgressRecord = loadProgress(window.localStorage);
 let language: Language = document.documentElement.lang === "en" ? "en" : "de";
 const today = new Date();
 const dailySeedValue = seedFromDate(today);
+
+function setRadioValue<T extends string>(
+  controls: HTMLInputElement[],
+  value: T,
+): void {
+  for (const control of controls) {
+    control.checked = control.value === value;
+  }
+}
+
+function selectedRadioValue<T extends string>(
+  controls: HTMLInputElement[],
+  fallback: T,
+): T {
+  return (controls.find((control) => control.checked)?.value as T | undefined) ?? fallback;
+}
+
+function pendingGameOptions(): { difficulty: Difficulty; celestialMode: CelestialMode } {
+  return {
+    difficulty: selectedRadioValue(
+      difficultySettings,
+      progress.settings.difficulty,
+    ),
+    celestialMode: selectedRadioValue(
+      celestialModeSettings,
+      progress.settings.celestialMode,
+    ),
+  };
+}
+
+function updateSettingsAction(): void {
+  const pending = pendingGameOptions();
+  const gameplayChanged =
+    runtime.getState().options.difficulty !== pending.difficulty ||
+    runtime.getState().options.celestialMode !== pending.celestialMode;
+  const key = gameplayChanged ? "applyRestart" : "applySettings";
+  settingsApplyButton.dataset.i18n = key;
+  settingsApplyButton.textContent = getMessages(language).static[key];
+  roundResetNote.classList.toggle("is-pending", gameplayChanged);
+}
 
 function applyStaticTranslations(): void {
   const messages = getMessages(language);
@@ -158,8 +213,13 @@ function announceEvents(events: GameEvent[], state: GameState): void {
       liveStatus.textContent = messages.pickupAnnouncement(
         formatNumber(event.collected, language),
         formatNumber(event.score, language),
+        event.shieldActive,
+        event.shieldCharge,
       );
       sound.pickup(event.collected);
+    } else if (event.type === "shield-used") {
+      liveStatus.textContent = messages.shieldUsedAnnouncement;
+      sound.shield();
     } else if (event.type === "gameover") {
       liveStatus.textContent = messages.gameOverAnnouncement(
         formatNumber(event.score, language),
@@ -194,9 +254,17 @@ function updateUi(state: GameState, events: GameEvent[]): void {
 
   scoreValue.textContent = formatNumber(state.score, language);
   comboValue.textContent = formatNumber(state.collected, language);
+  shieldValue.textContent = state.shieldActive
+    ? messages.static.shieldReady
+    : `${formatNumber(state.shieldCharge, language)}/3`;
+  shieldValue.closest(".shield-metric")?.classList.toggle(
+    "is-ready",
+    state.shieldActive,
+  );
   bestValue.textContent = formatNumber(progress.bestScore, language);
   holdIndicator.classList.toggle("is-active", state.held);
   canvas.classList.toggle("is-held", state.held);
+  appShell.classList.toggle("is-playing", state.mode === "playing");
   pauseButton.disabled = state.mode === "ready" || state.mode === "gameover";
   pauseButton.querySelector("span")!.textContent =
     state.mode === "paused" ? messages.static.resume : messages.static.pause;
@@ -252,7 +320,7 @@ const runtime = new GameRuntime(
     celestialMode: progress.settings.celestialMode,
   },
 );
-const input = new InputController(canvas, runtime);
+const input = new InputController(canvas, appShell, runtime);
 
 function changeLanguage(nextLanguage: Language, announce = true): void {
   if (nextLanguage === language) {
@@ -263,6 +331,9 @@ function changeLanguage(nextLanguage: Language, announce = true): void {
   updateUi(runtime.getState(), []);
   if (announce) {
     liveStatus.textContent = getMessages(language).static.languageChanged;
+  }
+  if (settingsDialog.open) {
+    updateSettingsAction();
   }
 }
 
@@ -296,8 +367,8 @@ settingsButton.addEventListener("click", () => {
   soundSetting.checked = progress.settings.sound;
   motionSetting.value = progress.settings.motion;
   contrastSetting.checked = progress.settings.highContrast;
-  difficultySetting.value = progress.settings.difficulty;
-  celestialModeSetting.value = progress.settings.celestialMode;
+  setRadioValue(difficultySettings, progress.settings.difficulty);
+  setRadioValue(celestialModeSettings, progress.settings.celestialMode);
   celestialStyleSetting.value = progress.settings.celestialStyle;
   cometSkinSetting.value = progress.settings.cometSkin;
   resetConfirmation.hidden = true;
@@ -305,12 +376,35 @@ settingsButton.addEventListener("click", () => {
   if (resetProgressLabel) {
     resetProgressLabel.textContent = getMessages(language).static.reset;
   }
+  settingsDialog.returnValue = "";
+  updateSettingsAction();
   settingsDialog.showModal();
 });
 
 settingsDialog.addEventListener("close", () => {
-  const difficulty = difficultySetting.value as Difficulty;
-  const celestialMode = celestialModeSetting.value as CelestialMode;
+  document.documentElement.classList.toggle(
+    "high-contrast",
+    progress.settings.highContrast,
+  );
+  resetConfirmation.hidden = true;
+  settingsButton.focus();
+});
+
+settingsCloseButton.addEventListener("click", () => {
+  settingsDialog.close("cancelled");
+});
+
+settingsCancelButton.addEventListener("click", () => {
+  settingsDialog.close("cancelled");
+});
+
+for (const setting of [...difficultySettings, ...celestialModeSettings]) {
+  setting.addEventListener("change", updateSettingsAction);
+}
+
+settingsForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const { difficulty, celestialMode } = pendingGameOptions();
   const gameplayChanged =
     runtime.getState().options.difficulty !== difficulty ||
     runtime.getState().options.celestialMode !== celestialMode;
@@ -335,7 +429,7 @@ settingsDialog.addEventListener("close", () => {
       messages.difficulty[difficulty],
     );
   }
-  settingsButton.focus();
+  settingsDialog.close("applied");
 });
 
 contrastSetting.addEventListener("change", () => {
@@ -366,8 +460,8 @@ resetConfirmButton.addEventListener("click", () => {
   soundSetting.checked = progress.settings.sound;
   motionSetting.value = progress.settings.motion;
   contrastSetting.checked = progress.settings.highContrast;
-  difficultySetting.value = progress.settings.difficulty;
-  celestialModeSetting.value = progress.settings.celestialMode;
+  setRadioValue(difficultySettings, progress.settings.difficulty);
+  setRadioValue(celestialModeSettings, progress.settings.celestialMode);
   celestialStyleSetting.value = progress.settings.celestialStyle;
   cometSkinSetting.value = progress.settings.cometSkin;
   document.documentElement.classList.remove("high-contrast");
@@ -388,6 +482,7 @@ resetConfirmButton.addEventListener("click", () => {
   }
   resetProgressButton.disabled = true;
   liveStatus.textContent = getMessages(language).static.resetAnnouncement;
+  updateSettingsAction();
 });
 
 document.addEventListener("visibilitychange", () => {

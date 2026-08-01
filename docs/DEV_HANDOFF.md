@@ -9,13 +9,13 @@ Production: nicht freigegeben
 | Feld | Wert |
 |---|---|
 | Titel | Gravity Loop |
-| Kurzbeschreibung | Halten krümmt die Flugbahn eines kleinen Kometen. Meistere Sonnen- oder Mondgravitation in drei Schwierigkeitsgraden, sammle Lichtfunken und wähle deinen Kometen-Skin. |
+| Kurzbeschreibung | Halten krümmt die Flugbahn eines kleinen Kometen. Meistere Sonnen- oder Mondgravitation, lade mit drei Lichtsternen einen Schild und wähle deinen Kometen-Skin. |
 | Sprache | Deutsch und Englisch (`de`, `en`), vollständig umschaltbar und lokal persistent |
 | Klasse | öffentlich, ohne Anmeldung |
 | Status | öffentlicher unabhängiger DEV-Stand, extern verifiziert |
 | Plattformen | Web, mobil und Desktop |
-| Eingaben | Touch, Pointer/Stift, Maus, Leertaste oder Pfeil hoch; `P` Pause, `R` Neustart |
-| Daten | Bestwert, Funkenserie, Einstellungen und Sprache ausschließlich in lokalem Browser-Speicher; keine Cookies, kein Konto, keine Datenbank |
+| Eingaben | Touch/Stift auf der nicht-interaktiven App-Fläche, Maus im Canvas, Leertaste oder Pfeil hoch; `P` Pause, `R` Neustart |
+| Daten | Bestwert, Sternenserie, Einstellungen und Sprache ausschließlich in lokalem Browser-Speicher; keine Cookies, kein Konto, keine Datenbank |
 | Vorschaubildrechte | Darstellung und Icon vollständig im Repository codebasiert erstellt; keine externen oder kopierten Assets |
 | Shared-Abhängigkeiten | `public-app-shell/v2.0.3` aus Shared-Commit `ed898412306e22c6ae1b10ee8953df29f8acd627`, app-eigen vendort und per 5er-Lock verifiziert; kein Runtimeimport |
 

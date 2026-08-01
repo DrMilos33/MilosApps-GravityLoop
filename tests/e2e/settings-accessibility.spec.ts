@@ -5,6 +5,36 @@ test.beforeEach(async ({ page }) => {
   await page.goto("./?test=1");
 });
 
+test("keeps settings pending until explicit apply and announces a round reset", async ({
+  page,
+}) => {
+  await page.getByRole("button", { name: "Einstellungen" }).click();
+  await page.getByRole("radio", { name: /Leicht/ }).check();
+  await page.getByRole("radio", { name: /Mond/ }).check();
+  await expect(
+    page.getByRole("button", { name: "Übernehmen & neu starten" }),
+  ).toBeVisible();
+
+  await page.getByRole("button", { name: "Verwerfen" }).click();
+  expect(
+    await page.evaluate(() => window.__gravityLoopTestApi!.getDebugState().state.options),
+  ).toEqual({ difficulty: "normal", celestialMode: "sun" });
+
+  await page.getByRole("button", { name: "Einstellungen" }).click();
+  await page.getByRole("radio", { name: /Leicht/ }).check();
+  await page.getByRole("radio", { name: /Mond/ }).check();
+  await page
+    .getByRole("button", { name: "Übernehmen & neu starten" })
+    .click();
+
+  const applied = await page.evaluate(
+    () => window.__gravityLoopTestApi!.getDebugState().state,
+  );
+  expect(applied.mode).toBe("ready");
+  expect(applied.stepCount).toBe(0);
+  expect(applied.options).toEqual({ difficulty: "easy", celestialMode: "moon" });
+});
+
 test("persists gameplay, appearance and comfort settings locally without cookies", async ({
   page,
 }) => {
@@ -12,14 +42,16 @@ test("persists gameplay, appearance and comfort settings locally without cookies
   const dialog = page.getByRole("dialog");
   await expect(dialog).toBeVisible();
 
-  await page.getByRole("combobox", { name: "Schwierigkeit" }).selectOption("hard");
-  await page.getByRole("combobox", { name: "Zentralkörper" }).selectOption("moon");
+  await page.getByRole("radio", { name: /Schwer/ }).check();
+  await page.getByRole("radio", { name: /Mond/ }).check();
   await page.getByRole("combobox", { name: "Sonne und Mond" }).selectOption("natural");
   await page.getByRole("combobox", { name: "Kometen-Skin" }).selectOption("hat");
   await page.getByRole("switch", { name: "Klänge" }).check();
   await page.getByRole("combobox", { name: "Bewegung" }).selectOption("reduce");
   await page.getByRole("switch", { name: "Hoher Kontrast" }).check();
-  await page.getByRole("button", { name: "Fertig" }).click();
+  await page
+    .getByRole("button", { name: "Übernehmen & neu starten" })
+    .click();
 
   await expect(dialog).toBeHidden();
   await expect
@@ -48,8 +80,8 @@ test("persists gameplay, appearance and comfort settings locally without cookies
 
   await page.reload();
   await page.getByRole("button", { name: "Einstellungen" }).click();
-  await expect(page.getByRole("combobox", { name: "Schwierigkeit" })).toHaveValue("hard");
-  await expect(page.getByRole("combobox", { name: "Zentralkörper" })).toHaveValue("moon");
+  await expect(page.getByRole("radio", { name: /Schwer/ })).toBeChecked();
+  await expect(page.getByRole("radio", { name: /Mond/ })).toBeChecked();
   await expect(page.getByRole("combobox", { name: "Sonne und Mond" })).toHaveValue("natural");
   await expect(page.getByRole("combobox", { name: "Kometen-Skin" })).toHaveValue("hat");
   await expect(page.getByRole("switch", { name: "Klänge" })).toBeChecked();
@@ -64,9 +96,11 @@ test("switches world and difficulty only through a clean round reset", async ({ 
     .toBeGreaterThan(0);
 
   await page.getByRole("button", { name: "Einstellungen" }).click();
-  await page.getByRole("combobox", { name: "Schwierigkeit" }).selectOption("easy");
-  await page.getByRole("combobox", { name: "Zentralkörper" }).selectOption("moon");
-  await page.getByRole("button", { name: "Fertig" }).click();
+  await page.getByRole("radio", { name: /Leicht/ }).check();
+  await page.getByRole("radio", { name: /Mond/ }).check();
+  await page
+    .getByRole("button", { name: "Übernehmen & neu starten" })
+    .click();
 
   await expect
     .poll(() => page.evaluate(() => window.__gravityLoopTestApi!.getDebugState().state.mode))
@@ -107,10 +141,12 @@ test("renders procedural moon and hat skin as real canvas changes", async ({
   await page.waitForTimeout(100);
   const before = await sampleCanvas();
   await page.getByRole("button", { name: "Einstellungen" }).click();
-  await page.getByRole("combobox", { name: "Zentralkörper" }).selectOption("moon");
+  await page.getByRole("radio", { name: /Mond/ }).check();
   await page.getByRole("combobox", { name: "Sonne und Mond" }).selectOption("natural");
   await page.getByRole("combobox", { name: "Kometen-Skin" }).selectOption("hat");
-  await page.getByRole("button", { name: "Fertig" }).click();
+  await page
+    .getByRole("button", { name: "Übernehmen & neu starten" })
+    .click();
   await expect
     .poll(() =>
       page.evaluate(
@@ -197,6 +233,23 @@ test("reflows at 200 percent text zoom without horizontal page overflow", async 
   const dialogLayout = await page.evaluate(() => {
     const dialog = document.getElementById("settings-dialog");
     const rect = dialog?.getBoundingClientRect();
+    const overflowing = [...(dialog?.querySelectorAll<HTMLElement>("*") ?? [])]
+      .map((node) => ({
+        tag: node.tagName.toLowerCase(),
+        id: node.id,
+        className: node.className,
+        left: Math.round(node.getBoundingClientRect().left),
+        right: Math.round(node.getBoundingClientRect().right),
+        width: Math.round(node.getBoundingClientRect().width),
+        clientWidth: node.clientWidth,
+        scrollWidth: node.scrollWidth,
+      }))
+      .filter(
+        (node) =>
+          node.left < (rect?.left ?? 0) ||
+          node.right > (rect?.right ?? 0) ||
+          node.scrollWidth > node.clientWidth,
+      );
     return {
       viewportWidth: document.documentElement.clientWidth,
       pageScrollWidth: document.documentElement.scrollWidth,
@@ -204,12 +257,16 @@ test("reflows at 200 percent text zoom without horizontal page overflow", async 
       dialogRight: rect?.right ?? Number.POSITIVE_INFINITY,
       dialogClientWidth: dialog?.clientWidth ?? 0,
       dialogScrollWidth: dialog?.scrollWidth ?? Number.POSITIVE_INFINITY,
+      overflowing,
     };
   });
   expect(dialogLayout.pageScrollWidth).toBeLessThanOrEqual(dialogLayout.viewportWidth);
   expect(dialogLayout.dialogLeft).toBeGreaterThanOrEqual(0);
   expect(dialogLayout.dialogRight).toBeLessThanOrEqual(dialogLayout.viewportWidth);
-  expect(dialogLayout.dialogScrollWidth).toBeLessThanOrEqual(dialogLayout.dialogClientWidth);
+  expect(
+    dialogLayout.dialogScrollWidth,
+    JSON.stringify(dialogLayout.overflowing, null, 2),
+  ).toBeLessThanOrEqual(dialogLayout.dialogClientWidth);
 });
 
 test("honors system reduced motion and keeps physics available", async ({ page }) => {

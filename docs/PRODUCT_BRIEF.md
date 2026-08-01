@@ -9,7 +9,8 @@ Risiko und Fluggefühl zu vielen kurzen Runden einlädt.
 
 1. Direkt spielen, ohne Menüpflicht.
 2. Halten krümmt die Flugbahn; Loslassen verändert den Kurs.
-3. Lichtfunken sammeln und mit fair skalierten Gefahren umgehen.
+3. Lichtsterne sammeln; drei Sterne laden einen Schild gegen den nächsten
+   Trabanten.
 4. Kollision mit Sonne, Mond, Trabant oder Rand beendet die Runde.
 5. Sofort neu starten und Bestwert lokal vergleichen.
 
@@ -26,6 +27,9 @@ Risiko und Fluggefühl zu vielen kurzen Runden einlädt.
   externen Fotos, Assets oder Trackingaufrufe.
 - Die Skins `Mint`, `Feuer`, `Eis` und `Komet mit Hut` verändern ausschließlich
   die Darstellung. Hitbox und Physik bleiben identisch.
+- Ein geladener Sternenschild fängt genau einen Trabanten ab. Zentralkörper und
+  Rand bleiben immer tödlich, damit Risiko und Kursentscheidung verständlich
+  bleiben.
 - Spielregelwechsel initialisieren die Runde fair neu; kosmetische Optionen
   verändern keine laufende Simulation.
 
@@ -33,6 +37,8 @@ Risiko und Fluggefühl zu vielen kurzen Runden einlädt.
 
 - flüssige, deterministisch testbare Physik;
 - zuverlässige Pointer-, Touch-, Maus- und Tastatursteuerung;
+- mobile Haltesteuerung auf der gesamten nicht-interaktiven App-Fläche, ohne
+  Buttons, Links oder Einstellungen zu blockieren;
 - klar erkennbare Flugbahnwirkung und unmittelbares Feedback;
 - kurze Runden mit verständlicher Punktewertung;
 - lokale Bestwerte und zurücksetzbare Einstellungen;

@@ -103,11 +103,21 @@ export interface GameState {
   score: number;
   pickupPoints: number;
   collected: number;
+  shieldCharge: number;
+  shieldActive: boolean;
   impact: Vector | null;
 }
 
 export type GameEvent =
-  | { type: "pickup"; score: number; collected: number; position: Vector }
+  | {
+      type: "pickup";
+      score: number;
+      collected: number;
+      position: Vector;
+      shieldCharge: number;
+      shieldActive: boolean;
+    }
+  | { type: "shield-used"; position: Vector }
   | { type: "gameover"; reason: Exclude<GameOverReason, null>; score: number }
   | { type: "started" }
   | { type: "paused"; reason: Exclude<PauseReason, null> }
@@ -226,6 +236,8 @@ export function createGameState(
     score: 0,
     pickupPoints: 0,
     collected: 0,
+    shieldCharge: 0,
+    shieldActive: false,
     impact: null,
   };
   state.pickup = spawnPickup(state);
@@ -297,6 +309,59 @@ function controlAcceleration(state: GameState): number {
   return solarPull * profile.gravityMultiplier;
 }
 
+function useShieldAgainstHazard(
+  state: GameState,
+  position: Vector,
+  radius: number,
+): GameEvent[] {
+  const player = state.player;
+  let normal = normalize({
+    x: player.position.x - position.x,
+    y: player.position.y - position.y,
+  });
+  if (normal.x === 0 && normal.y === 0) {
+    normal = normalize({
+      x: player.previousPosition.x - position.x,
+      y: player.previousPosition.y - position.y,
+    });
+  }
+  if (normal.x === 0 && normal.y === 0) {
+    normal = normalize({ x: -player.velocity.x, y: -player.velocity.y });
+  }
+  if (normal.x === 0 && normal.y === 0) {
+    normal = { x: 1, y: 0 };
+  }
+
+  const separation = radius + player.radius + 0.012;
+  player.position = {
+    x: position.x + normal.x * separation,
+    y: position.y + normal.y * separation,
+  };
+  player.previousPosition = { ...player.position };
+
+  const incomingNormalSpeed =
+    player.velocity.x * normal.x + player.velocity.y * normal.y;
+  if (incomingNormalSpeed < 0) {
+    player.velocity.x -= 1.8 * incomingNormalSpeed * normal.x;
+    player.velocity.y -= 1.8 * incomingNormalSpeed * normal.y;
+  }
+  player.velocity.x += normal.x * 0.12;
+  player.velocity.y += normal.y * 0.12;
+
+  const profile = DIFFICULTY_PROFILES[state.options.difficulty];
+  const maximumDeflectionSpeed = profile.maximumSpeed * 0.94;
+  const deflectedSpeed = magnitude(player.velocity);
+  if (deflectedSpeed > maximumDeflectionSpeed) {
+    player.velocity.x =
+      (player.velocity.x / deflectedSpeed) * maximumDeflectionSpeed;
+    player.velocity.y =
+      (player.velocity.y / deflectedSpeed) * maximumDeflectionSpeed;
+  }
+
+  state.shieldActive = false;
+  return [{ type: "shield-used", position: { ...player.position } }];
+}
+
 export function advanceGame(state: GameState, seconds: number): GameEvent[] {
   if (state.mode !== "playing" || seconds <= 0 || !Number.isFinite(seconds)) {
     return [];
@@ -355,6 +420,11 @@ export function advanceGame(state: GameState, seconds: number): GameEvent[] {
       distancePointToSegment(position, player.previousPosition, player.position) <=
       hazard.radius + player.radius
     ) {
+      if (state.shieldActive) {
+        return events.concat(
+          useShieldAgainstHazard(state, position, hazard.radius),
+        );
+      }
       return endGame(state, "hazard", { ...player.position });
     }
   }
@@ -369,6 +439,13 @@ export function advanceGame(state: GameState, seconds: number): GameEvent[] {
   ) {
     const collectedPosition = { ...state.pickup.position };
     state.collected += 1;
+    if (!state.shieldActive) {
+      state.shieldCharge += 1;
+      if (state.shieldCharge >= 3) {
+        state.shieldCharge = 0;
+        state.shieldActive = true;
+      }
+    }
     const multiplier = Math.min(2.5, 1 + Math.floor((state.collected - 1) / 3) * 0.25);
     state.pickupPoints += Math.round(
       100 * multiplier * profile.scoreMultiplier,
@@ -383,6 +460,8 @@ export function advanceGame(state: GameState, seconds: number): GameEvent[] {
       score: state.score,
       collected: state.collected,
       position: collectedPosition,
+      shieldCharge: state.shieldCharge,
+      shieldActive: state.shieldActive,
     });
   }
 

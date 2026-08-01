@@ -370,3 +370,54 @@ Shared-Validator geprüft.
 Reale Android-/iOS-Hardware, Android WebView sowie manuelle Tests mit
 TalkBack, VoiceOver oder NVDA standen nicht zur Verfügung. Production blieb
 unverändert und ist weiterhin nicht freigegeben.
+
+## QA-Runde 6: mobile Haltezone, strukturierte Settings und Sternenschild
+
+Ausgangspunkt war Nutzerfeedback zur mobilen Steuerfläche, zur Verständlichkeit
+der Einstellungen, zum Rundenreset bei Regelwechseln und zur fehlenden
+Spielwirkung der Sterne. Baseline war der gesunde DEV-Quellstand `bfa148b`.
+
+### Verbesserungsrunden
+
+1. Fachlogik und Eingabe: Die neuen Tests belegten zunächst die fehlende
+   Schildladung, den fehlenden einmaligen Kollisionsschutz und die auf das
+   Canvas begrenzte Touchfläche. Danach waren drei Sterne, einmaliger
+   Trabantenschutz, weiterhin tödlicher Zentralkörper und echter Touch oberhalb
+   des Canvas deterministisch grün.
+2. Bedienung und Reflow: Der lange flache Einstellungsdialog wurde in klar
+   benannte Karten für Spiel, Aussehen, Komfort und lokale Daten umgebaut.
+   Schwierigkeit und Zentralkörper sind große Radio-Karten; Änderungen bleiben
+   bis `Übernehmen & neu starten` ausstehend. Die erste 200-Prozent-Prüfung
+   fand tatsächlich überlaufende Aktions- und Hinweistexte. Feste
+   Aktionsleiste, kompakter Mobilkopf, `min-width: 0` und gezielter Wortumbruch
+   beseitigten den Befund ohne kleinere Fachschrift oder abgeschnittene
+   Inhalte.
+3. Plattform- und Performancegate: Sichtprüfung bei `390×844` und
+   `1440×900`, danach vollständige Chromium-/Firefox-/WebKit-Matrix inklusive
+   Pointer-Lifecycle, Offline, Pause/Resume, DE/EN, Axe, Reduced Motion,
+   Self-only-CSP und 360×800 bei 200 Prozent.
+
+### Lokale Abschlussevidenz vor DEV-Publish
+
+- Shared-Validator/5er-Lock: PASS.
+- Unit: 32/32 bestanden.
+- Kernabdeckung: 94,65 % Statements, 84,84 % Branches, 94,73 % Funktionen
+  und 94,62 % Zeilen.
+- Drei-Engine-Browsermatrix: 68 anwendbare Tests bestanden, 25 planmäßige
+  Engine-/CDP-Skips, 0 fehlgeschlagen.
+- Build: 53,93 kB JavaScript (17,48 kB gzip), 16,79 kB App-CSS
+  (4,65 kB gzip), 5,47 kB Shell-CSS (1,55 kB gzip) und 0,37 kB Theme-CSS
+  (0,21 kB gzip).
+- Chromium normal: 59,73 FPS, Frame-p95 16,80 ms, Input-p95 13,30 ms,
+  0 ms verlorene Simulation.
+- Naturnaher Mond plus Hut: 57,71 FPS, Frame-p95 16,80 ms,
+  Input-p95 13,30 ms, 0 ms verlorene Simulation.
+- Vierfache CPU-Drosselung: 56,24 FPS, Frame-p95 16,80 ms,
+  Input-p95 7,20 ms, 0 ms verlorene Simulation.
+
+### Verbleibende Grenzen
+
+Reale Android-/iOS-Hardware, Android WebView sowie manuelle Tests mit
+TalkBack, VoiceOver oder NVDA standen nicht zur Verfügung. Der öffentliche
+DEV-Stand wird erst nach SHA-genauer Publish-Koordination aktualisiert;
+Production bleibt unverändert und nicht freigegeben.

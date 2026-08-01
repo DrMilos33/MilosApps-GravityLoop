@@ -28,6 +28,10 @@ export class SoundController {
     this.tone(510 + Math.min(8, series) * 34, 0.12, 0.08);
   }
 
+  shield(): void {
+    this.tone(285, 0.18, 0.07);
+  }
+
   gameOver(): void {
     this.tone(165, 0.22, 0.065);
   }

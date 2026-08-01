@@ -5,8 +5,11 @@ Eigenständiges öffentliches MilosApps-Minispiel mit dem App-Key
 
 Gedrückthalten krümmt die Flugbahn eines kleinen Kometen, Loslassen lässt ihn
 weiterfliegen. Drei Schwierigkeitsgrade, Sonnen- und Mondgravitation sowie
-mehrere Kometen-Skins verändern kurze, direkt neu startbare Runden. Sonne,
-Mond, Komet und Effekte sind vollständig codebasiert gezeichnet.
+mehrere Kometen-Skins verändern kurze, direkt neu startbare Runden. Drei
+gesammelte Lichtsterne laden einen Schild gegen den nächsten Trabanten. Auf
+Touchgeräten gilt die gesamte nicht-interaktive Spielfläche als Haltezone,
+nicht nur das Canvas. Sonne, Mond, Komet und Effekte sind vollständig
+codebasiert gezeichnet.
 
 ## Feste Grenzen
 

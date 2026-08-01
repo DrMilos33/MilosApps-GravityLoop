@@ -1,9 +1,13 @@
 import type { GameRuntime } from "./runtime";
 
-function isFormControl(target: EventTarget | null): boolean {
+function isInteractiveTarget(target: EventTarget | null): boolean {
   return (
     target instanceof HTMLElement &&
-    Boolean(target.closest("button, input, select, textarea, dialog"))
+    Boolean(
+      target.closest(
+        "button, a, input, select, textarea, label, dialog, summary, [contenteditable='true'], [data-no-gravity]",
+      ),
+    )
   );
 }
 
@@ -13,14 +17,14 @@ export class InputController {
 
   constructor(
     private readonly canvas: HTMLCanvasElement,
+    private readonly touchSurface: HTMLElement,
     private readonly runtime: GameRuntime,
   ) {
-    canvas.addEventListener("pointerdown", this.onPointerDown);
-    canvas.addEventListener("pointerup", this.onPointerEnd);
-    canvas.addEventListener("pointercancel", this.onPointerEnd);
-    canvas.addEventListener("lostpointercapture", this.onPointerEnd);
-    window.addEventListener("pointerup", this.onPointerEnd);
-    window.addEventListener("pointercancel", this.onPointerEnd);
+    touchSurface.addEventListener("pointerdown", this.onPointerDown, {
+      passive: false,
+    });
+    window.addEventListener("pointerup", this.onPointerEnd, true);
+    window.addEventListener("pointercancel", this.onPointerEnd, true);
     canvas.addEventListener("contextmenu", this.preventContextMenu);
     window.addEventListener("keydown", this.onKeyDown);
     window.addEventListener("keyup", this.onKeyUp);
@@ -38,11 +42,20 @@ export class InputController {
     if (event.button !== 0 && event.pointerType === "mouse") {
       return;
     }
+    if (
+      (event.pointerType === "mouse" && event.target !== this.canvas) ||
+      isInteractiveTarget(event.target)
+    ) {
+      return;
+    }
+    if (this.activePointers.has(event.pointerId)) {
+      return;
+    }
     event.preventDefault();
     this.canvas.focus({ preventScroll: true });
     this.activePointers.add(event.pointerId);
     try {
-      this.canvas.setPointerCapture(event.pointerId);
+      this.touchSurface.setPointerCapture(event.pointerId);
     } catch {
       // Older embedded WebViews may reject capture; global cancel paths still release input.
     }
@@ -53,14 +66,14 @@ export class InputController {
     if (!this.activePointers.delete(event.pointerId)) {
       return;
     }
-    if (this.canvas.hasPointerCapture(event.pointerId)) {
-      this.canvas.releasePointerCapture(event.pointerId);
+    if (this.touchSurface.hasPointerCapture(event.pointerId)) {
+      this.touchSurface.releasePointerCapture(event.pointerId);
     }
     this.syncHoldState();
   };
 
   private readonly onKeyDown = (event: KeyboardEvent): void => {
-    if (isFormControl(event.target)) {
+    if (isInteractiveTarget(event.target)) {
       return;
     }
 
@@ -101,6 +114,11 @@ export class InputController {
   };
 
   readonly releaseAll = (): void => {
+    for (const pointerId of this.activePointers) {
+      if (this.touchSurface.hasPointerCapture(pointerId)) {
+        this.touchSurface.releasePointerCapture(pointerId);
+      }
+    }
     this.activePointers.clear();
     this.activeKeys.clear();
     this.runtime.endHold();

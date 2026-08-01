@@ -14,7 +14,13 @@ interface Messages {
   pauseReason: Record<Exclude<PauseReason, null> | "default", string>;
   gameOverCopy: (state: GameState) => string;
   canvasLabel: (state: GameState) => string;
-  pickupAnnouncement: (collected: string, score: string) => string;
+  pickupAnnouncement: (
+    collected: string,
+    score: string,
+    shieldActive: boolean,
+    shieldCharge: number,
+  ) => string;
+  shieldUsedAnnouncement: string;
   gameOverAnnouncement: (score: string, collected: string) => string;
   gameOverKicker: (score: string, collected: string) => string;
   settingsApplied: (celestial: string, difficulty: string) => string;
@@ -44,7 +50,9 @@ const deStatic = {
   headerHint: "Halten krümmt. Loslassen fliegt geradeaus.",
   scoreStrip: "Spielstand",
   points: "Punkte",
-  sparks: "Funken",
+  sparks: "Sterne",
+  shield: "Schild",
+  shieldReady: "Bereit",
   best: "Bestwert",
   gameFieldTitle: "Gravity Loop Spielfeld",
   canvasFallback:
@@ -61,10 +69,10 @@ const deStatic = {
   restartKeyHelp: "Neustart",
   readySunTitle: "Halten zieht dich zur Sonne.",
   readySunCopy:
-    "Je näher du kommst, desto stärker zieht sie. Eine Berührung beendet die Runde.",
+    "Sammle drei Lichtsterne für ein Schild gegen den nächsten Trabanten. Die Sonne bleibt tödlich.",
   readyMoonTitle: "Halten lenkt dich zum Mond.",
   readyMoonCopy:
-    "Die Mondgravitation zieht sanfter und gleichmäßiger. Ein Einschlag beendet die Runde.",
+    "Der Mond zieht sanfter. Drei Lichtsterne laden ein Schild gegen den nächsten Trabanten.",
   launch: "Losfliegen",
   pausedKicker: "Sicher pausiert",
   pausedTitle: "Deine Bahn wartet.",
@@ -74,20 +82,29 @@ const deStatic = {
   again: "Nochmal",
   settingsEyebrow: "Dein Fluggefühl",
   settingsTitle: "Einstellungen",
+  settingsIntro: "Richte Runde, Aussehen und Komfort in klaren Bereichen ein.",
   closeSettings: "Einstellungen schließen",
   settingsGame: "Spiel",
+  settingsGameHelp: "Bestimme Tempo und Gravitationsmodell deiner nächsten Runde.",
   difficulty: "Schwierigkeit",
-  difficultyHelp:
-    "Tempo, Gefahren und Punkte. Ein Wechsel startet die Runde fair neu.",
+  difficultyHelp: "Tempo, Gefahren und Punkte.",
   difficultyEasy: "Leicht",
+  difficultyEasyHelp: "Mehr Ruhe, weniger Trabanten.",
   difficultyNormal: "Normal",
+  difficultyNormalHelp: "Ausgewogenes Tempo und Risiko.",
   difficultyHard: "Schwer",
+  difficultyHardHelp: "Schneller, dichter, mehr Punkte.",
   celestialBody: "Zentralkörper",
-  celestialBodyHelp:
-    "Die Sonne zieht nahe stärker. Der Mond zieht sanfter und gleichmäßiger.",
+  celestialBodyHelp: "Wähle die Art der Gravitation.",
   sun: "Sonne",
+  sunHelp: "Stärker, je näher du kommst.",
   moon: "Mond",
+  moonHelp: "Sanfter und gleichmäßiger.",
+  roundResetTitle: "Fairer Neustart",
+  roundResetCopy:
+    "Schwierigkeit und Zentralkörper werden erst beim Übernehmen aktiv und starten die Runde neu.",
   settingsAppearance: "Aussehen",
+  settingsAppearanceHelp: "Nur die Darstellung ändert sich.",
   celestialStyle: "Sonne und Mond",
   celestialStyleHelp:
     "Naturnah wird prozedural gezeichnet – ohne externe Bilder oder Tracking.",
@@ -101,6 +118,7 @@ const deStatic = {
   skinIce: "Eis",
   skinHat: "Komet mit Hut",
   settingsComfort: "Komfort",
+  settingsComfortHelp: "Passe Rückmeldung und Lesbarkeit an.",
   sounds: "Klänge",
   soundsHelp: "Kurze, synthetische Signale. Standardmäßig stumm.",
   motion: "Bewegung",
@@ -112,14 +130,16 @@ const deStatic = {
   highContrastHelp: "Verstärkt Bahnen, Ziele und Bedienelemente.",
   localData: "Lokale Daten",
   localDataHelp:
-    "Bestwert, Funkenserie, Sprache und Einstellungen auf diesem Gerät.",
+    "Bestwert, Sternenserie, Sprache und Einstellungen auf diesem Gerät.",
   reset: "Zurücksetzen",
   resetGroup: "Lokale Daten zurücksetzen",
   resetQuestion:
     "Wirklich alles lokal zurücksetzen? Deine aktuelle Runde beginnt ebenfalls neu.",
   cancel: "Abbrechen",
+  cancelChanges: "Verwerfen",
   confirmReset: "Jetzt zurücksetzen",
-  done: "Fertig",
+  applySettings: "Übernehmen",
+  applyRestart: "Übernehmen & neu starten",
   resetDone: "Zurückgesetzt",
   footerText: "Kurze Gravitationsrunden – direkt, lokal und ohne Login.",
   footerNav: "Rechtliches",
@@ -146,7 +166,9 @@ const enStatic = {
   headerHint: "Hold to curve. Release to fly straight.",
   scoreStrip: "Game score",
   points: "Points",
-  sparks: "Sparks",
+  sparks: "Stars",
+  shield: "Shield",
+  shieldReady: "Ready",
   best: "Best",
   gameFieldTitle: "Gravity Loop game field",
   canvasFallback:
@@ -163,10 +185,10 @@ const enStatic = {
   restartKeyHelp: "Restart",
   readySunTitle: "Hold to pull toward the Sun.",
   readySunCopy:
-    "The closer you get, the stronger it pulls. Touching it ends the run.",
+    "Collect three light stars for a shield against the next satellite. The Sun stays lethal.",
   readyMoonTitle: "Hold to steer toward the Moon.",
   readyMoonCopy:
-    "Lunar gravity pulls more gently and evenly. An impact ends the run.",
+    "The Moon pulls more gently. Three light stars charge a shield against the next satellite.",
   launch: "Launch",
   pausedKicker: "Safely paused",
   pausedTitle: "Your orbit is waiting.",
@@ -176,20 +198,29 @@ const enStatic = {
   again: "Again",
   settingsEyebrow: "Your flight feel",
   settingsTitle: "Settings",
+  settingsIntro: "Set up your run, appearance and comfort in clear sections.",
   closeSettings: "Close settings",
   settingsGame: "Game",
+  settingsGameHelp: "Choose the pace and gravity model for your next run.",
   difficulty: "Difficulty",
-  difficultyHelp:
-    "Speed, hazards and points. Changing it starts a fair new run.",
+  difficultyHelp: "Speed, hazards and points.",
   difficultyEasy: "Easy",
+  difficultyEasyHelp: "More breathing room, fewer satellites.",
   difficultyNormal: "Normal",
+  difficultyNormalHelp: "Balanced pace and risk.",
   difficultyHard: "Hard",
+  difficultyHardHelp: "Faster, denser, more points.",
   celestialBody: "Central body",
-  celestialBodyHelp:
-    "The Sun pulls harder up close. The Moon pulls more gently and evenly.",
+  celestialBodyHelp: "Choose how gravity behaves.",
   sun: "Sun",
+  sunHelp: "Pulls harder as you get closer.",
   moon: "Moon",
+  moonHelp: "Gentler and more even.",
+  roundResetTitle: "Fair restart",
+  roundResetCopy:
+    "Difficulty and central body take effect only when applied and restart the run.",
   settingsAppearance: "Appearance",
+  settingsAppearanceHelp: "Only the presentation changes.",
   celestialStyle: "Sun and Moon",
   celestialStyleHelp:
     "Natural mode is drawn procedurally – without external images or tracking.",
@@ -203,6 +234,7 @@ const enStatic = {
   skinIce: "Ice",
   skinHat: "Comet with a hat",
   settingsComfort: "Comfort",
+  settingsComfortHelp: "Adjust feedback and readability.",
   sounds: "Sounds",
   soundsHelp: "Short synthetic cues. Muted by default.",
   motion: "Motion",
@@ -214,14 +246,16 @@ const enStatic = {
   highContrastHelp: "Strengthens paths, targets and controls.",
   localData: "Local data",
   localDataHelp:
-    "Best score, spark streak, language and settings on this device.",
+    "Best score, star streak, language and settings on this device.",
   reset: "Reset",
   resetGroup: "Reset local data",
   resetQuestion:
     "Reset all local data? Your current run will start over as well.",
   cancel: "Cancel",
+  cancelChanges: "Discard",
   confirmReset: "Reset now",
-  done: "Done",
+  applySettings: "Apply",
+  applyRestart: "Apply & restart",
   resetDone: "Reset",
   footerText: "Short gravity runs – direct, local and login-free.",
   footerNav: "Legal",
@@ -272,12 +306,16 @@ const messages: Record<Language, Messages> = {
         `Eine Berührung mit ${isMoon ? "dem Mond" : "der Sonne"} beendet die Runde.`
       );
     },
-    pickupAnnouncement: (collected, score) =>
-      `Lichtfunke ${collected} gesammelt. ${score} Punkte.`,
+    pickupAnnouncement: (collected, score, shieldActive, shieldCharge) =>
+      shieldActive
+        ? `Lichtstern ${collected} gesammelt. Sternschild bereit. ${score} Punkte.`
+        : `Lichtstern ${collected} gesammelt. Schildladung ${shieldCharge} von 3. ${score} Punkte.`,
+    shieldUsedAnnouncement:
+      "Das Sternschild hat einen Trabanten abgewehrt und ist wieder leer.",
     gameOverAnnouncement: (score, collected) =>
-      `Runde beendet. ${score} Punkte, ${collected} Lichtfunken.`,
+      `Runde beendet. ${score} Punkte, ${collected} Lichtsterne.`,
     gameOverKicker: (score, collected) =>
-      `${score} Punkte · ${collected} Funken`,
+      `${score} Punkte · ${collected} Sterne`,
     settingsApplied: (celestial, difficulty) =>
       `${celestial}, Schwierigkeit ${difficulty}. Die Runde wurde neu vorbereitet.`,
     orbitCaption: (celestial, difficulty, date, dateKey) =>
@@ -317,12 +355,16 @@ const messages: Record<Language, Messages> = {
         `Touching the ${isMoon ? "Moon" : "Sun"} ends the run.`
       );
     },
-    pickupAnnouncement: (collected, score) =>
-      `Light spark ${collected} collected. ${score} points.`,
+    pickupAnnouncement: (collected, score, shieldActive, shieldCharge) =>
+      shieldActive
+        ? `Light star ${collected} collected. Star shield ready. ${score} points.`
+        : `Light star ${collected} collected. Shield charge ${shieldCharge} of 3. ${score} points.`,
+    shieldUsedAnnouncement:
+      "The star shield deflected a satellite and is empty again.",
     gameOverAnnouncement: (score, collected) =>
-      `Run over. ${score} points, ${collected} light sparks.`,
+      `Run over. ${score} points, ${collected} light stars.`,
     gameOverKicker: (score, collected) =>
-      `${score} points · ${collected} sparks`,
+      `${score} points · ${collected} stars`,
     settingsApplied: (celestial, difficulty) =>
       `${celestial}, ${difficulty} difficulty. A new run is ready.`,
     orbitCaption: (celestial, difficulty, date, dateKey) =>

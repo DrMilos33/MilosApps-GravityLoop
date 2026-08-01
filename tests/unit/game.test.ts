@@ -212,6 +212,57 @@ describe("game state and physics", () => {
     expect(state.pickup.position).not.toEqual(collectedAt);
   });
 
+  it("charges a star shield after three pickups", () => {
+    const state = runningState();
+
+    for (let collected = 1; collected <= 3; collected += 1) {
+      state.player.velocity = { x: 0, y: 0 };
+      state.pickup.position = { ...state.player.position };
+      const events = advanceGame(state, FIXED_STEP_SECONDS);
+
+      expect(events).toContainEqual(
+        expect.objectContaining({
+          type: "pickup",
+          collected,
+        }),
+      );
+    }
+
+    expect(state.shieldCharge).toBe(0);
+    expect(state.shieldActive).toBe(true);
+  });
+
+  it("spends a star shield on one satellite but never protects the core", () => {
+    const protectedState = runningState();
+    protectedState.shieldActive = true;
+    protectedState.player.position = { x: 0.5, y: 0 };
+    protectedState.player.previousPosition = { ...protectedState.player.position };
+    protectedState.player.velocity = { x: 0, y: 0.2 };
+    protectedState.hazards = [
+      { orbitRadius: 0.5, angle: 0, angularSpeed: 0, radius: 0.05 },
+    ];
+
+    const shieldEvents = advanceGame(protectedState, FIXED_STEP_SECONDS);
+
+    expect(protectedState.mode).toBe("playing");
+    expect(protectedState.shieldActive).toBe(false);
+    expect(shieldEvents).toContainEqual(
+      expect.objectContaining({ type: "shield-used" }),
+    );
+
+    const coreState = runningState();
+    coreState.shieldActive = true;
+    coreState.player.position = { x: -(CORE_RADIUS + PLAYER_RADIUS + 0.04), y: 0 };
+    coreState.player.previousPosition = { ...coreState.player.position };
+    coreState.player.velocity = { x: 1.5, y: 0 };
+
+    advanceGame(coreState, 0.2);
+
+    expect(coreState.mode).toBe("gameover");
+    expect(coreState.gameOverReason).toBe("core");
+    expect(coreState.shieldActive).toBe(true);
+  });
+
   it("pauses without movement and resumes from the same deterministic state", () => {
     const state = runningState();
     setHeld(state, true);

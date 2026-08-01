@@ -22,10 +22,12 @@ async function exercise(page: Page, richVisuals = false): Promise<Metrics> {
   await page.goto("./?test=1");
   if (richVisuals) {
     await page.getByRole("button", { name: "Einstellungen" }).click();
-    await page.getByRole("combobox", { name: "Zentralkörper" }).selectOption("moon");
+    await page.getByRole("radio", { name: /Mond/ }).check();
     await page.getByRole("combobox", { name: "Sonne und Mond" }).selectOption("natural");
     await page.getByRole("combobox", { name: "Kometen-Skin" }).selectOption("hat");
-    await page.getByRole("button", { name: "Fertig" }).click();
+    await page
+      .getByRole("button", { name: "Übernehmen & neu starten" })
+      .click();
     await expect
       .poll(() =>
         page.evaluate(

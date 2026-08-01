@@ -224,3 +224,42 @@ Nutzerdaten eintragen.
 - Allgemeine Bedeutung: Prozessbesitz, App-Identität und Test-Lifecycle sind
   getrennte Verträge. Server-Wiederverwendung ist nur nach fail-closed
   Identitätsprüfung sicher.
+
+## 2026-08-01 – Mobile Spielgesten brauchen eine semantische Haltezone
+
+- Ausgangspunkt: Nutzerfeedback zur nur im Canvas reagierenden
+  Einfingersteuerung; echter Chromium-Touchstream bei `390×844 @3x`.
+- Beobachtung: Auf einem schmalen Gerät liegt ein relevanter Teil der
+  erreichbaren Daumenfläche über Score, Titel und Freiraum außerhalb des
+  Canvas. Eine Canvas-exklusive Steuerung zwingt unnötig zum Umgreifen.
+- Änderung: Touch und Stift werden auf der gesamten nicht-interaktiven
+  App-Hauptfläche angenommen. Buttons, Links, Formfelder, Dialoge und Labels
+  bleiben ausgeschlossen; Maussteuerung bleibt absichtlich auf das Canvas
+  begrenzt. Pointer-ID-Menge, Capture und globale Release-/Cancel-Pfade gelten
+  unverändert.
+- Regression: echter Touchstart auf dem Score-Bereich oberhalb des Canvas,
+  Long Hold, Release, Scrollposition, Lost Capture, Multi-Pointer und schnelle
+  Wechsel. Die Drei-Engine-Kernflüsse prüfen weiterhin alle Lifecycle-Pfade.
+- Allgemeine Bedeutung: Eine Touch-Haltezone ist eine Produktfläche, nicht
+  zwangsläufig die Renderfläche. Ihre semantischen Ausschlüsse müssen ebenso
+  explizit sein wie ihre Pointer-Capture- und Abbruchpfade.
+
+## 2026-08-01 – Sammelobjekte sollten eine sichtbare taktische Wirkung haben
+
+- Ausgangspunkt: Sterne erhöhten nur Punktzahl und Serie; Nutzerfeedback
+  verlangte eine zusätzliche Spielwirkung.
+- Beobachtung: Ein rein numerischer Pickup liefert kurzfristige Belohnung, aber
+  keine neue Kursentscheidung. Eine unbegrenzte Rettungsmechanik würde dagegen
+  die lesbaren Kernregeln entwerten.
+- Änderung: Drei Lichtsterne laden einen klar sichtbaren Schild, der exakt eine
+  Trabantenkollision deterministisch abfängt und den Kometen getrennt
+  zurücklenkt. Sonne, Mond und Rand bleiben tödlich; der Schild verändert
+  weder Seed noch feste Simulationsschritte.
+- Regression: Laden nach exakt drei Pickups, einmaliger Verbrauch,
+  deterministische Trennung und Geschwindigkeitsgrenze sowie explizit tödliche
+  Zentralkollision. DOM-Anzeige, Canvas-Ring, Sound und Live-Region spiegeln
+  denselben Zustand.
+- Allgemeine Bedeutung: Sammelobjekte gewinnen an Wiederspielwert, wenn sie
+  eine begrenzte, verständliche Entscheidung eröffnen. Schutzregeln müssen
+  enger als die eigentlichen Verlustregeln definiert und automatisiert geprüft
+  werden.

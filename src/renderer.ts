@@ -26,6 +26,7 @@ interface BackgroundStar {
 interface Pulse {
   position: Vector;
   age: number;
+  kind: "pickup" | "shield";
 }
 
 interface SurfaceMark {
@@ -181,7 +182,11 @@ export class GameRenderer {
   }
 
   recordPickup(position: Vector): void {
-    this.pulses.push({ position: { ...position }, age: 0 });
+    this.pulses.push({ position: { ...position }, age: 0, kind: "pickup" });
+  }
+
+  recordShield(position: Vector): void {
+    this.pulses.push({ position: { ...position }, age: 0, kind: "shield" });
   }
 
   getLayout(): Readonly<Layout> {
@@ -578,7 +583,8 @@ export class GameRenderer {
       const progress = pulse.age / duration;
       const position = this.worldToCanvas(pulse.position);
       context.globalAlpha = 1 - progress;
-      context.strokeStyle = "#fff0a4";
+      context.strokeStyle =
+        pulse.kind === "shield" ? "#9efff3" : "#fff0a4";
       context.lineWidth = settings.highContrast ? 4 : 2.5;
       context.beginPath();
       context.arc(position.x, position.y, (10 + progress * 42) * (settings.reducedMotion ? 0.55 : 1), 0, Math.PI * 2);
@@ -599,6 +605,23 @@ export class GameRenderer {
     const palette = COMET_PALETTES[settings.cometSkin];
     context.save();
     context.translate(canvasPosition.x, canvasPosition.y);
+    if (state.shieldActive) {
+      const shieldPulse = settings.reducedMotion
+        ? 1
+        : 1 + Math.sin(state.elapsedSeconds * 5.5) * 0.045;
+      context.strokeStyle = settings.highContrast ? "#ffffff" : "#9efff3";
+      context.fillStyle = settings.highContrast
+        ? "rgba(213, 255, 249, 0.13)"
+        : "rgba(94, 231, 220, 0.1)";
+      context.lineWidth = settings.highContrast ? 3 : 2;
+      context.shadowColor = "#76efe3";
+      context.shadowBlur = settings.highContrast ? 16 : 11;
+      context.beginPath();
+      context.arc(0, 0, radius * 2.05 * shieldPulse, 0, Math.PI * 2);
+      context.fill();
+      context.stroke();
+      context.shadowBlur = 0;
+    }
     context.rotate(angle);
 
     const tailLength = radius * (settings.reducedMotion ? 1.45 : 1.8 + Math.sin(state.elapsedSeconds * 8) * 0.12);

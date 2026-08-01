@@ -61,6 +61,7 @@ test.describe("core browser flow", () => {
     await expect(page.getByRole("button", { name: "Pause" })).toBeDisabled();
     await expect(page.getByRole("button", { name: "Losfliegen" })).toBeVisible();
     await expect(page.locator("#daily-seed")).toContainText("Sonnenorbit");
+    await expect(page.getByTestId("shield-status")).toHaveText("0/3");
 
     const health = await request.get("./health.json");
     expect(health.ok()).toBe(true);
@@ -112,7 +113,7 @@ test.describe("core browser flow", () => {
     expect(debug.metrics.p95InputMs).toBeLessThan(headlessLatencyLimit);
   });
 
-  test("releases multi-pointer input deterministically on cancel and lost capture", async ({
+  test("keeps touch stable across lost capture and releases through global fallbacks", async ({
     page,
   }) => {
     await launch(page);
@@ -145,6 +146,18 @@ test.describe("core browser flow", () => {
       pointerType: "touch",
       isPrimary: false,
       button: 0,
+    });
+    expect((await debugState(page)).state.held).toBe(true);
+
+    await page.evaluate(() => {
+      window.dispatchEvent(
+        new PointerEvent("pointerup", {
+          pointerId: 42,
+          pointerType: "touch",
+          isPrimary: false,
+          button: 0,
+        }),
+      );
     });
     await expect.poll(async () => (await debugState(page)).state.held).toBe(false);
 

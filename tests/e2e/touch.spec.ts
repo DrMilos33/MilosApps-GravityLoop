@@ -73,3 +73,62 @@ test("handles real touch start, long hold, cancel and rapid alternation", async 
   ).toBe(false);
   await context.close();
 });
+
+test("uses the phone game area outside the canvas as a gravity hold zone", async ({
+  browser,
+}) => {
+  const context = await browser.newContext({
+    viewport: { width: 390, height: 844 },
+    deviceScaleFactor: 3,
+    hasTouch: true,
+    isMobile: true,
+  });
+  const page = await context.newPage();
+  await page.goto("./?test=1");
+  const client = await context.newCDPSession(page);
+  const score = await page.locator(".score-strip").boundingBox();
+  const canvas = await page.getByTestId("game-canvas").boundingBox();
+  expect(score).not.toBeNull();
+  expect(canvas).not.toBeNull();
+  if (!score || !canvas) {
+    await context.close();
+    return;
+  }
+
+  const touchPoint = {
+    x: Math.round(score.x + score.width * 0.5),
+    y: Math.round(score.y + score.height * 0.5),
+    radiusX: 7,
+    radiusY: 7,
+    force: 0.6,
+    id: 41,
+  };
+  expect(touchPoint.y).toBeLessThan(canvas.y);
+
+  await client.send("Input.dispatchTouchEvent", {
+    type: "touchStart",
+    touchPoints: [touchPoint],
+  });
+  await expect
+    .poll(() =>
+      page.evaluate(() => window.__gravityLoopTestApi!.getDebugState().state.held),
+    )
+    .toBe(true);
+  await expect
+    .poll(() =>
+      page.evaluate(() => window.__gravityLoopTestApi!.getDebugState().state.mode),
+    )
+    .toBe("playing");
+
+  await client.send("Input.dispatchTouchEvent", {
+    type: "touchEnd",
+    touchPoints: [],
+  });
+  await expect
+    .poll(() =>
+      page.evaluate(() => window.__gravityLoopTestApi!.getDebugState().state.held),
+    )
+    .toBe(false);
+  expect(await page.evaluate(() => window.scrollY)).toBe(0);
+  await context.close();
+});
