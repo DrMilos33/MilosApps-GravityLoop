@@ -1,0 +1,15 @@
+{
+  "contract": "public-app-essentials/v1",
+  "version": "1.0.0",
+  "sharedCommit": "b09e09008ff05fe87f05bc647a7c4964ff13e6f6",
+  "appKey": "gravity-loop",
+  "manifest": "milos-essentials.json",
+  "vendorDirectory": "vendor/milosapps-essentials/v1",
+  "artifacts": {
+    "milos-app-essentials.css": "sha256:a4288a19fb8d798b4d1c4e68bfdf04493bd73e4f445602eb3b54cbb594c732a6",
+    "milos-app-essentials-theme.css": "sha256:0edc3da15315bc5ea3ec9bb96931dd1d1971c5e80e6eec2eeea41617e849ed5f",
+    "milos-app-essentials.js": "sha256:1657f7e44939953c7199e215dabb0cda48bd22172c4578df5298bfc1b688a985",
+    "bootstrap.js": "sha256:c81bb39dd4f257368fc571fb2b425b0119c83e955193d2b8ad42b5069d766f84",
+    "verify.mjs": "sha256:3e52588cab3770b932b672e32f7865438876b4f8a842b52b99db97f2851d077c"
+  }
+}
