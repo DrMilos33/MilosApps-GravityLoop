@@ -509,3 +509,39 @@ Input-p95 10,60 / 22,60 / 47,70 ms und jeweils 0 ms verlorener Simulation.
 Health antwortete dabei mit HTTP 200, `application/json`, `status: ok`,
 `app: gravity-loop` und `environment: dev`. Der eigene Previewprozess wurde
 anschließend beendet und Port 4317 erneut als frei geprüft.
+
+### Externe DEV-Evidenz
+
+- deployter Source:
+  `62624263f9a3154f4cddeeaf2344f6bd758a5f6a`;
+- daraus gebautes Pages-Artefakt:
+  `a7e52aa062f217f1ecd15d763c75d926640ce0cf`;
+- Source-CI-Runs `30748263177` (`main`) und `30748262909` (Feature) sowie
+  Pages-Run `30748438877`: vollständig erfolgreich;
+- frische öffentliche Drei-Engine-Matrix: 80 anwendbare Tests bestanden,
+  25 planmäßige Engine-/CDP-Skips, 0 Fehler;
+- direkter HTTPS-Aufruf und Health ohne Login oder Portal-Cookie; Health exakt
+  HTTP 200, `application/json; charset=utf-8`, `status: ok`,
+  `app: gravity-loop`, `environment: dev`;
+- beide Essentials-CSS-Dateien als getrennte HTTPS-Same-Origin-Ressourcen mit
+  `text/css; charset=utf-8`, Bootstrap und Runtime als JavaScript; strikte
+  Self-only-CSP in Chromium, Firefox und WebKit ohne Fehler;
+- DE/EN samt Reload-Persistenz, Loader, wahrheitsgemäßer Datenschutzhinweis,
+  native Share-/Abbruch-/Clipboard-Pfade, 44-Pixel-Ziele, Axe A/AA, Reduced
+  Motion, Touch-/Pointer-/Lifecycle, 390×844, 1440×900 und 360×800 bei
+  200 Prozent bestanden;
+- sichtbare Browserabnahme: `scrollWidth = clientWidth` bei 390 und 360 Pixeln,
+  Footer exakt am Dokumentende, Share-Ziel 59 bis 61 Pixel hoch und 0
+  öffentliche Warnungen oder Fehler;
+- externe Chromium-Performance: 54,69 FPS / 9,40 ms Input-p95 normal,
+  50,52 FPS / 21,00 ms mit naturnahem Mond und Hut sowie 44,60 FPS /
+  38,80 ms bei vierfacher CPU-Drosselung; jeweils 0 ms verlorene Simulation;
+- bestehende Portal-DEV-Route liefert cookie-los per GET und HEAD HTTP 302 auf
+  exakt dieselbe unabhängige App-URL; die Productionroute bleibt HTTP 404.
+
+Rollback bleibt der zuvor gesunde Source
+`b3b18c900c87d6e48c50e09404c00527ba821d6a` mit Pages-Artefakt
+`fd7823e6fdc9113ca65052f7b5804b26c40987e5`. Reale Android-/iOS-Hardware,
+Android WebView sowie manuelle Tests mit TalkBack, VoiceOver oder NVDA standen
+nicht zur Verfügung. Production wurde nicht verändert und ist nicht
+freigegeben.

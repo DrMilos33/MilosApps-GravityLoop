@@ -62,13 +62,13 @@ Der unabhängige öffentliche DEV-Dienst ist aktiv:
   `https://github.com/DrMilos33/MilosApps-GravityLoop`;
 - Hosting: GitHub Pages aus dem app-eigenen Branch `gh-pages`;
 - deployter vollständiger App-Commit:
-  `b3b18c900c87d6e48c50e09404c00527ba821d6a`;
+  `62624263f9a3154f4cddeeaf2344f6bd758a5f6a`;
 - daraus gebauter DEV-Artefakt-Commit:
-  `fd7823e6fdc9113ca65052f7b5804b26c40987e5`;
+  `a7e52aa062f217f1ecd15d763c75d926640ce0cf`;
 - erfolgreiche Pages-Deployment-Ausführung:
-  `https://github.com/DrMilos33/MilosApps-GravityLoop/actions/runs/30706693209`;
+  `https://github.com/DrMilos33/MilosApps-GravityLoop/actions/runs/30748438877`;
 - erfolgreiche vollständige App-CI:
-  `https://github.com/DrMilos33/MilosApps-GravityLoop/actions/runs/30706511129`;
+  `https://github.com/DrMilos33/MilosApps-GravityLoop/actions/runs/30748263177`;
 - Production: `false`, nicht freigegeben.
 
 Direktaufruf, Health-Identität, Loginfreiheit, Chromium, Firefox und WebKit
@@ -77,14 +77,15 @@ Portal-Cookies noch Milos-Login; die App lädt keine Portal- oder
 Shared-Abhängigkeit. Details, Rollback und letzte gesunde Revision stehen in
 `docs/DEV_DEPLOYMENT.md`.
 
-Der aktuelle externe Abschlusslauf bestand 68 anwendbare Tests in Chromium,
+Der aktuelle externe Abschlusslauf bestand 80 anwendbare Tests in Chromium,
 Firefox und WebKit ohne Fehler oder Retry; 25 nicht anwendbare
 Engine-/CDP-Kombinationen wurden bewusst übersprungen. Dabei wurden die echte
-HTTPS-Ausgabe unter strikter Self-only-CSP, beide Shell-Stylesheet-Origins,
-DE/EN samt Reload-Persistenz, mobile Touchsteuerung außerhalb des Canvas,
+HTTPS-Ausgabe unter strikter Self-only-CSP, getrennte Shell- und
+Essentials-Stylesheet-Origins, DE/EN samt Reload-Persistenz, Loader,
+Datenschutzhinweis, Teilen, mobile Touchsteuerung außerhalb des Canvas,
 Sternenschild und 360×800 bei 200 Prozent geprüft. Die Chromium-Referenz lag
-bei 59,73 FPS und 16,00 ms Input-p95 normal, 58,00 FPS und 26,40 ms Input-p95
-mit naturnaher Grafik plus Hut sowie 55,06 FPS und 15,70 ms Input-p95 bei
+bei 54,69 FPS und 9,40 ms Input-p95 normal, 50,52 FPS und 21,00 ms Input-p95
+mit naturnaher Grafik plus Hut sowie 44,60 FPS und 38,80 ms Input-p95 bei
 vierfacher CPU-Drosselung; verlorene Simulationszeit blieb in allen Profilen
 0 ms. Verbleibende Grenzen sind reale
 Android-/iOS-Hardware, Android WebView sowie manuelle Tests mit TalkBack,

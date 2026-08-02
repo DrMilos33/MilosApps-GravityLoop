@@ -1,6 +1,6 @@
 # Gravity Loop: unabhängiges DEV-Deployment
 
-Stand: 2026-08-01
+Stand: 2026-08-02
 
 App-Key: `gravity-loop`
 
@@ -15,16 +15,16 @@ Production: `false`, nicht freigegeben
 | Readiness | `https://drmilos33.github.io/MilosApps-GravityLoop/health.json` |
 | Hosting | GitHub Pages, unabhängig vom Portal |
 | Source-Branch | `main` |
-| deployter App-Commit | `b3b18c900c87d6e48c50e09404c00527ba821d6a` |
+| deployter App-Commit | `62624263f9a3154f4cddeeaf2344f6bd758a5f6a` |
 | Deployment-Branch | `gh-pages` |
-| Artefakt-Commit | `fd7823e6fdc9113ca65052f7b5804b26c40987e5` |
-| Pages-Run | `30706693209`, erfolgreich |
-| App-CI | `30706511129`, erfolgreich |
+| Artefakt-Commit | `a7e52aa062f217f1ecd15d763c75d926640ce0cf` |
+| Pages-Run | `30748438877`, erfolgreich |
+| App-CI | `30748263177` (`main`) und `30748262909` (Feature), erfolgreich |
 | Login | keiner |
 | Shared-/Portal-Abhängigkeiten | `public-app-shell/v2.0.3` und `public-app-essentials/v1.0.0` fest vendort; keine Runtime- oder Portalabhängigkeit |
 
 Der Branch `main` hält den vollständig verifizierten App-Quellstand
-`b3b18c9`. Der Branch `gh-pages` enthält ausschließlich das daraus erzeugte
+`6262426`. Der Branch `gh-pages` enthält ausschließlich das daraus erzeugte
 statische Artefakt. Änderungen an Dokumentation oder Test-Lifecycle werden
 nicht automatisch veröffentlicht.
 
@@ -76,16 +76,16 @@ nicht.
 Die aktive gesunde DEV-Revision ist:
 
 - App-Quellstand:
-  `b3b18c900c87d6e48c50e09404c00527ba821d6a`;
+  `62624263f9a3154f4cddeeaf2344f6bd758a5f6a`;
 - Pages-Artefakt:
-  `fd7823e6fdc9113ca65052f7b5804b26c40987e5`.
+  `a7e52aa062f217f1ecd15d763c75d926640ce0cf`.
 
 Der vorherige gesunde Rollbackstand ist:
 
 - App-Quellstand:
-  `bfa148ba68dcec9dfedbb3e3804102a923111695`;
+  `b3b18c900c87d6e48c50e09404c00527ba821d6a`;
 - Pages-Artefakt:
-  `e5bf3855d12a919b11b8c95628c2e5d01b83ea04`.
+  `fd7823e6fdc9113ca65052f7b5804b26c40987e5`.
 
 Bei einem späteren fehlerhaften DEV-Release wird aus dem letzten gesunden
 Quellstand erneut gebaut und dessen Dateibaum als normaler Nachfolger auf
