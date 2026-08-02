@@ -1,6 +1,25 @@
+import { cp } from "node:fs/promises";
+import path from "node:path";
 import { defineConfig } from "vitest/config";
 
+const essentialsVendorDirectory = "vendor/milosapps-essentials/v1";
+
+function preserveEssentialsVendor() {
+  return {
+    name: "gravity-loop-preserve-essentials-vendor",
+    apply: "build" as const,
+    async closeBundle(): Promise<void> {
+      await cp(
+        path.resolve(essentialsVendorDirectory),
+        path.resolve("dist", essentialsVendorDirectory),
+        { recursive: true },
+      );
+    },
+  };
+}
+
 export default defineConfig({
+  plugins: [preserveEssentialsVendor()],
   server: {
     host: "127.0.0.1",
     port: 4317,

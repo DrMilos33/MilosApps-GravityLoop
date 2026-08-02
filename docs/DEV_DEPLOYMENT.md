@@ -21,7 +21,7 @@ Production: `false`, nicht freigegeben
 | Pages-Run | `30706693209`, erfolgreich |
 | App-CI | `30706511129`, erfolgreich |
 | Login | keiner |
-| Shared-/Portal-Abhängigkeiten | `public-app-shell/v2.0.3` fest vendort; keine Runtime- oder Portalabhängigkeit |
+| Shared-/Portal-Abhängigkeiten | `public-app-shell/v2.0.3` und `public-app-essentials/v1.0.0` fest vendort; keine Runtime- oder Portalabhängigkeit |
 
 Der Branch `main` hält den vollständig verifizierten App-Quellstand
 `b3b18c9`. Der Branch `gh-pages` enthält ausschließlich das daraus erzeugte
@@ -47,13 +47,12 @@ nicht.
 
 1. Gewünschten App-Commit auschecken und sauberen Arbeitsbaum sowie vollständige
    SHA prüfen.
-2. `pnpm install --frozen-lockfile`, Unit-Tests und lokalen E2E-/Build-Gate
-   ausführen.
+2. `pnpm install --frozen-lockfile`, beide Shared-Validatoren, Unit-Tests und
+   lokalen E2E-/Build-Gate ausführen.
 3. Das statische Artefakt mit relativem Pages-Basispfad bauen:
 
    ```powershell
-   pnpm exec tsc -b
-   pnpm exec vite build --base ./
+   pnpm build:pages
    ```
 
 4. Nur den Inhalt von `dist/` in einem neuen Commit auf `gh-pages` ablegen.

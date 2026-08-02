@@ -40,6 +40,16 @@ declare global {
   }
 }
 
+interface MilosSharePayload {
+  title: string;
+  text: string;
+  url: string;
+}
+
+interface MilosShareElement extends HTMLElement {
+  setPayloadProvider(provider: () => MilosSharePayload): void;
+}
+
 function element<T extends HTMLElement>(id: string): T {
   const found = document.getElementById(id);
   if (!found) {
@@ -62,6 +72,12 @@ const bestValue = element<HTMLElement>("best-value");
 const pauseButton = element<HTMLButtonElement>("pause-button");
 const restartButton = element<HTMLButtonElement>("restart-button");
 const settingsButton = element<HTMLButtonElement>("settings-button");
+const shareButton = document.querySelector<MilosShareElement>(
+  "milos-share-button",
+);
+if (!shareButton) {
+  throw new Error("Gravity Loop share control is missing.");
+}
 const holdIndicator = element<HTMLDivElement>("hold-indicator");
 const liveStatus = element<HTMLDivElement>("live-status");
 const dailySeed = element<HTMLParagraphElement>("daily-seed");
@@ -454,6 +470,7 @@ resetConfirmButton.addEventListener("click", () => {
   language = "de";
   try {
     window.localStorage.removeItem("milosapps.gravity-loop.language");
+    window.localStorage.removeItem("milosapps.gravity-loop.privacyNotice.v1");
   } catch {
     // Local storage is optional; resetting the active UI still succeeds.
   }
@@ -533,3 +550,24 @@ if (searchParameters.get("test") === "1") {
     resumeWithHold: () => runtime.beginHold(),
   };
 }
+
+function sharePayload(): MilosSharePayload {
+  const url = new URL(window.location.href);
+  url.search = "";
+  url.hash = "";
+  return {
+    title: document.title,
+    text:
+      language === "en"
+        ? "Play Gravity Loop – a quick one-finger orbit game by MilosApps."
+        : "Spiele Gravity Loop – ein schnelles Einfinger-Orbitspiel von MilosApps.",
+    url: url.toString(),
+  };
+}
+
+void customElements.whenDefined("milos-share-button").then(() => {
+  shareButton.setPayloadProvider(sharePayload);
+  requestAnimationFrame(() => {
+    document.dispatchEvent(new CustomEvent("milosapps:ready"));
+  });
+});

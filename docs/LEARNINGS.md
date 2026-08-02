@@ -263,3 +263,91 @@ Nutzerdaten eintragen.
   eine begrenzte, verständliche Entscheidung eröffnen. Schutzregeln müssen
   enger als die eigentlichen Verlustregeln definiert und automatisiert geprüft
   werden.
+
+## 2026-08-02 – Ein Ladescreen braucht Fach-Readiness statt Zeitablauf
+
+- Ausgangspunkt: `public-app-essentials/v1.0.0`, Shared-Commit `b09e090` und
+  Gravity Loops getrennte Shell-, Fachruntime- und Canvas-Initialisierung.
+- Beobachtung: `DOMContentLoaded` oder ein Timer beweisen weder registrierte
+  Pointerpfade noch die erste vollständig übersetzte, bedienbare Spielansicht.
+  Eine Loader-Überschrift hätte außerdem eine zweite Dokument-H1 erzeugt.
+- Änderung: Kritische Essentials-CSS lädt vor jedem Modul. Der Loader-Titel ist
+  ein tag-agnostisches `p`; erst nach Runtime, Input, Test-API und Share-Payload
+  löst der nächste Renderframe `milosapps:ready` aus.
+- Regression: künstlich verzögerte Fachruntime, exakt eine H1, 56/48-Pixel-
+  Icon, Reduced Motion sowie sichtbarer Startbutton direkt nach Readiness in
+  Chromium, Firefox und WebKit.
+- Allgemeine Bedeutung: Ein gemeinsamer Loader darf die Fachbereitschaft nicht
+  selbst schätzen. Der App-Eigentümer besitzt das explizite Ready-Signal; die
+  gemeinsame Komponente besitzt nur Darstellung und sicheren Endzustand.
+
+## 2026-08-02 – Vendorte CSS-Verträge müssen den Bundler überleben
+
+- Ausgangspunkt: Vite-Produktionsbuild mit zwei korrekten externen
+  Essentials-CSS-Links im Quell-HTML.
+- Beobachtung: Vite zog beide Dateien zunächst in den allgemeinen App-CSS-Chunk.
+  Quellvalidator und Browser-DEV blieben grün, obwohl das ausgelieferte
+  fünfteilige Vendorverzeichnis und die getrennten MIME-/CSP-Grenzen fehlten.
+- Änderung: Die Essentials-Links und der Bootstrap sind gezielt vom
+  HTML-Bundling ausgenommen; ein app-eigenes Build-Plugin kopiert den exakt
+  gelockten Vendorordner. Ein nachgelagerter Verifier verlangt zwei getrennte
+  relative CSS-Links, ein relatives Bootstrap-Modul und alle fünf Dateien.
+- Regression: App-Validator, Artefakt-Verifier, `text/css`-MIME, Same-Origin-
+  URLs und echte `default-src 'self'; script-src 'self'; style-src 'self'`-
+  Browserantwort in drei Engines.
+- Allgemeine Bedeutung: Ein Vendor-Lock schützt Quellbytes, aber nicht deren
+  Auslieferungsform. CI muss zusätzlich das gebaute HTML, die realen Dateien
+  und die Browser-MIME-/CSP-Grenze prüfen.
+
+## 2026-08-02 – Teilen und Datenschutz müssen lokale Spielwerte ausschließen
+
+- Ausgangspunkt: lokale Bestwerte, Serien, Sprache und Einstellungen ohne
+  Konto oder Datenbank.
+- Beobachtung: Ein generischer `location.href`-Fallback kann Testparameter oder
+  lokale Zustandsreferenzen übernehmen; ein scheinbarer Cookie-Dialog würde
+  bei rein lokaler Speicherung eine nicht vorhandene Wahl vorspiegeln.
+- Änderung: Der Hinweis nennt No-Cookies und lokale Speicherung ohne
+  Einwilligungsattrappe. Der Share-Provider entfernt Query und Hash und liefert
+  nur App-Titel, neutralen DE-/EN-Text und die App-URL. Der vollständige lokale
+  Reset entfernt auch die Hinweis-Persistenz.
+- Regression: native Share-API, bewusster `AbortError`, Clipboard-Fallback,
+  auffälliger Test-Bestwert, DE/EN, Reload und zweistufiger Komplettreset.
+- Allgemeine Bedeutung: Komfortpersistenz ist Teil des löschbaren lokalen
+  Datensatzes. Teilen ist eine explizite Exportgrenze und darf keine impliziten
+  Nutzungs- oder Erfolgsdaten aufnehmen.
+
+## 2026-08-02 – Performance-Gates brauchen ein exklusives Messfenster
+
+- Ausgangspunkt: unveränderte Baseline und Essentials-Stand wurden gemessen,
+  während Cloud, Sky, Daylight und weitere owner-eigene Browsermatrizen auf
+  demselben Host liefen.
+- Beobachtung: Die Baseline fiel von zuvor extern belegten rund 60 FPS auf
+  38,27 FPS; der neue Stand lag nahezu identisch bei 37,50 bis 39,25 FPS.
+  Unter vierfacher Drosselung schwankte der Host noch stärker, obwohl die feste
+  Simulation stets 0 ms verlor und Eingaben funktional korrekt blieben.
+- Änderung: Kein Grenzwert wurde gesenkt und der Publish blieb angehalten. Der
+  finale Performance-Rerun wurde erst nach Ende der parallelen Browserkampagnen
+  isoliert ausgeführt und bestand alle drei unveränderten Profile.
+- Regression: identische App, identische drei Profile, unveränderte Budgets und
+  Vergleich von Frame-p95, Input-p95 und verlorener Simulationszeit.
+- Allgemeine Bedeutung: Reproduzierbare Browserperformance benötigt nicht nur
+  CPU-Drosselungsparameter, sondern auch Besitz des Host-Messfensters.
+  Funktions- und Performancebefunde müssen getrennt dokumentiert werden.
+
+## 2026-08-02 – Bytegenaue Vendor-Locks brauchen eine lokale LF-Grenze
+
+- Ausgangspunkt: Der fünfteilige Essentials-Lock wird auf Windows mit
+  aktiviertem `core.autocrlf` aus einem festen Shared-Commit übernommen.
+- Beobachtung: Ein korrekter Upstream-Hash allein verhindert nicht, dass ein
+  späterer Windows-Checkout vendorte Textdateien in CRLF materialisiert und
+  damit den bytegenauen App-Lock bricht.
+- Änderung: Das versionierte Vendorverzeichnis besitzt eine enge eigene
+  `.gitattributes` mit exakt `* text eol=lf`. Sie erfasst auch künftig neue
+  Textartefakte innerhalb dieser festen Vertragsversion, ohne die übrige App
+  global umzuschreiben.
+- Regression: `git check-attr text eol` für Manifestlock, Bootstrap, Runtime,
+  beide CSS-Dateien und Verifier; anschließend echter Windows-Frischcheckout
+  des App-Commits und erneuter vendorter Essentials-Verifier.
+- Allgemeine Bedeutung: Bytegenaue vendorte Verträge benötigen ihre
+  Zeilenendengrenze dort, wo Git die Dateien materialisiert. Eine lokale
+  Vendorregel ist enger und zukunftsfester als eine Liste heutiger Endungen.

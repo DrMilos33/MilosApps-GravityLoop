@@ -445,3 +445,67 @@ Reale Android-/iOS-Hardware, Android WebView sowie manuelle Tests mit
 TalkBack, VoiceOver oder NVDA standen nicht zur Verfügung. Production blieb
 unverändert, die Production-Portalroute antwortet weiterhin mit 404 und ist
 nicht freigegeben.
+
+## QA-Runde 7: Public-App-Essentials v1.0.0
+
+Der lokale Integrationsstand pinnt `public-app-essentials/v1.0.0` unverändert
+auf Shared-Commit `b09e09008ff05fe87f05bc647a7c4964ff13e6f6`. Manifest,
+app-eigenes Theme, Bootstrap, Runtime und fünfteiliger SHA-256-Lock liegen
+vollständig im Gravity-Loop-Repository; es gibt kein CDN und keinen
+Shared-Runtimeimport.
+
+### Umgesetzt und funktional verifiziert
+
+- CSS-first Ladescreen vor Shell- und Fachruntime, 56 Pixel auf Desktop und
+  48 Pixel mobil, Reduced Motion, tag-neutraler Titel und exakt eine
+  Dokument-H1; Ende ausschließlich durch das fachliche
+  `milosapps:ready`-Signal;
+- einmaliger, wegklickbarer DE-/EN-Hinweis mit wahrheitsgemäßem No-Cookies-
+  und Local-Storage-Text, absolutem DEV-Datenschutzlink und lokal
+  persistierter Kenntnisnahme;
+- bewusste Teilen-Aktion mit nativer Share-API, stillem Nutzerabbruch und
+  Clipboard-Fallback. Der Payload enthält nur Titel, neutralen Sprachtext und
+  die App-URL ohne Query oder Hash, niemals Bestwert oder Serie;
+- der zweistufige lokale Komplettreset entfernt neben Spielstand, Sprache und
+  Einstellungen auch die Komfortpersistenz des Hinweises;
+- Datumsauswahl und Ortssuche bleiben vertragsgemäß deaktiviert;
+- Vite lässt beide Essentials-CSS-Dateien und den Bootstrap als getrennte
+  relative Same-Origin-Artefakte stehen. Der Pages-Build kopiert den exakt
+  gelockten Vendorordner; ein nachgelagerter Verifier prüft HTML, alle fünf
+  Dateien, Pfade und fehlende Inline-Theme-Tokens fail-closed.
+
+### Lokale Evidenz vor dem finalen Performancefenster
+
+- Public-App-Shell-Validator/5er-Lock: PASS.
+- Public-App-Essentials-Validator/5er-Lock: PASS.
+- Unit: 32/32 bestanden.
+- Relativer Pages-Build samt gebautem Essentials-Artefakt-Verifier: PASS;
+  54,59 kB App-JavaScript (17,71 kB gzip), 17,47 kB App-CSS
+  (4,76 kB gzip), beide Shell-CSS-Dateien separat sowie 7,77 kB
+  Essentials-Basis-CSS und 0,36 kB Essentials-Theme-CSS unverändert im
+  Vendorpfad.
+- Neue Essentials-Matrix: 12/12 in Chromium, Firefox und WebKit.
+- Vollständige funktionale Chromium-Matrix ohne Performanceprofil: 32/32.
+- Axe A/AA, Tastaturfokus, 44-Pixel-Ziele, DE/EN samt Reload,
+  1440×900, 390×844 und 360×800 bei 200 Prozent: bestanden.
+
+### Finales isoliertes Gate
+
+Während paralleler owner-eigener Playwright-Matrizen mehrerer Apps lag bereits
+die unveränderte Gravity-Baseline nur bei 38,27 FPS normal. Der neue Stand lag
+im selben belasteten Fenster bei 37,50 bis 39,25 FPS normal; die feste
+Simulation verlor in allen Messungen 0 ms. Kein Performancebudget wurde
+gesenkt. Nach dem Ende aller konkurrierenden Browserläufe bestand derselbe Stand
+den isolierten Wiederholungslauf mit 53,33 FPS normal, 55,50 FPS mit
+naturnahem Mond und Hut sowie 51,40 FPS bei vierfacher CPU-Drosselung. Die
+Input-p95-Werte lagen bei 11,70, 18,90 und 47,00 ms; verlorene
+Simulationszeit blieb in allen Profilen bei 0 ms.
+
+Die abschließende Matrix lief zusätzlich vollständig gegen das gebaute relative
+Pages-Artefakt: 80 Tests bestanden in Chromium, Firefox und WebKit, 25
+profilspezifische Engine-/CDP-Skips, 0 Fehler. Der darin erneut gemessene
+Chromium-Performancepfad erreichte 58,41 / 54,15 / 51,12 FPS mit
+Input-p95 10,60 / 22,60 / 47,70 ms und jeweils 0 ms verlorener Simulation.
+Health antwortete dabei mit HTTP 200, `application/json`, `status: ok`,
+`app: gravity-loop` und `environment: dev`. Der eigene Previewprozess wurde
+anschließend beendet und Port 4317 erneut als frei geprüft.

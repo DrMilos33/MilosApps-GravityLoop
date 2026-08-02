@@ -35,6 +35,9 @@ jobs:
       - name: Verify pinned public app shell
         run: pnpm verify:shell
 
+      - name: Verify pinned public app essentials
+        run: pnpm verify:essentials
+
       - name: Unit tests
         run: pnpm test
 

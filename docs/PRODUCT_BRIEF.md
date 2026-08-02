@@ -69,3 +69,18 @@ Risiko und Fluggefühl zu vielen kurzen Runden einlädt.
 
 Der Portal-Task erhält später App-Key, Titel, Kurzbeschreibung, DEV-URL,
 Status, Vorschaubildrechte, Eingabemethoden und Healthcheck.
+
+## Öffentliche App-Grundfunktionen
+
+- Ein kleiner app-eigener Ladescreen schützt den ersten Aufbau vor einem
+  übergroßen Icon oder einer kurz unformatierten Shell. Er endet nur, wenn
+  Spielruntime, Eingaben und sichtbare Oberfläche tatsächlich bereit sind.
+- Gravity Loop setzt keine Werbe- oder Tracking-Cookies. Ein einmaliger,
+  wegklickbarer Hinweis erklärt die ausschließlich lokale Speicherung von
+  Sprache, Bestwert, Serie und Einstellungen und verlinkt absolut auf den
+  DEV-Datenschutztext.
+- Teilen ist eine bewusste Nutzeraktion. Geteilt wird ein neutraler Link auf
+  Gravity Loop in der aktiven Sprache; Bestwerte, Serien, Einstellungen und
+  Testparameter bleiben lokal.
+- Datumsauswahl und Ortssuche gehören nicht zum Spiel und sind im
+  Essentials-Vertrag ausdrücklich deaktiviert.

@@ -1,4 +1,5 @@
 import { expect, test, type Browser } from "@playwright/test";
+import { suppressPrivacyNotice } from "./support/privacy";
 
 test.skip(
   ({ browserName }) => browserName !== "chromium",
@@ -29,13 +30,16 @@ async function inspectViewport(browser: Browser, viewport: ViewportCase) {
     isMobile: viewport.touch,
   });
   const page = await context.newPage();
+  await suppressPrivacyNotice(page);
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
   await page.goto("./?test=1");
   const layout = await page.evaluate(() => {
     const canvas = document.querySelector("canvas");
     const canvasRect = canvas?.getBoundingClientRect();
-    const controls = [...document.querySelectorAll<HTMLButtonElement>(".control-button")];
+    const controls = [
+      ...document.querySelectorAll<HTMLButtonElement>(".control-row button"),
+    ];
     return {
       clientWidth: document.documentElement.clientWidth,
       scrollWidth: document.documentElement.scrollWidth,
@@ -99,6 +103,7 @@ test("pauses an active flight on orientation change and preserves progress", asy
     isMobile: true,
   });
   const page = await context.newPage();
+  await suppressPrivacyNotice(page);
   await page.goto("./?test=1");
   await page.getByRole("button", { name: "Losfliegen" }).click();
   const before = await page.evaluate(() => window.__gravityLoopTestApi!.getDebugState().state);

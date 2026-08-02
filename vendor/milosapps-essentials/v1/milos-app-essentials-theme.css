@@ -1,0 +1,10 @@
+body[data-milos-essentials-app="gravity-loop"] {
+  --milos-essential-accent: #8be7de;
+  --milos-essential-accent-contrast: #082329;
+  --milos-essential-surface: #10283b;
+  --milos-essential-surface-soft: #183a4c;
+  --milos-essential-text: #f7fbfa;
+  --milos-essential-muted: #a9bdc2;
+  --milos-essential-border: #31505b;
+  --milos-essential-focus: #fff0a5;
+}

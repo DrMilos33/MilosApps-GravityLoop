@@ -10,10 +10,44 @@
     />
     <link rel="icon" href="/gravity-loop-mark.svg" type="image/svg+xml" />
     <link rel="manifest" href="/manifest.webmanifest" />
+    <link
+      data-milos-app-essentials
+      vite-ignore
+      rel="stylesheet"
+      href="./vendor/milosapps-essentials/v1/milos-app-essentials.css"
+    />
+    <link
+      data-milos-app-essentials-theme
+      vite-ignore
+      rel="stylesheet"
+      href="./vendor/milosapps-essentials/v1/milos-app-essentials-theme.css"
+    />
     <title>Gravity Loop · MilosApps</title>
+    <script
+      data-milos-app-essentials-bootstrap
+      vite-ignore
+      type="module"
+      src="./vendor/milosapps-essentials/v1/bootstrap.js"
+    ></script>
     <script type="module" src="./vendor/milosapps-shell/v2/bootstrap.js"></script>
   </head>
-  <body>
+  <body data-milos-essentials-loading>
+    <section data-milos-app-loading role="status" aria-live="polite">
+      <div data-milos-loading-card>
+        <img
+          data-milos-loading-icon
+          src="./gravity-loop-mark.svg"
+          width="52"
+          height="52"
+          alt=""
+        />
+        <span data-milos-loading-brand>MilosApps</span>
+        <p data-milos-loading-title>Gravity Loop</p>
+        <p data-milos-loading-message>Gravity Loop wird geöffnet …</p>
+        <span data-milos-loading-progress aria-hidden="true"></span>
+      </div>
+    </section>
+
     <milos-app-shell>
       <svg class="brand-mark" slot="app-icon" aria-hidden="true" viewBox="0 0 48 48">
         <circle cx="24" cy="24" r="7" />
@@ -107,6 +141,7 @@
             </svg>
             <span data-i18n="settings">Einstellungen</span>
           </button>
+          <milos-share-button class="control-share"></milos-share-button>
         </div>
       </section>
 

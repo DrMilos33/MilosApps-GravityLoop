@@ -1,0 +1,48 @@
+{
+  "$schema": "../MilosApps-Shared/contracts/public-app-essentials/v1/essentials-manifest.schema.json",
+  "appKey": "gravity-loop",
+  "ownerTask": "MilosApps – Gravity Loop",
+  "public": true,
+  "loginRequired": false,
+  "environment": "dev",
+  "productionApproved": false,
+  "entryHtml": "index.html",
+  "integrationFiles": ["index.html", "src/main.ts"],
+  "loading": {
+    "appName": "Gravity Loop",
+    "iconPath": "gravity-loop-mark.svg",
+    "message": {
+      "de": "Gravity Loop wird geöffnet …",
+      "en": "Opening Gravity Loop …"
+    }
+  },
+  "privacy": {
+    "mode": "no-cookies",
+    "usesLocalStorage": true,
+    "optionalTracking": false,
+    "privacyUrl": "https://dev.milos-apps.de/datenschutz"
+  },
+  "features": {
+    "startup": true,
+    "privacyNotice": true,
+    "share": true,
+    "datePicker": false,
+    "placeSearch": false
+  },
+  "theme": {
+    "accent": "#8be7de",
+    "accentContrast": "#082329",
+    "surface": "#10283b",
+    "surfaceSoft": "#183a4c",
+    "text": "#f7fbfa",
+    "muted": "#a9bdc2",
+    "border": "#31505b",
+    "focus": "#fff0a5"
+  },
+  "essentialsContract": {
+    "id": "public-app-essentials/v1",
+    "version": "1.0.0",
+    "sharedCommit": "b09e09008ff05fe87f05bc647a7c4964ff13e6f6",
+    "vendorDirectory": "vendor/milosapps-essentials/v1"
+  }
+}

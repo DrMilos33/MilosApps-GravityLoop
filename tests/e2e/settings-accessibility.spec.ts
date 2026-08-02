@@ -1,7 +1,9 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
+import { suppressPrivacyNotice } from "./support/privacy";
 
 test.beforeEach(async ({ page }) => {
+  await suppressPrivacyNotice(page);
   await page.goto("./?test=1");
 });
 
@@ -336,6 +338,11 @@ test("resets all local data only after explicit second confirmation", async ({ p
   expect(
     await page.evaluate(() =>
       localStorage.getItem("milosapps.gravity-loop.language"),
+    ),
+  ).toBeNull();
+  expect(
+    await page.evaluate(() =>
+      localStorage.getItem("milosapps.gravity-loop.privacyNotice.v1"),
     ),
   ).toBeNull();
   await expect(page.locator("html")).not.toHaveClass(/high-contrast/);

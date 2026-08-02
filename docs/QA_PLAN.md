@@ -37,3 +37,19 @@ Abschlussmeldung sind mindestens drei dokumentierte Verbesserungsrunden nötig.
 Framerate-/Frame-Time-Messung, getestete Geräteemulationen, Eingabemethoden,
 automatisierte Tests, bekannte Grenzen und nicht testbare Hardware werden
 konkret dokumentiert.
+
+## Public-App-Essentials-Gate
+
+- fester Shared-Commit, Manifest, fünfteiliger Lock und portabler Validator;
+- Ladescreen vor Fachruntime, App-Icon höchstens 56 CSS-Pixel auf Desktop und
+  48 CSS-Pixel mobil, Reduced Motion und genau eine Dokument-H1;
+- wahrheitsgemäßer DE-/EN-Datenschutzhinweis, absoluter Link, 44-Pixel-Ziele,
+  Fokus, Axe und persistiertes Wegklicken;
+- vollständiger lokaler Datenreset entfernt auch die Komfortpersistenz des
+  Hinweises;
+- Teilen über native API, bewussten Abbruch und Clipboard-Fallback; kein
+  Bestwert, keine Serie und keine Query-/Hash-Daten im Payload;
+- beide Essentials-CSS-Dateien und der Bootstrap bleiben im gebauten
+  Pages-Artefakt externe relative Same-Origin-Dateien; fünf Vendorartefakte,
+  MIME und strikte Self-only-CSP werden fail-closed geprüft;
+- 1440×900, 390×844 und 360×800 bei 200 Prozent ohne horizontalen Überlauf.

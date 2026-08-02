@@ -1,6 +1,6 @@
 # Gravity Loop: DEV- und Portalübergabe
 
-Stand: 2026-08-01
+Stand: 2026-08-02
 App-Key: `gravity-loop`  
 Production: nicht freigegeben
 
@@ -15,9 +15,10 @@ Production: nicht freigegeben
 | Status | öffentlicher unabhängiger DEV-Stand, extern verifiziert |
 | Plattformen | Web, mobil und Desktop |
 | Eingaben | Touch/Stift auf der nicht-interaktiven App-Fläche, Maus im Canvas, Leertaste oder Pfeil hoch; `P` Pause, `R` Neustart |
-| Daten | Bestwert, Sternenserie, Einstellungen und Sprache ausschließlich in lokalem Browser-Speicher; keine Cookies, kein Konto, keine Datenbank |
+| Daten | Bestwert, Sternenserie, Einstellungen, Sprache und die Komfortpersistenz des einmaligen Datenschutzhinweises ausschließlich in lokalem Browser-Speicher; keine Cookies, kein Konto, keine Datenbank |
 | Vorschaubildrechte | Darstellung und Icon vollständig im Repository codebasiert erstellt; keine externen oder kopierten Assets |
-| Shared-Abhängigkeiten | `public-app-shell/v2.0.3` aus Shared-Commit `ed898412306e22c6ae1b10ee8953df29f8acd627`, app-eigen vendort und per 5er-Lock verifiziert; kein Runtimeimport |
+| Shared-Abhängigkeiten | `public-app-shell/v2.0.3` aus Shared-Commit `ed898412306e22c6ae1b10ee8953df29f8acd627` sowie `public-app-essentials/v1.0.0` aus Shared-Commit `b09e09008ff05fe87f05bc647a7c4964ff13e6f6`; beide app-eigen vendort und jeweils per 5er-Lock verifiziert, kein Runtimeimport |
+| Gemeinsame UX | kleiner readiness-gebundener Ladescreen, wahrheitsgemäßer No-Cookies-/Local-Storage-Hinweis und bewusst bestwertfreie Teilen-Aktion; Datum und Ort deaktiviert |
 
 ## Routen und Readiness
 
