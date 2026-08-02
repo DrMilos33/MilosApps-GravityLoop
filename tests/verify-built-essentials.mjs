@@ -9,6 +9,10 @@ function fail(message) {
   throw new Error(`built essentials verification failed: ${message}`);
 }
 
+if (html.split(/\r?\n/).some((line) => /[\t ]+$/.test(line))) {
+  fail("built index.html contains trailing whitespace");
+}
+
 function linkByMarker(marker) {
   const tags = html.match(/<link\b[^>]*>/gi) ?? [];
   const tag = tags.find((candidate) =>
