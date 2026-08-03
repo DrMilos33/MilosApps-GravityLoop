@@ -428,3 +428,23 @@ Nutzerdaten eintragen.
 - Allgemeine Bedeutung: Kritische Startgeometrie ist ein Vertrag aus
   intrinsischem HTML-Fallback und gemeinsamem CSS. Quell-, Artefakt- und
   Browserprüfung decken unterschiedliche Fehlerklassen ab.
+
+## 2026-08-03 – Übergangstests müssen die ausgelieferte Modulgrenze blockieren
+
+- Ausgangspunkt: Lokal registriert `vendor/milosapps-shell/v2/bootstrap.js`
+  die Shell über einzelne Quellmodule; Vite bündelt denselben Einstieg für
+  GitHub Pages in einen gehashten App-Entry.
+- Beobachtung: Ein Test, der nur die lokale URL `milos-app-shell.js` verzögert,
+  kontrolliert im gebauten Artefakt keinen Lifecycle mehr. Ebenso ist
+  `HTMLLinkElement.sheet` unter geroutetem Shadow-DOM-CSS kein hinreichend
+  portabler externer Ladenachweis.
+- Änderung: Das Gate liest den tatsächlich referenzierten, nicht zu Essentials
+  gehörenden Moduleinstieg aus dem Entry-HTML und blockiert diese URL. Das
+  Komponenten-CSS wird über seine echte Response, CSS-MIME und den danach
+  wirksamen `display: grid`-Zustand nachgewiesen.
+- Regression: Derselbe Test läuft gegen Vite-Quellen und das öffentliche
+  gebündelte Pages-Artefakt in Chromium, Firefox und WebKit und misst vor
+  Upgrade, während verzögertem Komponenten-CSS und im Endzustand.
+- Allgemeine Bedeutung: Lifecycle-Gates müssen an einer im jeweiligen
+  Artefakt wirklich existierenden Netz-/Modulgrenze ansetzen. Quellpfade sind
+  nach dem Bundling keine belastbare externe Testnaht.

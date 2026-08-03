@@ -759,3 +759,59 @@ v1.1.3-Code. Kein Budget wurde verändert.
 Reale Android-/iOS-Hardware, Android WebView sowie manuelle Tests mit TalkBack,
 VoiceOver oder NVDA bleiben externe Grenzen. Production blieb unverändert und
 ist nicht freigegeben.
+
+## QA-Runde 10: stabiles Shell-Icon während des Komponentenstarts
+
+Gravity Loop pinnt `public-app-essentials/v1.1.5` unveränderlich auf
+Shared-Commit `2942132ad3bf6cf39edc9f52ed918de6a230be23`. Der sechsteilige
+Verbraucher-Lock wurde atomar erneuert; `public-app-shell/v2.0.3`, der
+32×32-Pixel-Essentials-Loader sowie Fachfunktion, Privacy, Share, Routen und
+Productiongrenze blieben unverändert.
+
+### Umsetzung und Contract-Evidenz
+
+- Das app-eigene `svg[slot="app-icon"]` deklariert intrinsisch exakt
+  `width="38" height="38"`. Die frühere Landscape-Breite in `rem` entfällt,
+  damit Textzoom die feste Shell-Geometrie nicht überschreiben kann.
+- Ein neuer fail-closed Browserfall blockiert zuerst den tatsächlich
+  ausgelieferten Shell-registrierenden Moduleinstieg und danach das
+  Komponenten-CSS. Er belegt: vor dem Upgrade verborgen und höchstens 38×38,
+  nach Upgrade bei verzögertem CSS sichtbar und höchstens 38×38, nach
+  erfolgreicher Same-Origin-CSS-Response exakt 38×38. Das Gate erkennt sowohl
+  die lokale Quellmodul- als auch die gebündelte Pages-Entry-URL.
+- Shell- und Essentials-Verifier sowie `pnpm build` und `pnpm build:pages`
+  bestanden. Ein echter temporärer Windows-Worktree mit
+  `core.autocrlf=true` bestand beide Verifier; alle Essentials-Dateien lagen
+  als `i/lf w/lf` unter `* text eol=lf` vor.
+- Das fokussierte lokale Gate bestand in Chromium, Firefox und WebKit. Die
+  Viewports 390×844, 360×800 bei 200 Prozent sowie Landscape bei 200 Prozent
+  blieben ohne horizontalen Überlauf; der getrennte Loader blieb 32×32.
+- Der finale SHA-genaue `main`-CI-Lauf `30817484302` bestand Verifier, 33
+  Unit-Tests, Build und die bestehende Browsermatrix mit 90 anwendbaren Fällen,
+  29 planmäßigen Skips und einem bestandenen WebKit-Retry. Das isolierte
+  Performancegate meldete 54,76 / 55,13 / 50,77 FPS, Input-p95
+  21,2 / 39,8 / 12,0 ms und jeweils 0 ms verlorene Simulation.
+- Ein zuvor parallel zum Feature-CI gestarteter `main`-Lauf überschritt nur im
+  Rich-Visuals-Profil das Input-p95 knapp (47,6 beziehungsweise 54,5 ms),
+  während FPS, Frame-p95 und Simulation bestanden. Der unveränderte isolierte
+  Retry war grün; kein Performancebudget wurde gesenkt.
+
+### Externe DEV-Veröffentlichung
+
+- Source `15b090d494d491ae8b977d2dc0035f7844847bb0` steht auf Feature und
+  `main`. Das Pages-Artefakt
+  `d9ce4798073010f8ae3a4cf3be83e7fef75ce1fc` wurde im erfolgreichen Run
+  `30817964986` veröffentlicht.
+- Direkt-App und Health liefern HTTPS 200. Health antwortet exakt mit
+  `status: ok`, `app: gravity-loop`, `environment: dev`. Das ausgelieferte
+  Essentials-CSS liefert `text/css; charset=utf-8` und den gelockten SHA-256
+  `45639329f6a94093354fd7d416a636d4e0da4d751b9fa97e2c75c84c7c6c4ade`.
+- Die frische externe Drei-Engine-Contract-Matrix bestand vier anwendbare
+  Fälle bei zwei planmäßigen Layout-Skips. Alle drei Iconphasen, Loadergröße
+  und die mobile/200-Prozent-Reflowgrenze blieben grün.
+- Die unveränderte Portalroute liefert cookie-los per GET und HEAD HTTP 302
+  auf exakt die unabhängige App-URL. Die Productionroute bleibt HTTP 404.
+- Rollback ist Source `f41963731f77ca324292e1cb3dd769afebfdba62`
+  mit Pages-Artefakt `321ef0dc7ba3b44d04d8b0ef5b2ba6b364b31c49`.
+
+Production blieb unverändert und ist nicht freigegeben.

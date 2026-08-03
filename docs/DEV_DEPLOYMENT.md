@@ -15,16 +15,16 @@ Production: `false`, nicht freigegeben
 | Readiness | `https://drmilos33.github.io/MilosApps-GravityLoop/health.json` |
 | Hosting | GitHub Pages, unabhängig vom Portal |
 | Source-Branch | `main` |
-| deployter App-Commit | `f41963731f77ca324292e1cb3dd769afebfdba62` |
+| deployter App-Commit | `15b090d494d491ae8b977d2dc0035f7844847bb0` |
 | Deployment-Branch | `gh-pages` |
-| Artefakt-Commit | `321ef0dc7ba3b44d04d8b0ef5b2ba6b364b31c49` |
-| Pages-Run | `30802288647`, erfolgreich |
-| App-CI | `30801758952` (`main`) und `30801758378` (Feature), erfolgreich |
+| Artefakt-Commit | `d9ce4798073010f8ae3a4cf3be83e7fef75ce1fc` |
+| Pages-Run | `30817964986`, erfolgreich |
+| App-CI | `30817484302` (`main`), erfolgreich |
 | Login | keiner |
-| Shared-/Portal-Abhängigkeiten | `public-app-shell/v2.0.3` und `public-app-essentials/v1.1.3` fest vendort; keine Runtime- oder Portalabhängigkeit |
+| Shared-/Portal-Abhängigkeiten | `public-app-shell/v2.0.3` und `public-app-essentials/v1.1.5` fest vendort; keine Runtime- oder Portalabhängigkeit |
 
 Der Branch `main` hält den vollständig verifizierten App-Quellstand
-`f419637`. Der Branch `gh-pages` enthält ausschließlich das daraus erzeugte
+`15b090d`. Der Branch `gh-pages` enthält ausschließlich das daraus erzeugte
 statische Artefakt. Änderungen an Dokumentation oder Test-Lifecycle werden
 nicht automatisch veröffentlicht.
 
@@ -76,16 +76,16 @@ nicht.
 Die aktive gesunde DEV-Revision ist:
 
 - App-Quellstand:
-  `f41963731f77ca324292e1cb3dd769afebfdba62`;
+  `15b090d494d491ae8b977d2dc0035f7844847bb0`;
 - Pages-Artefakt:
-  `321ef0dc7ba3b44d04d8b0ef5b2ba6b364b31c49`.
+  `d9ce4798073010f8ae3a4cf3be83e7fef75ce1fc`.
 
 Der vorherige gesunde Rollbackstand ist:
 
 - App-Quellstand:
-  `1bdecf63d9963ab8c580735397a60603e979925c`;
+  `f41963731f77ca324292e1cb3dd769afebfdba62`;
 - Pages-Artefakt:
-  `8d99c8495f20976536e76fb5ce731308a73d6e24`.
+  `321ef0dc7ba3b44d04d8b0ef5b2ba6b364b31c49`.
 
 Bei einem späteren fehlerhaften DEV-Release wird aus dem letzten gesunden
 Quellstand erneut gebaut und dessen Dateibaum als normaler Nachfolger auf
