@@ -1,6 +1,6 @@
 # Gravity Loop: DEV- und Portalübergabe
 
-Stand: 2026-08-02
+Stand: 2026-08-03
 App-Key: `gravity-loop`  
 Production: nicht freigegeben
 
@@ -15,9 +15,9 @@ Production: nicht freigegeben
 | Status | öffentlicher unabhängiger DEV-Stand, extern verifiziert |
 | Plattformen | Web, mobil und Desktop |
 | Eingaben | Touch/Stift auf der nicht-interaktiven App-Fläche, Maus im Canvas, Leertaste oder Pfeil hoch; `P` Pause, `R` Neustart |
-| Daten | Bestwert, Sternenserie, Einstellungen, Sprache und die Komfortpersistenz des einmaligen Datenschutzhinweises ausschließlich in lokalem Browser-Speicher; keine Cookies, kein Konto, keine Datenbank |
+| Daten | Bestwert, Sternenserie, Einstellungen und Sprache ausschließlich in notwendigem lokalem Browser-Speicher; keine Cookies, kein Dismiss-State, kein Konto, keine Datenbank |
 | Vorschaubildrechte | Darstellung und Icon vollständig im Repository codebasiert erstellt; keine externen oder kopierten Assets |
-| Shared-Abhängigkeiten | `public-app-shell/v2.0.3` aus Shared-Commit `ed898412306e22c6ae1b10ee8953df29f8acd627` sowie `public-app-essentials/v1.0.0` aus Shared-Commit `b09e09008ff05fe87f05bc647a7c4964ff13e6f6`; beide app-eigen vendort und jeweils per 5er-Lock verifiziert, kein Runtimeimport |
+| Shared-Abhängigkeiten | `public-app-shell/v2.0.3` aus Shared-Commit `ed898412306e22c6ae1b10ee8953df29f8acd627` sowie `public-app-essentials/v1.1.2` aus Shared-Commit `b14aac6107b75f03ff49e74160af7e7e30c29e59`; beide app-eigen vendort, Essentials per sechsteiligem Verbraucher-Lock samt Schema verifiziert, kein Runtimeimport |
 | Gemeinsame UX | kleiner readiness-gebundener Ladescreen, wahrheitsgemäßer No-Cookies-/Local-Storage-Hinweis und bewusst bestwertfreie Teilen-Aktion; Datum und Ort deaktiviert |
 
 ## Routen und Readiness
@@ -62,13 +62,15 @@ Der unabhängige öffentliche DEV-Dienst ist aktiv:
   `https://github.com/DrMilos33/MilosApps-GravityLoop`;
 - Hosting: GitHub Pages aus dem app-eigenen Branch `gh-pages`;
 - deployter vollständiger App-Commit:
-  `62624263f9a3154f4cddeeaf2344f6bd758a5f6a`;
+  `1bdecf63d9963ab8c580735397a60603e979925c`;
 - daraus gebauter DEV-Artefakt-Commit:
-  `a7e52aa062f217f1ecd15d763c75d926640ce0cf`;
+  `8d99c8495f20976536e76fb5ce731308a73d6e24`;
 - erfolgreiche Pages-Deployment-Ausführung:
-  `https://github.com/DrMilos33/MilosApps-GravityLoop/actions/runs/30748438877`;
-- erfolgreiche vollständige App-CI:
-  `https://github.com/DrMilos33/MilosApps-GravityLoop/actions/runs/30748263177`;
+  `https://github.com/DrMilos33/MilosApps-GravityLoop/actions/runs/30785700551`;
+- erfolgreiche vollständige App-CI auf `main` und Feature:
+  `https://github.com/DrMilos33/MilosApps-GravityLoop/actions/runs/30785423293`
+  sowie
+  `https://github.com/DrMilos33/MilosApps-GravityLoop/actions/runs/30785423278`;
 - Production: `false`, nicht freigegeben.
 
 Direktaufruf, Health-Identität, Loginfreiheit, Chromium, Firefox und WebKit
@@ -77,16 +79,19 @@ Portal-Cookies noch Milos-Login; die App lädt keine Portal- oder
 Shared-Abhängigkeit. Details, Rollback und letzte gesunde Revision stehen in
 `docs/DEV_DEPLOYMENT.md`.
 
-Der aktuelle externe Abschlusslauf bestand 80 anwendbare Tests in Chromium,
-Firefox und WebKit ohne Fehler oder Retry; 25 nicht anwendbare
+Der aktuelle externe Abschlusslauf bestand 88 anwendbare Tests in Chromium,
+Firefox und WebKit ohne Fehler oder Retry; 29 nicht anwendbare
 Engine-/CDP-Kombinationen wurden bewusst übersprungen. Dabei wurden die echte
 HTTPS-Ausgabe unter strikter Self-only-CSP, getrennte Shell- und
 Essentials-Stylesheet-Origins, DE/EN samt Reload-Persistenz, Loader,
-Datenschutzhinweis, Teilen, mobile Touchsteuerung außerhalb des Canvas,
+permanente Datenschutzinformation, Teilen, mobile Touchsteuerung außerhalb des Canvas,
 Sternenschild und 360×800 bei 200 Prozent geprüft. Die Chromium-Referenz lag
-bei 54,69 FPS und 9,40 ms Input-p95 normal, 50,52 FPS und 21,00 ms Input-p95
-mit naturnaher Grafik plus Hut sowie 44,60 FPS und 38,80 ms Input-p95 bei
+bei 59,17 FPS und 11,00 ms Input-p95 normal, 56,30 FPS und 29,30 ms Input-p95
+mit naturnaher Grafik plus Hut sowie 55,30 FPS und 14,80 ms Input-p95 bei
 vierfacher CPU-Drosselung; verlorene Simulationszeit blieb in allen Profilen
-0 ms. Verbleibende Grenzen sind reale
+0 ms. Der ausgelieferte Icon-SHA-256 ist bytegleich zur Source; sichtbare
+390-/360-Pixel- und Desktop-QA ergab keinen horizontalen Überlauf und keine
+Browserwarnung. Rollback bleibt Source `62624263f9a3154f4cddeeaf2344f6bd758a5f6a`
+mit Pages `a7e52aa062f217f1ecd15d763c75d926640ce0cf`. Verbleibende Grenzen sind reale
 Android-/iOS-Hardware, Android WebView sowie manuelle Tests mit TalkBack,
 VoiceOver oder NVDA.

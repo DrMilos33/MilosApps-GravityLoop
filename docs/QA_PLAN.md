@@ -52,6 +52,6 @@ konkret dokumentiert.
 - Teilen über native API, bewussten Abbruch und Clipboard-Fallback; kein
   Bestwert, keine Serie und keine Query-/Hash-Daten im Payload;
 - beide Essentials-CSS-Dateien und der Bootstrap bleiben im gebauten
-  Pages-Artefakt externe relative Same-Origin-Dateien; fünf Vendorartefakte,
+  Pages-Artefakt externe relative Same-Origin-Dateien; sechs Verbraucherartefakte,
   MIME und strikte Self-only-CSP werden fail-closed geprüft;
 - 1440×900, 390×844 und 360×800 bei 200 Prozent ohne horizontalen Überlauf.

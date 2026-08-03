@@ -636,6 +636,34 @@ Verifier, 33/33 Unit, den Build und 88 anwendbare Browserfälle bei 29
 planmäßigen Skips; darin 59,72 / 57,25 / 55,80 FPS,
 Input-p95 13,9 / 31,8 / 13,4 ms und 0 ms verlorene Simulation.
 
+### Externe DEV-Veröffentlichung
+
+- Source `1bdecf63d9963ab8c580735397a60603e979925c` steht auf Feature und
+  `main`; CI-Runs `30785423278` und `30785423293` sind vollständig grün.
+- Das ausschließlich daraus gebaute Pages-Artefakt
+  `8d99c8495f20976536e76fb5ce731308a73d6e24` wurde im erfolgreichen
+  Pages-Run `30785700551` veröffentlicht. Aus `02572c7` entstand bewusst kein
+  Pages-Artefakt.
+- Cookie-loser Direktaufruf, Health und App-Icon liefern HTTPS 200. Health ist
+  exakt `status: ok`, `app: gravity-loop`, `environment: dev`; das Icon wird
+  als `image/svg+xml` ausgeliefert und ist mit SHA-256
+  `ce6d0540c08726e702dec86d5e2cf7b85c4fabf8f7ae07a0fc93a4faed08001c`
+  bytegleich zur Source. Beide Essentials-CSS-Dateien und Bootstrap bleiben
+  getrennte Same-Origin-Ressourcen mit korrektem MIME.
+- Die frische öffentliche Drei-Engine-Matrix bestand 88 anwendbare Fälle bei
+  29 planmäßigen Skips ohne Fehler oder Retry. Externe Performance:
+  59,17 / 56,30 / 55,30 FPS, Input-p95 11,0 / 29,3 / 14,8 ms und jeweils
+  0 ms verlorene Simulation.
+- Sichtbare Abnahme: DE/EN samt Reload, 390×844, 360×800, Desktop,
+  verständliche Settings, „Naturnah“, 44-Pixel-Ziele und kein horizontaler
+  Überlauf. Bei 360 Pixeln lagen Dialog und alle Selects innerhalb des
+  345-Pixel-Clients; die Selects boten 210 Pixel Textbreite, 8 Pixel linken
+  Gutter und 36 Pixel Pfeilzone. Die Browserkonsole blieb ohne Warnung oder
+  Fehler. Der automatisierte externe Reflowfall bestätigt zusätzlich
+  360×800 bei 200 Prozent in Chromium, Firefox und WebKit.
+- Rollback bleibt Source `62624263f9a3154f4cddeeaf2344f6bd758a5f6a`
+  mit Pages-Artefakt `a7e52aa062f217f1ecd15d763c75d926640ce0cf`.
+
 Die Reihenfolge lautet jeweils Normalprofil, naturnaher Mond plus Hut und
 vierfache CPU-Drosselung. Reale Android-/iOS-Hardware, Android WebView sowie
 manuelle Tests mit TalkBack, VoiceOver oder NVDA bleiben externe Grenzen.

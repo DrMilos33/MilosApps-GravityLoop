@@ -37,9 +37,9 @@ und [DEV-Deployment](docs/DEV_DEPLOYMENT.md) sowie
 - Readiness: <https://drmilos33.github.io/MilosApps-GravityLoop/health.json>
 - GitHub: <https://github.com/DrMilos33/MilosApps-GravityLoop>
 - deployter App-Quellstand:
-  `62624263f9a3154f4cddeeaf2344f6bd758a5f6a`
+  `1bdecf63d9963ab8c580735397a60603e979925c`
 - DEV-Artefakt: Branch `gh-pages`, Commit
-  `a7e52aa062f217f1ecd15d763c75d926640ce0cf`
+  `8d99c8495f20976536e76fb5ce731308a73d6e24`
 
 Die URL ist ein unabhängiger öffentlicher GitHub-Pages-DEV-Dienst ohne Login.
 Production ist nicht freigegeben. Build, Validierung, Aktualisierung und
