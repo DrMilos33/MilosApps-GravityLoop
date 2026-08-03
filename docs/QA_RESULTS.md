@@ -721,8 +721,41 @@ Stand alle drei Profile:
 | naturnaher Mond plus Hut | 47,70 | 33,4 ms | 30,2 ms | 0 ms |
 | CPU vierfach gedrosselt | 43,01 | 33,4 ms | 32,1 ms | 0 ms |
 
-Ein erneuter Performance-Gesamtlauf bleibt während neu gestarteter paralleler
-Browserkampagnen bewusst ausgesetzt. Die bereits bestandene isolierte Messung
-gehört exakt zum aktuellen v1.1.3-Code; Funktions-, Lock- und Buildtests dürfen
-unabhängig davon fortgesetzt werden. Production bleibt unverändert und ist
-nicht freigegeben.
+Ein erneuter paralleler lokaler Performance-Gesamtlauf blieb während neu
+gestarteter Browserkampagnen bewusst ausgesetzt. Die beiden SHA-genauen
+Source-CI-Läufe bestanden dennoch das vollständige repositoryeigene Browsergate;
+die bereits bestandene isolierte Messung gehört exakt zum veröffentlichten
+v1.1.3-Code. Kein Budget wurde verändert.
+
+### Externe DEV-Veröffentlichung
+
+- Source `f41963731f77ca324292e1cb3dd769afebfdba62` steht auf Feature und
+  `main`; die CI-Runs `30801758378` und `30801758952` sind vollständig grün.
+- Das ausschließlich daraus gebaute Pages-Artefakt
+  `321ef0dc7ba3b44d04d8b0ef5b2ba6b364b31c49` wurde im erfolgreichen
+  Pages-Run `30802288647` veröffentlicht.
+- Cookie-loser Direktaufruf und Health liefern HTTPS 200. Health antwortet
+  exakt mit `status: ok`, `app: gravity-loop`, `environment: dev` und
+  `application/json; charset=utf-8`.
+- App-Icon, beide Essentials-CSS-Dateien, Bootstrap und Runtime liefern 200 mit
+  korrektem SVG-, CSS- beziehungsweise JavaScript-MIME. Der ausgelieferte
+  Icon-SHA-256
+  `ce6d0540c08726e702dec86d5e2cf7b85c4fabf8f7ae07a0fc93a4faed08001c`
+  ist bytegleich zur Source.
+- Die frische öffentliche Drei-Engine-Funktionsmatrix bestand 85 anwendbare
+  Fälle bei 23 planmäßigen Engine-/CDP-Skips, 0 Fehlern und 0 Retries.
+  Loader/Ready, Privacy, Share, strikte Self-only-CSP, MIME, DE/EN samt Reload,
+  Gameplay, Settings, Axe A/AA, Reduced Motion, Offline/App-Resume,
+  Touch/Pointer sowie 360×800 bei 200 Prozent blieben grün.
+- Sichtbare Browserabnahme: Loader-CSS exakt 32×32 Pixel; genau eine H1;
+  Startaktion bei 390×844 mit 43,3 Pixel und bei 360×800 mit 26,2 Pixel
+  Sicherheitsrand; `scrollWidth = clientWidth` bei 390, 360 und Desktop;
+  DE/EN-Persistenz und 0 Browserwarnungen/-fehler.
+- Portal-DEV liefert cookie-los per GET und HEAD weiterhin HTTP 302 auf exakt
+  dieselbe unabhängige App-URL. Die Productionroute bleibt HTTP 404.
+- Rollback bleibt Source `1bdecf63d9963ab8c580735397a60603e979925c`
+  mit Pages-Artefakt `8d99c8495f20976536e76fb5ce731308a73d6e24`.
+
+Reale Android-/iOS-Hardware, Android WebView sowie manuelle Tests mit TalkBack,
+VoiceOver oder NVDA bleiben externe Grenzen. Production blieb unverändert und
+ist nicht freigegeben.

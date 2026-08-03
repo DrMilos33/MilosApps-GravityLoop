@@ -17,8 +17,8 @@ Production: nicht freigegeben
 | Eingaben | Touch/Stift auf der nicht-interaktiven App-Fläche, Maus im Canvas, Leertaste oder Pfeil hoch; `P` Pause, `R` Neustart |
 | Daten | Bestwert, Sternenserie, Einstellungen und Sprache ausschließlich in notwendigem lokalem Browser-Speicher; keine Cookies, kein Dismiss-State, kein Konto, keine Datenbank |
 | Vorschaubildrechte | Darstellung und Icon vollständig im Repository codebasiert erstellt; keine externen oder kopierten Assets |
-| Shared-Abhängigkeiten | `public-app-shell/v2.0.3` aus Shared-Commit `ed898412306e22c6ae1b10ee8953df29f8acd627` sowie `public-app-essentials/v1.1.2` aus Shared-Commit `b14aac6107b75f03ff49e74160af7e7e30c29e59`; beide app-eigen vendort, Essentials per sechsteiligem Verbraucher-Lock samt Schema verifiziert, kein Runtimeimport |
-| Gemeinsame UX | kleiner readiness-gebundener Ladescreen, wahrheitsgemäßer No-Cookies-/Local-Storage-Hinweis und bewusst bestwertfreie Teilen-Aktion; Datum und Ort deaktiviert |
+| Shared-Abhängigkeiten | `public-app-shell/v2.0.3` aus Shared-Commit `ed898412306e22c6ae1b10ee8953df29f8acd627` sowie `public-app-essentials/v1.1.3` aus Shared-Commit `babe74a0e62e1a7f9095648195e54b322a837726`; beide app-eigen vendort, Essentials per sechsteiligem Verbraucher-Lock samt Schema verifiziert, kein Runtimeimport |
+| Gemeinsame UX | readiness-gebundener Ladescreen mit exakt 32×32 Pixel großem App-Symbol, wahrheitsgemäßer No-Cookies-/Local-Storage-Hinweis und bewusst bestwertfreie Teilen-Aktion; Datum und Ort deaktiviert |
 
 ## Routen und Readiness
 
@@ -62,15 +62,15 @@ Der unabhängige öffentliche DEV-Dienst ist aktiv:
   `https://github.com/DrMilos33/MilosApps-GravityLoop`;
 - Hosting: GitHub Pages aus dem app-eigenen Branch `gh-pages`;
 - deployter vollständiger App-Commit:
-  `1bdecf63d9963ab8c580735397a60603e979925c`;
+  `f41963731f77ca324292e1cb3dd769afebfdba62`;
 - daraus gebauter DEV-Artefakt-Commit:
-  `8d99c8495f20976536e76fb5ce731308a73d6e24`;
+  `321ef0dc7ba3b44d04d8b0ef5b2ba6b364b31c49`;
 - erfolgreiche Pages-Deployment-Ausführung:
-  `https://github.com/DrMilos33/MilosApps-GravityLoop/actions/runs/30785700551`;
+  `https://github.com/DrMilos33/MilosApps-GravityLoop/actions/runs/30802288647`;
 - erfolgreiche vollständige App-CI auf `main` und Feature:
-  `https://github.com/DrMilos33/MilosApps-GravityLoop/actions/runs/30785423293`
+  `https://github.com/DrMilos33/MilosApps-GravityLoop/actions/runs/30801758952`
   sowie
-  `https://github.com/DrMilos33/MilosApps-GravityLoop/actions/runs/30785423278`;
+  `https://github.com/DrMilos33/MilosApps-GravityLoop/actions/runs/30801758378`;
 - Production: `false`, nicht freigegeben.
 
 Direktaufruf, Health-Identität, Loginfreiheit, Chromium, Firefox und WebKit
@@ -79,19 +79,20 @@ Portal-Cookies noch Milos-Login; die App lädt keine Portal- oder
 Shared-Abhängigkeit. Details, Rollback und letzte gesunde Revision stehen in
 `docs/DEV_DEPLOYMENT.md`.
 
-Der aktuelle externe Abschlusslauf bestand 88 anwendbare Tests in Chromium,
-Firefox und WebKit ohne Fehler oder Retry; 29 nicht anwendbare
+Der aktuelle externe Funktionslauf bestand 85 anwendbare Tests in Chromium,
+Firefox und WebKit ohne Fehler oder Retry; 23 nicht anwendbare
 Engine-/CDP-Kombinationen wurden bewusst übersprungen. Dabei wurden die echte
 HTTPS-Ausgabe unter strikter Self-only-CSP, getrennte Shell- und
-Essentials-Stylesheet-Origins, DE/EN samt Reload-Persistenz, Loader,
-permanente Datenschutzinformation, Teilen, mobile Touchsteuerung außerhalb des Canvas,
-Sternenschild und 360×800 bei 200 Prozent geprüft. Die Chromium-Referenz lag
-bei 59,17 FPS und 11,00 ms Input-p95 normal, 56,30 FPS und 29,30 ms Input-p95
-mit naturnaher Grafik plus Hut sowie 55,30 FPS und 14,80 ms Input-p95 bei
-vierfacher CPU-Drosselung; verlorene Simulationszeit blieb in allen Profilen
-0 ms. Der ausgelieferte Icon-SHA-256 ist bytegleich zur Source; sichtbare
-390-/360-Pixel- und Desktop-QA ergab keinen horizontalen Überlauf und keine
-Browserwarnung. Rollback bleibt Source `62624263f9a3154f4cddeeaf2344f6bd758a5f6a`
-mit Pages `a7e52aa062f217f1ecd15d763c75d926640ce0cf`. Verbleibende Grenzen sind reale
+Essentials-Stylesheet-Origins, DE/EN samt Reload-Persistenz, der exakt
+32×32 Pixel große Loader, permanente Datenschutzinformation, Teilen, mobile
+Touchsteuerung außerhalb des Canvas, Sternenschild und 360×800 bei 200 Prozent
+geprüft. Das isolierte Chromium-Performancegate desselben Quellstands bestand
+mit 49,92 / 47,70 / 43,01 FPS, Input-p95 36,0 / 30,2 / 32,1 ms und jeweils
+0 ms verlorener Simulation; kein Budget wurde geändert. Der ausgelieferte
+Icon-SHA-256 `ce6d0540c08726e702dec86d5e2cf7b85c4fabf8f7ae07a0fc93a4faed08001c`
+ist bytegleich zur Source. Sichtbare 390-/360-Pixel- und Desktop-QA ergab
+keinen horizontalen Überlauf und keine Browserwarnung. Rollback bleibt Source
+`1bdecf63d9963ab8c580735397a60603e979925c` mit Pages
+`8d99c8495f20976536e76fb5ce731308a73d6e24`. Verbleibende Grenzen sind reale
 Android-/iOS-Hardware, Android WebView sowie manuelle Tests mit TalkBack,
 VoiceOver oder NVDA.
