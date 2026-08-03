@@ -1,9 +1,11 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
+import { createHash } from "node:crypto";
+import { readFile } from "node:fs/promises";
 
-const PRIVACY_STORAGE_KEY = "milosapps.gravity-loop.privacyNotice.v1";
+const LEGACY_PRIVACY_STORAGE_KEY = "milosapps.gravity-loop.privacyNotice.v1";
 
-test("keeps a small loader visible until the game is operable", async ({ page }) => {
+test("keeps a small loader visible until the game is operable", async ({ page, request }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.route(
     /\/(?:src\/main\.ts|assets\/index-[^/?]+\.js)(?:\?.*)?$/,
@@ -43,72 +45,46 @@ test("keeps a small loader visible until the game is operable", async ({ page })
       getComputedStyle(progress, "::after").animationName,
     ),
   ).toBe("none");
+
+  const iconResponse = await request.get(
+    new URL("./gravity-loop-mark.svg", page.url()).toString(),
+  );
+  expect(iconResponse.ok()).toBe(true);
+  expect(iconResponse.headers()["content-type"]).toMatch(/^image\/svg\+xml(?:;|$)/i);
+  const sourceIcon = await readFile("public/gravity-loop-mark.svg");
+  const sha256 = (value: Buffer) => createHash("sha256").update(value).digest("hex");
+  expect(sha256(await iconResponse.body())).toBe(sha256(sourceIcon));
 });
 
-test("shows one truthful, localized privacy notice and persists dismissal", async ({
+test("uses truthful permanent privacy information without a fake consent banner", async ({
   page,
 }) => {
+  await page.addInitScript((legacyKey) => {
+    localStorage.setItem(legacyKey, "dismissed");
+  }, LEGACY_PRIVACY_STORAGE_KEY);
   await page.goto("./?test=1");
 
-  const notice = page.getByRole("region", { name: "Datenschutz & Cookies" });
-  await expect(notice).toBeVisible();
-  await expect(notice).toContainText("Keine Werbe- oder Tracking-Cookies");
-  await expect(notice).toContainText("Sprache und Einstellungen");
-  await expect(notice.getByRole("link", { name: "Datenschutz" })).toHaveAttribute(
+  await expect(page.locator("[data-milos-privacy-notice]")).toHaveCount(0);
+  await expect(page.locator("[data-milos-privacy-info]")).toHaveAttribute(
     "href",
     "https://dev.milos-apps.de/datenschutz",
   );
-
-  const targets = await notice
-    .locator("a, button")
-    .evaluateAll((elements) =>
-      elements.map((element) => ({
-        width: element.getBoundingClientRect().width,
-        height: element.getBoundingClientRect().height,
-      })),
-    );
-  expect(targets).toHaveLength(2);
-  expect(targets.every(({ width, height }) => width >= 44 && height >= 44)).toBe(
-    true,
+  await expect(page.locator("[data-milos-privacy-info]")).toContainText(
+    "Datenschutz & lokale Speicherung",
   );
+  expect(
+    await page.evaluate((key) => localStorage.getItem(key), LEGACY_PRIVACY_STORAGE_KEY),
+  ).toBeNull();
 
   await page.getByRole("button", { name: "EN", exact: true }).click();
-  const englishNotice = page.getByRole("region", { name: "Privacy & cookies" });
-  await expect(englishNotice).toContainText("No advertising or tracking cookies");
+  await expect(page.locator("[data-milos-privacy-info]")).toContainText(
+    "Privacy & local storage",
+  );
   await expect(page.getByRole("button", { name: "Share" })).toBeVisible();
   const accessibility = await new AxeBuilder({ page })
     .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
     .analyze();
   expect(accessibility.violations).toEqual([]);
-
-  await page.setViewportSize({ width: 360, height: 800 });
-  await page.evaluate(() => {
-    document.documentElement.style.fontSize = "200%";
-  });
-  const reflow = await page.evaluate(() => {
-    const notice = document.querySelector<HTMLElement>(
-      "[data-milos-privacy-notice]",
-    );
-    const rect = notice?.getBoundingClientRect();
-    return {
-      clientWidth: document.documentElement.clientWidth,
-      scrollWidth: document.documentElement.scrollWidth,
-      noticeLeft: rect?.left ?? -1,
-      noticeRight: rect?.right ?? Number.POSITIVE_INFINITY,
-    };
-  });
-  expect(reflow.scrollWidth).toBeLessThanOrEqual(reflow.clientWidth);
-  expect(reflow.noticeLeft).toBeGreaterThanOrEqual(0);
-  expect(reflow.noticeRight).toBeLessThanOrEqual(reflow.clientWidth);
-
-  await englishNotice.getByRole("button", { name: "Got it" }).click();
-  await expect(englishNotice).toBeHidden();
-  expect(await page.evaluate((key) => localStorage.getItem(key), PRIVACY_STORAGE_KEY)).toBe(
-    "dismissed",
-  );
-
-  await page.reload();
-  await expect(page.locator("[data-milos-privacy-notice]")).toHaveCount(0);
 });
 
 test("shares only an intentional app link through native, abort and clipboard paths", async ({
@@ -124,7 +100,6 @@ test("shares only an intentional app link through native, abort and clipboard pa
     });
   });
   await page.goto("./?test=1&private-score=987654#local-run");
-  await page.getByRole("button", { name: "Verstanden" }).click();
 
   const shareButton = page.getByRole("button", { name: "Teilen" });
   await expect(shareButton).toBeVisible();
@@ -141,8 +116,12 @@ test("shares only an intentional app link through native, abort and clipboard pa
     await shareButton.evaluate((button) => button.matches(":focus-visible")),
   ).toBe(true);
 
+  const stableGeometry = await shareButton.evaluate((button) => {
+    const rect = button.parentElement?.getBoundingClientRect();
+    return { width: rect?.width ?? 0, height: rect?.height ?? 0 };
+  });
   await shareButton.click();
-  await expect(page.locator("[data-milos-share-status]")).toHaveText("Geteilt");
+  await expect(page.locator("[data-milos-share-status]")).toHaveText("");
   const payload = await page.evaluate(
     () => (globalThis as typeof globalThis & { __sharedPayload?: unknown }).__sharedPayload,
   );
@@ -184,6 +163,12 @@ test("shares only an intentional app link through native, abort and clipboard pa
   });
   await shareButton.click();
   await expect(page.locator("[data-milos-share-status]")).toHaveText("Link kopiert");
+  expect(
+    await shareButton.evaluate((button) => {
+      const rect = button.parentElement?.getBoundingClientRect();
+      return { width: rect?.width ?? 0, height: rect?.height ?? 0 };
+    }),
+  ).toEqual(stableGeometry);
   const copied = await page.evaluate(
     () => (globalThis as typeof globalThis & { __copiedText?: string }).__copiedText,
   );
@@ -283,7 +268,7 @@ test("loads the vendored essentials under a strict self-only CSP with correct MI
       }
     ).milosAppEssentials?.ready();
   });
-  await expect(page.getByRole("region", { name: "Datenschutz & Cookies" })).toBeVisible();
+  await expect(page.locator("[data-milos-privacy-notice]")).toHaveCount(0);
   await page.waitForTimeout(100);
   expect(cspErrors).toEqual([]);
 });

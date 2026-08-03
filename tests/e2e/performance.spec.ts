@@ -1,5 +1,4 @@
 import { expect, test, type Page } from "@playwright/test";
-import { suppressPrivacyNotice } from "./support/privacy";
 
 test.skip(
   ({ browserName }) => browserName !== "chromium",
@@ -20,7 +19,6 @@ interface Metrics {
 }
 
 async function exercise(page: Page, richVisuals = false): Promise<Metrics> {
-  await suppressPrivacyNotice(page);
   await page.goto("./?test=1");
   if (richVisuals) {
     await page.getByRole("button", { name: "Einstellungen" }).click();

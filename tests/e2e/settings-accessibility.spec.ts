@@ -1,9 +1,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
-import { suppressPrivacyNotice } from "./support/privacy";
 
 test.beforeEach(async ({ page }) => {
-  await suppressPrivacyNotice(page);
   await page.goto("./?test=1");
 });
 
@@ -57,11 +55,11 @@ test("persists gameplay, appearance and comfort settings locally without cookies
 
   await expect(dialog).toBeHidden();
   await expect
-    .poll(() => page.evaluate(() => localStorage.getItem("gravity-loop:progress")))
+    .poll(() => page.evaluate(() => localStorage.getItem("milosapps.gravity-loop.progress")))
     .not.toBeNull();
   await expect(page.locator("html")).toHaveClass(/high-contrast/);
   const stored = await page.evaluate(() => ({
-    progress: JSON.parse(localStorage.getItem("gravity-loop:progress") ?? "{}"),
+    progress: JSON.parse(localStorage.getItem("milosapps.gravity-loop.progress") ?? "{}"),
     cookies: document.cookie,
   }));
   expect(stored.progress).toEqual(
@@ -79,6 +77,11 @@ test("persists gameplay, appearance and comfort settings locally without cookies
     }),
   );
   expect(stored.cookies).toBe("");
+  expect(
+    await page.evaluate(() =>
+      Object.keys(localStorage).filter((key) => key.startsWith("milosapps.gravity-loop")),
+    ),
+  ).toEqual(["milosapps.gravity-loop.progress"]);
 
   await page.reload();
   await page.getByRole("button", { name: "Einstellungen" }).click();
@@ -89,6 +92,44 @@ test("persists gameplay, appearance and comfort settings locally without cookies
   await expect(page.getByRole("switch", { name: "Klänge" })).toBeChecked();
   await expect(page.getByRole("combobox", { name: "Bewegung" })).toHaveValue("reduce");
   await expect(page.getByRole("switch", { name: "Hoher Kontrast" })).toBeChecked();
+});
+
+test("moves existing progress to the declared v1.1 storage namespace", async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.removeItem("milosapps.gravity-loop.progress");
+    localStorage.setItem(
+      "gravity-loop:progress",
+      JSON.stringify({
+        version: 3,
+        bestScore: 7_500,
+        bestSeries: 14,
+        settings: {
+          sound: false,
+          motion: "system",
+          highContrast: false,
+          difficulty: "normal",
+          celestialMode: "sun",
+          celestialStyle: "graphic",
+          cometSkin: "mint",
+        },
+      }),
+    );
+  });
+  await page.reload();
+  await page.evaluate(() => {
+    localStorage.setItem("milosapps.gravity-loop.privacyNotice.v1", "legacy");
+    localStorage.setItem("milosapps.gravity-loop.essentialCookieInfo.v1", "legacy");
+  });
+
+  await expect(page.getByTestId("best")).toHaveText("7.500");
+  expect(await page.evaluate(() => localStorage.getItem("gravity-loop:progress"))).toBeNull();
+  expect(
+    JSON.parse(
+      (await page.evaluate(() =>
+        localStorage.getItem("milosapps.gravity-loop.progress"),
+      )) ?? "{}",
+    ),
+  ).toEqual(expect.objectContaining({ bestScore: 7_500, bestSeries: 14 }));
 });
 
 test("switches world and difficulty only through a clean round reset", async ({ page }) => {
@@ -235,6 +276,33 @@ test("reflows at 200 percent text zoom without horizontal page overflow", async 
   const dialogLayout = await page.evaluate(() => {
     const dialog = document.getElementById("settings-dialog");
     const rect = dialog?.getBoundingClientRect();
+    const rootFontSize = Number.parseFloat(getComputedStyle(document.documentElement).fontSize);
+    const selectGeometry = [...(dialog?.querySelectorAll<HTMLSelectElement>("select") ?? [])].map(
+      (select) => {
+        const style = getComputedStyle(select);
+        const context = document.createElement("canvas").getContext("2d")!;
+        context.font = style.font;
+        const longestOption = [...select.options].reduce(
+          (longest, option) =>
+            context.measureText(option.textContent ?? "").width > longest.width
+              ? { label: option.textContent ?? "", width: context.measureText(option.textContent ?? "").width }
+              : longest,
+          { label: "", width: 0 },
+        );
+        const bounds = select.getBoundingClientRect();
+        const paddingStart = Number.parseFloat(style.paddingInlineStart);
+        const paddingEnd = Number.parseFloat(style.paddingInlineEnd);
+        return {
+          id: select.id,
+          left: bounds.left,
+          right: bounds.right,
+          paddingEnd,
+          safeArea: rootFontSize * 2.25,
+          availableTextWidth: select.clientWidth - paddingStart - paddingEnd,
+          longestOption,
+        };
+      },
+    );
     const overflowing = [...(dialog?.querySelectorAll<HTMLElement>("*") ?? [])]
       .map((node) => ({
         tag: node.tagName.toLowerCase(),
@@ -260,6 +328,7 @@ test("reflows at 200 percent text zoom without horizontal page overflow", async 
       dialogClientWidth: dialog?.clientWidth ?? 0,
       dialogScrollWidth: dialog?.scrollWidth ?? Number.POSITIVE_INFINITY,
       overflowing,
+      selectGeometry,
     };
   });
   expect(dialogLayout.pageScrollWidth).toBeLessThanOrEqual(dialogLayout.viewportWidth);
@@ -269,6 +338,64 @@ test("reflows at 200 percent text zoom without horizontal page overflow", async 
     dialogLayout.dialogScrollWidth,
     JSON.stringify(dialogLayout.overflowing, null, 2),
   ).toBeLessThanOrEqual(dialogLayout.dialogClientWidth);
+  expect(dialogLayout.selectGeometry).not.toHaveLength(0);
+  for (const select of dialogLayout.selectGeometry) {
+    expect(select.left, select.id).toBeGreaterThanOrEqual(dialogLayout.dialogLeft);
+    expect(select.right, select.id).toBeLessThanOrEqual(dialogLayout.dialogRight);
+    expect(select.paddingEnd, select.id).toBeGreaterThanOrEqual(select.safeArea);
+    expect(select.availableTextWidth, `${select.id}: ${select.longestOption.label}`).toBeGreaterThanOrEqual(
+      select.longestOption.width,
+    );
+  }
+
+  await page.getByRole("button", { name: "Einstellungen schließen" }).click();
+  await page.getByRole("button", { name: "EN", exact: true }).click();
+  await page.getByRole("button", { name: "Settings" }).click();
+  const englishSelectGeometry = await page.evaluate(() => {
+    const rootFontSize = Number.parseFloat(getComputedStyle(document.documentElement).fontSize);
+    return [...document.querySelectorAll<HTMLSelectElement>("#settings-dialog select")].map(
+      (select) => {
+        const style = getComputedStyle(select);
+        const context = document.createElement("canvas").getContext("2d")!;
+        context.font = style.font;
+        const longestOptionWidth = Math.max(
+          ...[...select.options].map((option) =>
+            context.measureText(option.textContent ?? "").width,
+          ),
+        );
+        return {
+          id: select.id,
+          paddingEnd: Number.parseFloat(style.paddingInlineEnd),
+          safeArea: rootFontSize * 2.25,
+          availableTextWidth:
+            select.clientWidth -
+            Number.parseFloat(style.paddingInlineStart) -
+            Number.parseFloat(style.paddingInlineEnd),
+          longestOptionWidth,
+        };
+      },
+    );
+  });
+  for (const select of englishSelectGeometry) {
+    expect(select.paddingEnd, select.id).toBeGreaterThanOrEqual(select.safeArea);
+    expect(select.availableTextWidth, select.id).toBeGreaterThanOrEqual(
+      select.longestOptionWidth,
+    );
+  }
+});
+
+test("describes the orbit choice in plain German and English", async ({ page }) => {
+  await page.getByRole("button", { name: "Einstellungen" }).click();
+  await expect(page.getByRole("group", { name: "Sonne oder Mond" })).toBeVisible();
+  await expect(page.getByText("Wähle, worum du fliegst.")).toBeVisible();
+  await expect(page.getByText(/Zentralkörper/)).toHaveCount(0);
+
+  await page.getByRole("button", { name: "Einstellungen schließen" }).click();
+  await page.getByRole("button", { name: "EN", exact: true }).click();
+  await page.getByRole("button", { name: "Settings" }).click();
+  await expect(page.getByRole("group", { name: "Sun or Moon" })).toBeVisible();
+  await expect(page.getByText("Choose what you orbit.")).toBeVisible();
+  await expect(page.getByText(/Central body/)).toHaveCount(0);
 });
 
 test("honors system reduced motion and keeps physics available", async ({ page }) => {
@@ -290,7 +417,7 @@ test("resets all local data only after explicit second confirmation", async ({ p
   await page.addInitScript(() => {
     localStorage.setItem("milosapps.gravity-loop.language", "en");
     localStorage.setItem(
-      "gravity-loop:progress",
+      "milosapps.gravity-loop.progress",
       JSON.stringify({
         version: 2,
         bestScore: 4_200,
@@ -309,7 +436,7 @@ test("resets all local data only after explicit second confirmation", async ({ p
   await expect(page.getByRole("group", { name: "Reset local data" })).toBeHidden();
   expect(
     await page.evaluate(
-      () => JSON.parse(localStorage.getItem("gravity-loop:progress") ?? "{}").bestScore,
+      () => JSON.parse(localStorage.getItem("milosapps.gravity-loop.progress") ?? "{}").bestScore,
     ),
   ).toBe(4_200);
 
@@ -319,7 +446,7 @@ test("resets all local data only after explicit second confirmation", async ({ p
   await expect(page.locator("html")).toHaveAttribute("lang", "de");
   await expect(page.getByTestId("best")).toHaveText("0");
   const record = await page.evaluate(() =>
-    JSON.parse(localStorage.getItem("gravity-loop:progress") ?? "{}"),
+    JSON.parse(localStorage.getItem("milosapps.gravity-loop.progress") ?? "{}"),
   );
   expect(record).toEqual({
     version: 3,
@@ -343,6 +470,11 @@ test("resets all local data only after explicit second confirmation", async ({ p
   expect(
     await page.evaluate(() =>
       localStorage.getItem("milosapps.gravity-loop.privacyNotice.v1"),
+    ),
+  ).toBeNull();
+  expect(
+    await page.evaluate(() =>
+      localStorage.getItem("milosapps.gravity-loop.essentialCookieInfo.v1"),
     ),
   ).toBeNull();
   await expect(page.locator("html")).not.toHaveClass(/high-contrast/);

@@ -146,6 +146,9 @@
         <kbd>R</kbd> <span data-i18n="restartKeyHelp">Neustart</span>
       </p>
       <p class="daily-seed" id="daily-seed"></p>
+      <p class="privacy-info">
+        <a data-milos-privacy-info href="https://dev.milos-apps.de/datenschutz" data-i18n="privacyInfo">Datenschutz & lokale Speicherung</a>
+      </p>
       <div class="sr-only" id="live-status" aria-live="polite" aria-atomic="true"></div>
 
     <dialog class="settings-dialog" id="settings-dialog" aria-labelledby="settings-title">
@@ -168,7 +171,7 @@
                 <span class="settings-panel-icon" aria-hidden="true">01</span>
                 <div>
                   <h3 id="settings-game-title" data-i18n="settingsGame">Spiel</h3>
-                  <p data-i18n="settingsGameHelp">Bestimme Tempo und Gravitationsmodell deiner nächsten Runde.</p>
+                  <p data-i18n="settingsGameHelp">Wähle Tempo und worum du fliegst.</p>
                 </div>
               </div>
 
@@ -183,8 +186,8 @@
               </fieldset>
 
               <fieldset class="choice-group" aria-describedby="celestial-help">
-                <legend data-i18n="celestialBody">Zentralkörper</legend>
-                <p id="celestial-help" data-i18n="celestialBodyHelp">Wähle die Art der Gravitation.</p>
+                <legend data-i18n="celestialBody">Sonne oder Mond</legend>
+                <p id="celestial-help" data-i18n="celestialBodyHelp">Wähle, worum du fliegst.</p>
                 <div class="choice-grid choice-grid-two">
                   <label class="choice-card choice-card-celestial"><input type="radio" name="celestial-mode-setting" value="sun" /><span class="celestial-preview celestial-preview-sun" aria-hidden="true"></span><span><strong data-i18n="sun">Sonne</strong><small data-i18n="sunHelp">Stärker, je näher du kommst.</small></span></label>
                   <label class="choice-card choice-card-celestial"><input type="radio" name="celestial-mode-setting" value="moon" /><span class="celestial-preview celestial-preview-moon" aria-hidden="true"></span><span><strong data-i18n="moon">Mond</strong><small data-i18n="moonHelp">Sanfter und gleichmäßiger.</small></span></label>
@@ -193,20 +196,20 @@
 
               <div class="round-reset-note" id="round-reset-note" role="status" aria-live="polite">
                 <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M5 8v5h5M6.4 17a8 8 0 1 0 .1-10.1L5 8" /></svg>
-                <p><strong data-i18n="roundResetTitle">Fairer Neustart</strong><span data-i18n="roundResetCopy">Schwierigkeit und Zentralkörper werden erst beim Übernehmen aktiv und starten die Runde neu.</span></p>
+                <p><strong data-i18n="roundResetTitle">Fairer Neustart</strong><span data-i18n="roundResetCopy">Schwierigkeit und dein gewählter Orbit werden erst beim Übernehmen aktiv und starten die Runde neu.</span></p>
               </div>
             </section>
 
             <section class="settings-panel" aria-labelledby="settings-appearance-title">
               <div class="settings-panel-heading"><span class="settings-panel-icon" aria-hidden="true">02</span><div><h3 id="settings-appearance-title" data-i18n="settingsAppearance">Aussehen</h3><p data-i18n="settingsAppearanceHelp">Nur die Darstellung ändert sich.</p></div></div>
               <label class="setting-field"><span><strong data-i18n="celestialStyle">Sonne und Mond</strong><small data-i18n="celestialStyleHelp">Naturnah wird prozedural gezeichnet – ohne externe Bilder oder Tracking.</small></span><select id="celestial-style-setting"><option value="graphic" data-i18n="graphic">Grafisch</option><option value="natural" data-i18n="natural">Naturnah</option></select></label>
-              <label class="setting-field"><span><strong data-i18n="cometSkin">Kometen-Skin</strong><small data-i18n="cometSkinHelp">Hitbox und Physik bleiben gleich.</small></span><select id="comet-skin-setting"><option value="mint" data-i18n="skinMint">Mint</option><option value="ember" data-i18n="skinEmber">Feuer</option><option value="ice" data-i18n="skinIce">Eis</option><option value="hat" data-i18n="skinHat">Komet mit Hut</option></select></label>
+              <label class="setting-field"><span><strong data-i18n="cometSkin">Kometen-Skin</strong><small data-i18n="cometSkinHelp">Hitbox und Physik bleiben gleich.</small></span><select id="comet-skin-setting"><option value="mint" data-i18n="skinMint">Mint</option><option value="ember" data-i18n="skinEmber">Feuer</option><option value="ice" data-i18n="skinIce">Eis</option><option value="hat" data-i18n="skinHat">Mit Hut</option></select></label>
             </section>
 
             <section class="settings-panel" aria-labelledby="settings-comfort-title">
               <div class="settings-panel-heading"><span class="settings-panel-icon" aria-hidden="true">03</span><div><h3 id="settings-comfort-title" data-i18n="settingsComfort">Komfort</h3><p data-i18n="settingsComfortHelp">Passe Rückmeldung und Lesbarkeit an.</p></div></div>
               <label class="setting-toggle"><span><strong data-i18n="sounds">Klänge</strong><small data-i18n="soundsHelp">Kurze Signale, standardmäßig stumm.</small></span><input id="sound-setting" type="checkbox" role="switch" /></label>
-              <label class="setting-field"><span><strong data-i18n="motion">Bewegung</strong><small data-i18n="motionHelp">Nur dekorative Effekte, nie die Physik.</small></span><select id="motion-setting"><option value="system" data-i18n="motionSystem">Systemeinstellung</option><option value="reduce" data-i18n="motionReduce">Reduziert</option><option value="full" data-i18n="motionFull">Lebendig</option></select></label>
+              <label class="setting-field"><span><strong data-i18n="motion">Bewegung</strong><small data-i18n="motionHelp">Nur dekorative Effekte, nie die Physik.</small></span><select id="motion-setting"><option value="system" data-i18n="motionSystem">Wie Gerät</option><option value="reduce" data-i18n="motionReduce">Reduziert</option><option value="full" data-i18n="motionFull">Lebendig</option></select></label>
               <label class="setting-toggle"><span><strong data-i18n="highContrast">Hoher Kontrast</strong><small data-i18n="highContrastHelp">Verstärkt Bahnen, Ziele und Bedienelemente.</small></span><input id="contrast-setting" type="checkbox" role="switch" /></label>
             </section>
 

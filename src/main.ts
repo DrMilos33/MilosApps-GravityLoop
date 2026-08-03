@@ -19,6 +19,7 @@ import { GameRuntime, type DebugState } from "./runtime";
 import { SoundController } from "./sound";
 import {
   DEFAULT_PROGRESS,
+  LEGACY_STORAGE_KEY,
   loadProgress,
   saveProgress,
   type CelestialStyle,
@@ -28,6 +29,8 @@ import {
 } from "./storage";
 
 declare global {
+  var milosAppEssentials: { ready(): void };
+
   interface Window {
     __gravityLoopTestApi?: {
       getDebugState: () => DebugState;
@@ -471,8 +474,10 @@ resetConfirmButton.addEventListener("click", () => {
   try {
     window.localStorage.removeItem("milosapps.gravity-loop.language");
     window.localStorage.removeItem("milosapps.gravity-loop.privacyNotice.v1");
+    window.localStorage.removeItem("milosapps.gravity-loop.essentialCookieInfo.v1");
+    window.localStorage.removeItem(LEGACY_STORAGE_KEY);
   } catch {
-    // Local storage is optional; resetting the active UI still succeeds.
+    // Storage can be unavailable; resetting the active UI still succeeds.
   }
   soundSetting.checked = progress.settings.sound;
   motionSetting.value = progress.settings.motion;
@@ -568,6 +573,6 @@ function sharePayload(): MilosSharePayload {
 void customElements.whenDefined("milos-share-button").then(() => {
   shareButton.setPayloadProvider(sharePayload);
   requestAnimationFrame(() => {
-    document.dispatchEvent(new CustomEvent("milosapps:ready"));
+    globalThis.milosAppEssentials.ready();
   });
 });

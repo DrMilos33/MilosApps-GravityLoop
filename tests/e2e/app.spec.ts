@@ -1,5 +1,4 @@
 import { expect, test, type Page } from "@playwright/test";
-import { suppressPrivacyNotice } from "./support/privacy";
 
 interface DebugState {
   state: {
@@ -49,7 +48,6 @@ test.describe("core browser flow", () => {
         runtimeErrors.push(message.text());
       }
     });
-    await suppressPrivacyNotice(page);
     await page.goto("./?test=1");
   });
 

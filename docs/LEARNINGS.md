@@ -351,3 +351,59 @@ Nutzerdaten eintragen.
 - Allgemeine Bedeutung: Bytegenaue vendorte Verträge benötigen ihre
   Zeilenendengrenze dort, wo Git die Dateien materialisiert. Eine lokale
   Vendorregel ist enger und zukunftsfester als eine Liste heutiger Endungen.
+
+## 2026-08-03 – No-Cookies braucht ein Inventar, aber keinen Einwilligungsdialog
+
+- Ausgangspunkt: Gravity Loop nutzt keine Cookies oder Telemetrie, hält aber
+  zugesagte Bestwerte, Sternenserie, Einstellungen und die gewählte Sprache
+  lokal vor.
+- Beobachtung: Ein wegklickbarer Datenschutzkasten wirkt wie eine Wahl, obwohl
+  weder Tracking noch optionale Speicherung vorhanden ist. Ohne zweckweises
+  Inventar bleibt zugleich unklar, welche Endgerätezugriffe tatsächlich nötig
+  sind.
+- Änderung: Die zwei dauerhaften Schlüssel sind mit Zweck, Lebensdauer und
+  Erforderlichkeit dokumentiert und app-namensräumig deklariert. Der frühere
+  Fortschrittsschlüssel wird erst nach erfolgreichem Schreiben verlustfrei
+  entfernt. Ein Banner erscheint nicht; ein normaler sichtbarer
+  Datenschutzlink bleibt dauerhaft erreichbar.
+- Regression: alter Fortschrittsstand, beschädigtes/gesperrtes Storage,
+  vollständiger Reset, DE/EN-Persistenz, fehlender Dismiss-Key, leere
+  Cookie-Zeichenkette und explizite Liste aller App-Schlüssel.
+- Allgemeine Bedeutung: „Kein Cookiebanner“ darf nicht „kein Inventar“
+  bedeuten. Wahrheit entsteht aus dem tatsächlichen Zweck pro Zugriff; ein
+  Consent-Dialog ist keine allgemeine Datenschutzdekoration.
+
+## 2026-08-03 – Select-Pfeilbereiche müssen mit der längsten Übersetzung wachsen
+
+- Ausgangspunkt: native Selects mit korrekter Breite, aber symmetrischem
+  Innenabstand im Einstellungsdialog.
+- Beobachtung: Bei 200 Prozent Textzoom schrumpften verschachtelte, ebenfalls in
+  `rem` skalierte Dialogabstände die nutzbare Textbreite. Eine Option konnte so
+  in den nativen Pfeilbereich laufen, obwohl Seite und Dialog formal keinen
+  horizontalen Überlauf hatten.
+- Änderung: Jedes Select reserviert am Inline-Ende mindestens `2.25rem`; nicht
+  textliche mobile Dialoggutter und die 44-Pixel-Schließen-Aktion bleiben auf
+  schmalen Viewports geometrisch stabil. Zu lange, technisch klingende Optionen
+  wurden in verständliche kurze Wörter übersetzt.
+- Regression: Für jedes Select werden in DE und EN bei 200 Prozent die
+  gerenderte längste Option, verfügbare Textbreite, Pfeil-Safe-Area und Grenzen
+  des Dialogs gemessen.
+- Allgemeine Bedeutung: Reflowtests brauchen innere Geometrie. Ein grünes
+  `scrollWidth` beweist nicht, dass Text, Icons und native Pfeile sich nicht
+  überdecken.
+
+## 2026-08-03 – Der erste mobile Viewport braucht ein Elementbudget
+
+- Ausgangspunkt: Die Startaktion war sichtbar, ihre Unterkante lag auf
+  360×800 jedoch erst bei 813,8 Pixeln und damit unterhalb des ersten
+  Viewports; auf 390×844 fehlte ebenfalls ein Sicherheitsrand.
+- Beobachtung: Einzelne korrekt responsive Bereiche – Shell, Scoreleiste und
+  Spielfeld – können zusammen trotzdem die wichtigste erste Aktion verdrängen.
+- Änderung: Nur die mobile Spielfeldhöhe wurde moderat von 66 auf 61 `dvh`
+  verdichtet. Physik, Canvas-DPR, Touchfläche und Desktoplayout blieben
+  unverändert.
+- Regression: Die Startbutton-Unterkante muss bei 390×844 und 360×800
+  mindestens 16 Pixel vor dem Viewportende liegen; Canvasgröße, Touch außerhalb
+  des Canvas, Rotation und alle Eingabepfade laufen zusätzlich weiter.
+- Allgemeine Bedeutung: Above-the-fold ist ein messbares Produktbudget, kein
+  Screenshotgefühl. Geprüft wird die echte Primäraktion samt Sicherheitsrand.

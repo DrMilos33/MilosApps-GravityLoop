@@ -4,7 +4,6 @@ import {
   type Language,
   type StaticTranslationKey,
 } from "../../src/i18n";
-import { suppressPrivacyNotice } from "./support/privacy";
 
 async function expectCompleteAppLocale(
   page: import("@playwright/test").Page,
@@ -27,7 +26,6 @@ async function expectCompleteAppLocale(
 }
 
 test.beforeEach(async ({ page }) => {
-  await suppressPrivacyNotice(page);
   await page.goto("./?test=1");
 });
 
@@ -176,7 +174,6 @@ async function inspectShellLayout(
 ) {
   const context = await browser.newContext({ viewport });
   const page = await context.newPage();
-  await suppressPrivacyNotice(page);
   await page.goto("./?test=1");
   const layout = await page.locator("milos-app-shell").evaluate((host) => {
     const root = host.shadowRoot;

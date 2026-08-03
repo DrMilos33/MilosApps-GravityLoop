@@ -1,5 +1,4 @@
 import { expect, test, type Browser } from "@playwright/test";
-import { suppressPrivacyNotice } from "./support/privacy";
 
 test.skip(
   ({ browserName }) => browserName !== "chromium",
@@ -30,7 +29,6 @@ async function inspectViewport(browser: Browser, viewport: ViewportCase) {
     isMobile: viewport.touch,
   });
   const page = await context.newPage();
-  await suppressPrivacyNotice(page);
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
   await page.goto("./?test=1");
@@ -93,6 +91,31 @@ for (const viewport of viewports) {
   });
 }
 
+for (const viewport of [
+  { width: 390, height: 844 },
+  { width: 360, height: 800 },
+]) {
+  test(`keeps the complete start action inside ${viewport.width}x${viewport.height}`, async ({
+    browser,
+  }) => {
+    const context = await browser.newContext({
+      viewport,
+      deviceScaleFactor: 2,
+      hasTouch: true,
+      isMobile: true,
+    });
+    const page = await context.newPage();
+    await page.goto("./?test=1");
+    const rect = await page.getByRole("button", { name: "Losfliegen" }).evaluate((button) => {
+      const bounds = button.getBoundingClientRect();
+      return { top: bounds.top, bottom: bounds.bottom };
+    });
+    expect(rect.top).toBeGreaterThanOrEqual(16);
+    expect(rect.bottom).toBeLessThanOrEqual(viewport.height - 16);
+    await context.close();
+  });
+}
+
 test("pauses an active flight on orientation change and preserves progress", async ({
   browser,
 }) => {
@@ -103,7 +126,6 @@ test("pauses an active flight on orientation change and preserves progress", asy
     isMobile: true,
   });
   const page = await context.newPage();
-  await suppressPrivacyNotice(page);
   await page.goto("./?test=1");
   await page.getByRole("button", { name: "Losfliegen" }).click();
   const before = await page.evaluate(() => window.__gravityLoopTestApi!.getDebugState().state);

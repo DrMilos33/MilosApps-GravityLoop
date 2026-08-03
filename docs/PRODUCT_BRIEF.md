@@ -27,7 +27,7 @@ Risiko und Fluggefühl zu vielen kurzen Runden einlädt.
   externen Fotos, Assets oder Trackingaufrufe.
 - Die Skins `Mint`, `Feuer`, `Eis` und `Komet mit Hut` verändern ausschließlich
   die Darstellung. Hitbox und Physik bleiben identisch.
-- Ein geladener Sternenschild fängt genau einen Trabanten ab. Zentralkörper und
+- Ein geladener Sternenschild fängt genau einen Trabanten ab. Sonne, Mond und
   Rand bleiben immer tödlich, damit Risiko und Kursentscheidung verständlich
   bleiben.
 - Spielregelwechsel initialisieren die Runde fair neu; kosmetische Optionen
@@ -75,9 +75,10 @@ Status, Vorschaubildrechte, Eingabemethoden und Healthcheck.
 - Ein kleiner app-eigener Ladescreen schützt den ersten Aufbau vor einem
   übergroßen Icon oder einer kurz unformatierten Shell. Er endet nur, wenn
   Spielruntime, Eingaben und sichtbare Oberfläche tatsächlich bereit sind.
-- Gravity Loop setzt keine Werbe- oder Tracking-Cookies. Ein einmaliger,
-  wegklickbarer Hinweis erklärt die ausschließlich lokale Speicherung von
-  Sprache, Bestwert, Serie und Einstellungen und verlinkt absolut auf den
+- Gravity Loop setzt keine Cookies und keine optionale Speicherung. Deshalb
+  erscheint kein Schein-Einwilligungsdialog. Eine dauerhaft erreichbare
+  Datenschutzinformation erklärt die notwendigen lokalen Speicherzwecke für
+  Sprache und Spielfortschritt und verlinkt absolut auf den
   DEV-Datenschutztext.
 - Teilen ist eine bewusste Nutzeraktion. Geteilt wird ein neutraler Link auf
   Gravity Loop in der aktiven Sprache; Bestwerte, Serien, Einstellungen und

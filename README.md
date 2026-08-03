@@ -21,8 +21,8 @@ codebasiert gezeichnet.
   veröffentlichten Vertrag `public-app-shell/v2.0.3` fest gepinnt; kein CDN
   und kein Shared-Runtimeimport;
 - gemeinsame Lade-, Datenschutz- und Teilen-Primitiven ausschließlich lokal
-  vendort und auf `public-app-essentials/v1.0.0` aus Shared-Commit
-  `b09e09008ff05fe87f05bc647a7c4964ff13e6f6` fest gepinnt; kein CDN und kein
+  vendort und auf `public-app-essentials/v1.1.2` aus Shared-Commit
+  `b14aac6107b75f03ff49e74160af7e7e30c29e59` fest gepinnt; kein CDN und kein
   Runtimeimport aus dem Shared-Repository;
 - Portal-DEV bindet nur per dokumentierter URL und Metadaten an.
 
@@ -78,9 +78,11 @@ und Englisch umschalten; die Sprache bleibt lokal gespeichert und wird beim
 vollständigen lokalen Datenreset sicher auf Deutsch zurückgesetzt.
 
 Vor der Fachruntime erscheint ein kleiner, CSS-first Ladescreen und verschwindet
-erst mit dem echten `milosapps:ready`-Signal. Der einmalige Datenschutzhinweis
-erklärt wahrheitsgemäß, dass keine Werbe- oder Tracking-Cookies verwendet
-werden und Sprache, Bestwert sowie Einstellungen lokal gespeichert werden
-können. Die Teilen-Aktion teilt ausschließlich den allgemeinen App-Link mit
-neutralem DE-/EN-Text; lokale Bestwerte oder Serien werden nie ungefragt in den
-Payload aufgenommen.
+erst über den race-sicheren Ready-Endpunkt, wenn die Spieloberfläche wirklich
+bedienbar ist. Da Gravity Loop weder Cookies
+noch optionale Speicherung nutzt, erscheint kein Schein-Einwilligungsdialog.
+Eine dauerhaft erreichbare Datenschutzinformation erklärt stattdessen die
+beiden notwendigen lokalen Speicherzwecke für Spielfortschritt und Sprache.
+Die Teilen-Aktion teilt ausschließlich den allgemeinen App-Link mit neutralem
+DE-/EN-Text; lokale Bestwerte oder Serien werden nie ungefragt in den Payload
+aufgenommen.

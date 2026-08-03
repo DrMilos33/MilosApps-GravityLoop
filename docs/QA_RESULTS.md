@@ -545,3 +545,74 @@ Rollback bleibt der zuvor gesunde Source
 Android WebView sowie manuelle Tests mit TalkBack, VoiceOver oder NVDA standen
 nicht zur Verfügung. Production wurde nicht verändert und ist nicht
 freigegeben.
+
+## QA-Runde 8: UX refinement und Public-App-Essentials v1.1.2
+
+Der lokale Kandidat pinnt `public-app-essentials/v1.1.2` unveränderlich auf
+Shared-Commit `b14aac6107b75f03ff49e74160af7e7e30c29e59`. Manifest, Schema,
+app-eigenes Theme, Bootstrap, Runtime und Verifier liegen als sechsteiliger
+Verbraucher-Lock im App-Repository; die enge Vendorregel `* text eol=lf`
+schützt alle vendorten Textartefakte.
+
+### Produkt- und Interaktionsverbesserungen
+
+- Die Startaktion liegt auf 390×844 und 360×800 vollständig mit mindestens
+  16 Pixeln Sicherheitsrand im ersten Viewport. Physik, Canvas-DPR und die
+  mobile Haltezone außerhalb des Canvas blieben unverändert.
+- Die technische Bezeichnung „Zentralkörper“ wurde in DE/EN durch
+  „Sonne oder Mond“ / „Sun or Moon“ und eine direkte Orbit-Erklärung ersetzt.
+- Native Selects reservieren am Inline-Ende mindestens `2.25rem`; längste
+  DE-/EN-Option, Dialoggrenzen und Pfeil-Safe-Area werden bei 200 Prozent
+  geometrisch geprüft.
+- Gravity Loop setzt keine Cookies und keine optionale Speicherung ein. Zwei
+  notwendige, app-namensräumige Local-Storage-Zwecke sind inventarisiert; ein
+  Schein-Einwilligungsdialog entfällt, der absolute Datenschutzlink bleibt
+  dauerhaft sichtbar.
+- Alter Spielfortschritt wird erst nach erfolgreichem Schreiben verlustfrei in
+  `milosapps.gravity-loop.progress` migriert. Der zweistufige Komplettreset
+  entfernt Sprache und alle bekannten app-eigenen Altschlüssel.
+- Der Loader verwendet den race-sicheren Ready-Endpunkt. Physische Iconquelle
+  (`public/gravity-loop-mark.svg`) und Runtime-URL
+  (`./gravity-loop-mark.svg`) sind getrennt deklariert; Build und HTTP-Test
+  belegen `image/svg+xml` und identischen SHA-256.
+
+### Lokale Evidenz
+
+- Public-App-Shell- und Public-App-Essentials-Verifier: PASS; Essentials
+  `1.1.2`, sechs Lockartefakte und LF-Attribute verifiziert.
+- Unit: 33/33 bestanden.
+- Pages-Build samt nachgelagertem Built-HTML-/Consumerentry-/Icon-/Vendorgate:
+  PASS; 54,83 kB App-JavaScript (17,77 kB gzip), 17,53 kB App-CSS
+  (4,78 kB gzip), beide Shell-CSS-Dateien separat.
+- Chromium: 36/36 funktionale Fälle bestanden. Firefox: 25 bestanden und
+  11 planmäßige Chromium-/CDP-Skips. WebKit: 24 bestanden und 12 planmäßige
+  Engine-/CDP-Skips. Zusätzliche Icon-MIME-/SHA- und Reset-Nachläufe bestanden
+  in allen drei Engines.
+- Axe A/AA, Tastatur/Fokus, 44-Pixel-Ziele, DE/EN samt Reload, Reduced Motion,
+  strikte Self-only-CSP, Offline/App-Resume, Pointer-Cancel, Rotation,
+  1440×900, 390×844 und 360×800 bei 200 Prozent: bestanden.
+- Sichtbare Browserabnahme: Root `scrollWidth = clientWidth` bei 390 und
+  360 Pixeln, verständliche DE-/EN-Texte, 40-Pixel-Select-Pfeilbereich,
+  gestapelte 360-Pixel-Dialogaktionen und keine App-Warnungen oder -Fehler.
+
+### Isoliertes Performancegate
+
+Nach dem expliziten `HOST FREI` blieb ein erster naturnaher Mond-/Hut-Lauf bei
+Frames und Simulation grün, enthielt aber bei nur fünf Eingabestichproben einen
+einmaligen Input-p95-Ausreißer von 74,3 ms. Kein Budget wurde verändert. Zwei
+unveränderte vollständige Bestätigungsläufe bestanden anschließend:
+
+- Lauf 2: 59,46 / 57,22 / 54,55 FPS, Frame-p95 jeweils 16,8 ms,
+  Input-p95 16,4 / 12,9 / 13,4 ms und jeweils 0 ms verlorene Simulation;
+- Lauf 3: 60,00 / 56,15 / 55,83 FPS, Frame-p95 höchstens 16,8 ms,
+  Input-p95 15,2 / 29,8 / 14,2 ms und jeweils 0 ms verlorene Simulation.
+
+Das abschließende repositoryeigene Gesamttor bestand anschließend 88
+anwendbare Browserfälle bei 29 planmäßigen Engine-/CDP-Skips. Der darin erneut
+gemessene Performancepfad erreichte 60,00 / 57,29 / 56,97 FPS,
+Input-p95 14,0 / 26,8 / 7,5 ms und jeweils 0 ms verlorene Simulation.
+
+Die Reihenfolge lautet jeweils Normalprofil, naturnaher Mond plus Hut und
+vierfache CPU-Drosselung. Reale Android-/iOS-Hardware, Android WebView sowie
+manuelle Tests mit TalkBack, VoiceOver oder NVDA bleiben externe Grenzen.
+Production ist nicht freigegeben.

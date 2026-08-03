@@ -40,13 +40,15 @@ konkret dokumentiert.
 
 ## Public-App-Essentials-Gate
 
-- fester Shared-Commit, Manifest, fünfteiliger Lock und portabler Validator;
+- fester Shared-Commit, Manifest, sechsteiliger Lock einschließlich Schema und
+  portabler Validator;
 - Ladescreen vor Fachruntime, App-Icon höchstens 56 CSS-Pixel auf Desktop und
   48 CSS-Pixel mobil, Reduced Motion und genau eine Dokument-H1;
-- wahrheitsgemäßer DE-/EN-Datenschutzhinweis, absoluter Link, 44-Pixel-Ziele,
-  Fokus, Axe und persistiertes Wegklicken;
-- vollständiger lokaler Datenreset entfernt auch die Komfortpersistenz des
-  Hinweises;
+- zweckweises Endgerätezugriffs-Inventar; bei ausschließlich notwendigen
+  lokalen Speicherzwecken kein Schein-Einwilligungsdialog, sondern eine
+  dauerhaft erreichbare DE-/EN-Datenschutzinformation mit absolutem Link und
+  44-Pixel-Ziel;
+- vollständiger lokaler Datenreset entfernt aktive und migrierte Altschlüssel;
 - Teilen über native API, bewussten Abbruch und Clipboard-Fallback; kein
   Bestwert, keine Serie und keine Query-/Hash-Daten im Payload;
 - beide Essentials-CSS-Dateien und der Bootstrap bleiben im gebauten

@@ -1,5 +1,5 @@
 {
-  "$schema": "../MilosApps-Shared/contracts/public-app-essentials/v1/essentials-manifest.schema.json",
+  "$schema": "./vendor/milosapps-essentials/v1/essentials-manifest.schema.json",
   "appKey": "gravity-loop",
   "ownerTask": "MilosApps – Gravity Loop",
   "public": true,
@@ -7,10 +7,15 @@
   "environment": "dev",
   "productionApproved": false,
   "entryHtml": "index.html",
+  "consumerEntryModule": {
+    "sourceFile": "src/main.ts",
+    "runtimePath": "/src/main.ts"
+  },
   "integrationFiles": ["index.html", "src/main.ts"],
   "loading": {
     "appName": "Gravity Loop",
-    "iconPath": "gravity-loop-mark.svg",
+    "iconPath": "public/gravity-loop-mark.svg",
+    "iconRuntimePath": "./gravity-loop-mark.svg",
     "message": {
       "de": "Gravity Loop wird geöffnet …",
       "en": "Opening Gravity Loop …"
@@ -19,15 +24,36 @@
   "privacy": {
     "mode": "no-cookies",
     "usesLocalStorage": true,
+    "storagePurposes": [
+      {
+        "key": "milosapps.gravity-loop.progress",
+        "purpose": "Bestwert, Sternenserie und ausdrücklich gewählte Spiel-, Darstellungs- und Komforteinstellungen lokal erhalten",
+        "lifetime": "until-user-clears",
+        "strictlyNecessary": true
+      },
+      {
+        "key": "milosapps.gravity-loop.language",
+        "purpose": "Vom Nutzer gewählte Sprache nach einem Reload lokal beibehalten",
+        "lifetime": "until-user-clears",
+        "strictlyNecessary": true
+      }
+    ],
     "optionalTracking": false,
     "privacyUrl": "https://dev.milos-apps.de/datenschutz"
   },
   "features": {
     "startup": true,
-    "privacyNotice": true,
+    "privacyNotice": false,
     "share": true,
     "datePicker": false,
-    "placeSearch": false
+    "placeSearch": false,
+    "placeSuggestions": {
+      "enabled": false,
+      "minChars": 3,
+      "debounceMs": 350,
+      "providerCapability": "submit-only",
+      "evidenceFile": null
+    }
   },
   "theme": {
     "accent": "#8be7de",
@@ -41,8 +67,9 @@
   },
   "essentialsContract": {
     "id": "public-app-essentials/v1",
-    "version": "1.0.0",
-    "sharedCommit": "b09e09008ff05fe87f05bc647a7c4964ff13e6f6",
-    "vendorDirectory": "vendor/milosapps-essentials/v1"
+    "version": "1.1.2",
+    "sharedCommit": "b14aac6107b75f03ff49e74160af7e7e30c29e59",
+    "vendorDirectory": "vendor/milosapps-essentials/v1",
+    "runtimeBasePath": "vendor/milosapps-essentials/v1"
   }
 }

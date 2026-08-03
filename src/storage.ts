@@ -1,6 +1,7 @@
 import type { CelestialMode, Difficulty } from "./core/game";
 
-export const STORAGE_KEY = "gravity-loop:progress";
+export const STORAGE_KEY = "milosapps.gravity-loop.progress";
+export const LEGACY_STORAGE_KEY = "gravity-loop:progress";
 export const STORAGE_VERSION = 3;
 
 export type MotionPreference = "system" | "reduce" | "full";
@@ -42,6 +43,7 @@ export const DEFAULT_PROGRESS: ProgressRecord = {
 interface StorageLike {
   getItem(key: string): string | null;
   setItem(key: string, value: string): void;
+  removeItem?(key: string): void;
 }
 
 function safeInteger(value: unknown, maximum = 999_999_999): number {
@@ -148,7 +150,17 @@ export function decodeProgress(serialized: string | null): ProgressRecord {
 
 export function loadProgress(storage: StorageLike): ProgressRecord {
   try {
-    return decodeProgress(storage.getItem(STORAGE_KEY));
+    const current = storage.getItem(STORAGE_KEY);
+    if (current !== null) {
+      return decodeProgress(current);
+    }
+
+    const legacy = storage.getItem(LEGACY_STORAGE_KEY);
+    const progress = decodeProgress(legacy);
+    if (legacy !== null && saveProgress(storage, progress)) {
+      storage.removeItem?.(LEGACY_STORAGE_KEY);
+    }
+    return progress;
   } catch {
     return structuredClone(DEFAULT_PROGRESS);
   }

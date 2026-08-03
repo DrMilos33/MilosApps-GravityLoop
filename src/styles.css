@@ -474,20 +474,6 @@ button {
   background: rgba(30, 73, 86, 0.72);
 }
 
-.control-share > [data-milos-share-status] {
-  position: absolute;
-  inset-inline: 0.2rem;
-  inset-block-end: 0.12rem;
-  overflow: hidden;
-  color: var(--mint-strong);
-  font-size: 0.62rem;
-  line-height: 1;
-  pointer-events: none;
-  text-align: center;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
 .control-button:hover:not(:disabled) {
   color: var(--ink);
   background: rgba(24, 56, 72, 0.72);
@@ -514,7 +500,8 @@ button {
 }
 
 .keyboard-help,
-.daily-seed {
+.daily-seed,
+.privacy-info {
   margin: 0.8rem 0 0;
   color: var(--quiet);
   font-size: 0.76rem;
@@ -524,6 +511,19 @@ button {
 .daily-seed {
   margin-top: 0.38rem;
   overflow-wrap: anywhere;
+}
+
+.privacy-info {
+  margin-top: 0.2rem;
+}
+
+.privacy-info a {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  padding-inline: 0.45rem;
+  color: var(--muted);
+  text-underline-offset: 0.2em;
 }
 
 kbd {
@@ -868,7 +868,8 @@ kbd {
   width: min(100%, 10rem);
   min-height: 2.75rem;
   flex: 0 1 10rem;
-  padding: 0.42rem 0.65rem;
+  padding-block: 0.42rem;
+  padding-inline: 0.65rem 2.5rem;
   border: 1px solid var(--line);
   border-radius: 0.72rem;
   color: var(--ink);
@@ -981,7 +982,7 @@ kbd {
   }
 
   .canvas-wrap {
-    height: min(66dvh, 620px);
+    height: min(61dvh, 620px);
     min-height: 400px;
   }
 
@@ -1023,18 +1024,19 @@ kbd {
   }
 
   .settings-dialog {
-    width: min(calc(100% - 0.75rem), 54rem);
-    max-height: calc(100dvh - 0.75rem);
+    width: min(calc(100% - 12px), 54rem);
+    max-height: calc(100dvh - 12px);
     border-radius: 1.25rem;
   }
 
   .settings-dialog form {
-    max-height: calc(100dvh - 0.75rem);
+    max-height: calc(100dvh - 12px);
   }
 
   .dialog-header {
     align-items: center;
-    padding: 0.6rem 0.75rem;
+    gap: 8px;
+    padding: 8px;
   }
 
   .dialog-header .eyebrow,
@@ -1047,8 +1049,13 @@ kbd {
     font-size: 1.2rem;
   }
 
+  .dialog-header .icon-button {
+    width: 44px;
+    height: 44px;
+  }
+
   .settings-content {
-    padding: 0.7rem;
+    padding: 8px;
   }
 
   .settings-grid {
@@ -1058,7 +1065,7 @@ kbd {
 
   .settings-panel {
     grid-column: 1;
-    padding: 0.8rem;
+    padding: 8px;
   }
 
   .choice-grid-three,
@@ -1099,7 +1106,8 @@ kbd {
   .dialog-actions {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    padding: 0.7rem;
+    gap: 8px;
+    padding: 8px;
   }
 
   .dialog-actions button {
@@ -1110,6 +1118,10 @@ kbd {
 @media (max-width: 370px) {
   .setting-toggle {
     align-items: flex-start;
+  }
+
+  .dialog-actions {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 

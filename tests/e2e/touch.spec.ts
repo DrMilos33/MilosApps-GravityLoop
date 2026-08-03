@@ -1,5 +1,4 @@
 import { expect, test } from "@playwright/test";
-import { suppressPrivacyNotice } from "./support/privacy";
 
 test.skip(
   ({ browserName }) => browserName !== "chromium",
@@ -16,7 +15,6 @@ test("handles real touch start, long hold, cancel and rapid alternation", async 
     isMobile: true,
   });
   const page = await context.newPage();
-  await suppressPrivacyNotice(page);
   await page.goto("./?test=1");
   const client = await context.newCDPSession(page);
   const canvas = page.getByTestId("game-canvas");
@@ -86,7 +84,6 @@ test("uses the phone game area outside the canvas as a gravity hold zone", async
     isMobile: true,
   });
   const page = await context.newPage();
-  await suppressPrivacyNotice(page);
   await page.goto("./?test=1");
   const client = await context.newCDPSession(page);
   const score = await page.locator(".score-strip").boundingBox();
