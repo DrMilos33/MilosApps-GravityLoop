@@ -95,8 +95,23 @@ test("pins one local v2 shell with app-owned icon and DEV-only absolute links", 
   expect(manifest.icons?.every(({ src }) => src?.startsWith("./"))).toBe(true);
 });
 
-test("keeps the app-owned shell icon bounded through component upgrade", async ({ page }) => {
+test("keeps the app-owned shell icon bounded through component upgrade", async ({ browser }) => {
   test.slow();
+  const context = await browser.newContext();
+  const page = await context.newPage();
+  const entryDocument = await context.request.get("./?shell-icon-entry=1");
+  expect(entryDocument.ok()).toBe(true);
+  const entryHtml = await entryDocument.text();
+  const shellEntryTag = entryHtml
+    .match(/<script\b[^>]*>/gi)
+    ?.find(
+      (tag) =>
+        /\btype=["']module["']/i.test(tag) &&
+        !/\bdata-milos-app-essentials-bootstrap\b/i.test(tag),
+    );
+  const shellEntrySource = shellEntryTag?.match(/\bsrc=["']([^"']+)["']/i)?.[1];
+  expect(shellEntrySource, "A Shell-registering module entry must exist.").toBeTruthy();
+  const shellEntryUrl = new URL(shellEntrySource!, entryDocument.url()).href;
   const scenarios = [
     { label: "390x844", viewport: { width: 390, height: 844 }, rootFontSize: "100%" },
     { label: "360x800 at 200%", viewport: { width: 360, height: 800 }, rootFontSize: "200%" },
@@ -106,11 +121,11 @@ test("keeps the app-owned shell icon bounded through component upgrade", async (
   for (const scenario of scenarios) {
     await page.setViewportSize(scenario.viewport);
 
-    let releaseShellModule = () => {};
+    let releaseShellEntry = () => {};
     let releaseComponentCss = () => {};
     let signalComponentCssRequest = () => {};
-    const shellModuleGate = new Promise<void>((resolve) => {
-      releaseShellModule = resolve;
+    const shellEntryGate = new Promise<void>((resolve) => {
+      releaseShellEntry = resolve;
     });
     const componentCssGate = new Promise<void>((resolve) => {
       releaseComponentCss = resolve;
@@ -118,18 +133,22 @@ test("keeps the app-owned shell icon bounded through component upgrade", async (
     const componentCssRequested = new Promise<void>((resolve) => {
       signalComponentCssRequest = resolve;
     });
-    const shellModuleRoute = async (route: Route) => {
-      await shellModuleGate;
+    const shellEntryRoute = async (route: Route) => {
+      await shellEntryGate;
       await route.continue();
     };
     const componentCssRoute = async (route: Route) => {
+      if (new URL(route.request().url()).pathname.includes("milos-app-shell-theme")) {
+        await route.continue();
+        return;
+      }
       signalComponentCssRequest();
       await componentCssGate;
       await route.continue();
     };
 
-    await page.route("**/vendor/milosapps-shell/v2/milos-app-shell.js", shellModuleRoute);
-    await page.route("**/vendor/milosapps-shell/v2/milos-app-shell.css", componentCssRoute);
+    await page.route(shellEntryUrl, shellEntryRoute);
+    await page.route("**/*milos-app-shell*.css", componentCssRoute);
 
     const navigation = page.goto(`./?test=1&shell-icon-transition=${scenario.label}`, {
       waitUntil: "commit",
@@ -181,7 +200,7 @@ test("keeps the app-owned shell icon bounded through component upgrade", async (
       expect(await page.evaluate(() => Boolean(customElements.get("milos-app-shell")))).toBe(false);
       expectBounded("before upgrade", await measureIcon(), "hidden");
 
-      releaseShellModule();
+      releaseShellEntry();
       await expect
         .poll(() => page.evaluate(() => Boolean(customElements.get("milos-app-shell"))))
         .toBe(true);
@@ -202,18 +221,25 @@ test("keeps the app-owned shell icon bounded through component upgrade", async (
       ).toBe(false);
       expectBounded("component CSS delayed", await measureIcon(), "visible");
 
+      const componentCssResponse = page.waitForResponse((response) => {
+        const pathname = new URL(response.url()).pathname;
+        return (
+          pathname.includes("milos-app-shell") &&
+          !pathname.includes("milos-app-shell-theme") &&
+          pathname.endsWith(".css") &&
+          response.ok()
+        );
+      });
       releaseComponentCss();
+      const loadedComponentCss = await componentCssResponse;
+      expect(loadedComponentCss.headers()["content-type"]).toMatch(/^text\/css\b/i);
+      await loadedComponentCss.finished();
+      await page.waitForLoadState("load");
       await expect
         .poll(() =>
-          page.locator("milos-app-shell").evaluate((element) => {
-            const link = element.shadowRoot?.querySelector<HTMLLinkElement>(
-              'link[rel="stylesheet"][href*="milos-app-shell.css"]',
-            );
-            return Boolean(link?.sheet);
-          }),
+          page.locator("milos-app-shell").evaluate((element) => getComputedStyle(element).display),
         )
-        .toBe(true);
-      await page.waitForLoadState("load");
+        .toBe("grid");
 
       const finalMetrics = await measureIcon();
       expectBounded("component CSS loaded", finalMetrics, "visible");
@@ -232,13 +258,14 @@ test("keeps the app-owned shell icon bounded through component upgrade", async (
         layout.clientWidth,
       );
     } finally {
-      releaseShellModule();
+      releaseShellEntry();
       releaseComponentCss();
       await navigation.catch(() => undefined);
-      await page.unroute("**/vendor/milosapps-shell/v2/milos-app-shell.js", shellModuleRoute);
-      await page.unroute("**/vendor/milosapps-shell/v2/milos-app-shell.css", componentCssRoute);
+      await page.unroute(shellEntryUrl, shellEntryRoute);
+      await page.unroute("**/*milos-app-shell*.css", componentCssRoute);
     }
   }
+  await context.close();
 });
 
 test("translates the complete app UI through the shell event and persists EN", async ({
