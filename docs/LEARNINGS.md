@@ -381,10 +381,12 @@ Nutzerdaten eintragen.
   `rem` skalierte Dialogabstände die nutzbare Textbreite. Eine Option konnte so
   in den nativen Pfeilbereich laufen, obwohl Seite und Dialog formal keinen
   horizontalen Überlauf hatten.
-- Änderung: Jedes Select reserviert am Inline-Ende mindestens `2.25rem`; nicht
-  textliche mobile Dialoggutter und die 44-Pixel-Schließen-Aktion bleiben auf
-  schmalen Viewports geometrisch stabil. Zu lange, technisch klingende Optionen
-  wurden in verständliche kurze Wörter übersetzt.
+- Änderung: Jedes Select reserviert am Inline-Ende mindestens `2.25rem`; der
+  linke Textgutter bleibt bei festen 8 Pixeln und die Select-Schrift wird eng
+  auf 95 Prozent verdichtet. So bleibt die Pfeilzone zoombar, ohne dass andere
+  `rem`-Gutter die Textbreite doppelt verkleinern. Nicht textliche mobile
+  Dialoggutter und die 44-Pixel-Schließen-Aktion bleiben geometrisch stabil;
+  technisch klingende Optionen wurden in verständliche kurze Wörter übersetzt.
 - Regression: Für jedes Select werden in DE und EN bei 200 Prozent die
   gerenderte längste Option, verfügbare Textbreite, Pfeil-Safe-Area und Grenzen
   des Dialogs gemessen.

@@ -869,12 +869,14 @@ kbd {
   min-height: 2.75rem;
   flex: 0 1 10rem;
   padding-block: 0.42rem;
-  padding-inline: 0.65rem 2.5rem;
+  /* Keep the text gutter stable while the native arrow safe area follows text zoom. */
+  padding-inline: 8px 2.25rem;
   border: 1px solid var(--line);
   border-radius: 0.72rem;
   color: var(--ink);
   background: #142f43;
   font: inherit;
+  font-size: 0.95rem;
   font-weight: 700;
 }
 

@@ -612,6 +612,30 @@ anwendbare Browserfälle bei 29 planmäßigen Engine-/CDP-Skips. Der darin erneu
 gemessene Performancepfad erreichte 60,00 / 57,29 / 56,97 FPS,
 Input-p95 14,0 / 26,8 / 7,5 ms und jeweils 0 ms verlorene Simulation.
 
+### CI-Schriftmetrikregression und Korrektur
+
+Die ersten Source-CI-Runs `30784688143` und `30784688161` für
+`02572c7c2472e2634960a36a18f171e338a689ee` stoppten den Publish vor dem
+Pages-Artefakt. Unter den Linux-Schriftmetriken aller drei Engines standen der
+Option „Naturnah“ bei 200 Prozent nur rund 151,2 Pixel zur Verfügung, während
+der gerenderte Text 169,39 Pixel benötigte. Zwei nur im ersten Versuch
+aufgetretene Fälle – 47,8 ms Input-p95 im reichen Chromium-Profil und zwei
+statt drei WebKit-Eingabestichproben – bestanden ihren unveränderten Retry und
+werden getrennt als Timing-Flakes geführt, nicht als Produktfehler.
+
+Die app-eigene Korrektur hält den linken Textgutter bei festen 8 Pixeln,
+bewahrt rechts die mit Textzoom skalierende `2.25rem`-Pfeil-Safe-Area und
+verdichtet ausschließlich die Select-Schrift auf 95 Prozent. Der fokussierte
+200-Prozent-Fall bestand anschließend in Chromium, Firefox und WebKit (3/3).
+Die vollständige Settings-/Responsive-Matrix bestand 38 anwendbare Fälle bei
+16 planmäßigen Skips, einschließlich 390×844, 360×800, DPR 1 bis 3 und
+Rotation. Das unveränderte isolierte Performancegate erreichte
+60,00 / 57,23 / 56,27 FPS, Input-p95 12,3 / 14,9 / 7,8 ms und jeweils 0 ms
+verlorene Simulation. Das abschließende Gesamttor bestand erneut beide
+Verifier, 33/33 Unit, den Build und 88 anwendbare Browserfälle bei 29
+planmäßigen Skips; darin 59,72 / 57,25 / 55,80 FPS,
+Input-p95 13,9 / 31,8 / 13,4 ms und 0 ms verlorene Simulation.
+
 Die Reihenfolge lautet jeweils Normalprofil, naturnaher Mond plus Hut und
 vierfache CPU-Drosselung. Reale Android-/iOS-Hardware, Android WebView sowie
 manuelle Tests mit TalkBack, VoiceOver oder NVDA bleiben externe Grenzen.
