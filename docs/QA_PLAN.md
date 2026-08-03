@@ -42,8 +42,9 @@ konkret dokumentiert.
 
 - fester Shared-Commit, Manifest, sechsteiliger Lock einschließlich Schema und
   portabler Validator;
-- Ladescreen vor Fachruntime, App-Icon höchstens 56 CSS-Pixel auf Desktop und
-  48 CSS-Pixel mobil, Reduced Motion und genau eine Dokument-H1;
+- Ladescreen vor Fachruntime, App-Icon im HTML-Fallback und nach CSS exakt
+  32 × 32 CSS-Pixel auf Desktop, mobil und bei 200 Prozent, Reduced Motion
+  und genau eine Dokument-H1;
 - zweckweises Endgerätezugriffs-Inventar; bei ausschließlich notwendigen
   lokalen Speicherzwecken kein Schein-Einwilligungsdialog, sondern eine
   dauerhaft erreichbare DE-/EN-Datenschutzinformation mit absolutem Link und

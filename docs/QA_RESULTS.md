@@ -668,3 +668,61 @@ Die Reihenfolge lautet jeweils Normalprofil, naturnaher Mond plus Hut und
 vierfache CPU-Drosselung. Reale Android-/iOS-Hardware, Android WebView sowie
 manuelle Tests mit TalkBack, VoiceOver oder NVDA bleiben externe Grenzen.
 Production ist nicht freigegeben.
+
+## QA-Runde 9: einheitliches 32-Pixel-Ladesymbol
+
+Der lokale Kandidat pinnt `public-app-essentials/v1.1.3` unveränderlich auf
+Shared-Commit `babe74a0e62e1a7f9095648195e54b322a837726`. Schema, app-eigenes
+Theme, Bootstrap, Runtime und Verifier bilden weiterhin den atomaren
+sechsteiligen Verbraucher-Lock; die enge Vendorregel `* text eol=lf` bleibt
+unverändert. Die App behält ihren bestehenden dauerhaften Datenschutzlink und
+ändert weder Privacy-/Share-Verhalten noch Fachfunktion.
+
+### Umsetzung und lokale Evidenz
+
+- Das intrinsische Loader-Markup setzt `width="32"` und `height="32"`, sodass
+  das App-Symbol bereits vor dem ersten Stylesheet exakt 32×32 Pixel belegt.
+- Der gemeinsame v1.1.3-Vertrag begrenzt Breite, Höhe, Maximalbreite und
+  Maximalhöhe anschließend ebenfalls exakt auf 32 Pixel. Es gibt keine
+  app-eigene Größen-Gegenregel.
+- Der vendorte Essentials-Verifier, der Public-App-Shell-Verifier, der
+  sechsteilige Lock und die festen Shared-Hashes bestehen unverändert.
+- Ein frischer lokaler Windows-Checkout mit `core.autocrlf=true` bestand beide
+  vendorten Verifier; sämtliche Dateien im Essentials-v1-Verzeichnis lagen
+  dort weiterhin als `i/lf w/lf` mit `text eol=lf` vor.
+- Unit: 33/33 bestanden. Pages-Build und nachgelagertes Built-HTML-/Vendor-Gate
+  bestanden; das gebaute HTML enthält weiterhin beide Essentials-CSS-Dateien
+  und den Bootstrap als getrennte relative Same-Origin-Ressourcen.
+- Fokussiertes Loader-/Ready-/Privacy-/Share-/CSP-/MIME-Gate: 12/12 in
+  Chromium, Firefox und WebKit bestanden. Das Symbol misst bei 1440×900,
+  390×844 und 360×800 mit 200 Prozent Textzoom jeweils exakt 32×32 Pixel;
+  `max-width` und `max-height` sind ebenfalls 32 Pixel.
+- Vollständige nicht-performancekritische Drei-Engine-Matrix für App,
+  Essentials, Responsive/Reflow, Settings, Shell und Touch: 85 anwendbare
+  Fälle bestanden, 23 planmäßige Engine-/CDP-Skips, 0 Fehler. Gameplay,
+  mobile Haltezone, Pointer-Cancel, Pause/App-Resume, Offline, DE/EN samt
+  Persistenz, Axe A/AA, Fokus, 44-Pixel-Ziele und Reduced Motion blieben grün.
+
+### Isoliertes Performancegate
+
+Ein erster Lauf während nachgewiesener paralleler owner-eigener Node- und
+Browsermatrizen fiel unter vierfacher CPU-Drosselung auf 19,13 FPS. Der eigene
+Testprozess war bereits beendet, Port 4317 frei und die verbleibenden
+Prozessbäume gehörten zu anderen laufenden Tasks; dieser Wert wird deshalb als
+Hostlastbefund und nicht als Produktregression geführt. Kein Budget wurde
+gesenkt.
+
+Im anschließend freien exklusiven Messfenster bestand derselbe unveränderte
+Stand alle drei Profile:
+
+| Profil | Ø FPS | Frame p95 | Input p95 | verlorene Simulation |
+|---|---:|---:|---:|---:|
+| normal | 49,92 | 33,4 ms | 36,0 ms | 0 ms |
+| naturnaher Mond plus Hut | 47,70 | 33,4 ms | 30,2 ms | 0 ms |
+| CPU vierfach gedrosselt | 43,01 | 33,4 ms | 32,1 ms | 0 ms |
+
+Ein erneuter Performance-Gesamtlauf bleibt während neu gestarteter paralleler
+Browserkampagnen bewusst ausgesetzt. Die bereits bestandene isolierte Messung
+gehört exakt zum aktuellen v1.1.3-Code; Funktions-, Lock- und Buildtests dürfen
+unabhängig davon fortgesetzt werden. Production bleibt unverändert und ist
+nicht freigegeben.

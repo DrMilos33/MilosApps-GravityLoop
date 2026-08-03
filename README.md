@@ -21,8 +21,8 @@ codebasiert gezeichnet.
   veröffentlichten Vertrag `public-app-shell/v2.0.3` fest gepinnt; kein CDN
   und kein Shared-Runtimeimport;
 - gemeinsame Lade-, Datenschutz- und Teilen-Primitiven ausschließlich lokal
-  vendort und auf `public-app-essentials/v1.1.2` aus Shared-Commit
-  `b14aac6107b75f03ff49e74160af7e7e30c29e59` fest gepinnt; kein CDN und kein
+  vendort und auf `public-app-essentials/v1.1.3` aus Shared-Commit
+  `babe74a0e62e1a7f9095648195e54b322a837726` fest gepinnt; kein CDN und kein
   Runtimeimport aus dem Shared-Repository;
 - Portal-DEV bindet nur per dokumentierter URL und Metadaten an.
 

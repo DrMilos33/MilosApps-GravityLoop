@@ -409,3 +409,22 @@ Nutzerdaten eintragen.
   des Canvas, Rotation und alle Eingabepfade laufen zusätzlich weiter.
 - Allgemeine Bedeutung: Above-the-fold ist ein messbares Produktbudget, kein
   Screenshotgefühl. Geprüft wird die echte Primäraktion samt Sicherheitsrand.
+
+## 2026-08-03 – Loader-Geometrie beginnt vor dem ersten Stylesheet
+
+- Ausgangspunkt: `public-app-essentials/v1.1.3` vereinheitlicht das
+  Ladesymbol öffentlicher Apps auf exakt 32×32 Pixel.
+- Beobachtung: CSS kann die endgültige Geometrie zuverlässig festlegen, greift
+  aber erst nach dem Laden und Verarbeiten des Stylesheets. Größere intrinsische
+  Bildmaße erzeugen vorher einen kurzen Layoutsprung und umgehen damit den
+  sichtbaren Größenvertrag beim langsamen oder kalten Start.
+- Änderung: Das App-Markup besitzt `width="32"` und `height="32"`; das vendorte
+  CSS bestätigt zusätzlich Breite, Höhe und beide Maximalmaße. Eine
+  app-spezifische Gegenregel ist weder nötig noch erlaubt.
+- Regression: Quellmarkup, gebautes HTML und echte Browsergeometrie bei
+  1440×900, 390×844 sowie 360×800 mit 200 Prozent Textzoom werden getrennt
+  fail-closed geprüft. Langsamer Start, Ready-Endpunkt, CSP und MIME bleiben
+  Teil desselben Gates.
+- Allgemeine Bedeutung: Kritische Startgeometrie ist ein Vertrag aus
+  intrinsischem HTML-Fallback und gemeinsamem CSS. Quell-, Artefakt- und
+  Browserprüfung decken unterschiedliche Fehlerklassen ab.

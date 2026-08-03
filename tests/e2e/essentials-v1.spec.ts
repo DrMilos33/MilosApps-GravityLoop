@@ -24,7 +24,19 @@ test("keeps a small loader visible until the game is operable", async ({ page, r
   );
   await expect(loader.locator("[data-milos-loading-icon]")).toHaveCSS(
     "width",
-    "56px",
+    "32px",
+  );
+  await expect(loader.locator("[data-milos-loading-icon]")).toHaveCSS(
+    "height",
+    "32px",
+  );
+  await expect(loader.locator("[data-milos-loading-icon]")).toHaveCSS(
+    "max-width",
+    "32px",
+  );
+  await expect(loader.locator("[data-milos-loading-icon]")).toHaveCSS(
+    "max-height",
+    "32px",
   );
 
   await expect(loader).toBeHidden();
@@ -37,7 +49,31 @@ test("keeps a small loader visible until the game is operable", async ({ page, r
   });
   await expect(loader.locator("[data-milos-loading-icon]")).toHaveCSS(
     "width",
-    "48px",
+    "32px",
+  );
+  await expect(loader.locator("[data-milos-loading-icon]")).toHaveCSS(
+    "height",
+    "32px",
+  );
+  await page.setViewportSize({ width: 360, height: 800 });
+  await page.evaluate(() => {
+    document.documentElement.style.fontSize = "200%";
+  });
+  await expect(loader.locator("[data-milos-loading-icon]")).toHaveCSS(
+    "width",
+    "32px",
+  );
+  await expect(loader.locator("[data-milos-loading-icon]")).toHaveCSS(
+    "height",
+    "32px",
+  );
+  await expect(loader.locator("[data-milos-loading-icon]")).toHaveCSS(
+    "max-width",
+    "32px",
+  );
+  await expect(loader.locator("[data-milos-loading-icon]")).toHaveCSS(
+    "max-height",
+    "32px",
   );
   await page.emulateMedia({ reducedMotion: "reduce" });
   expect(
@@ -220,7 +256,7 @@ test("loads the vendored essentials under a strict self-only CSP with correct MI
           <body data-milos-essentials-loading>
             <section data-milos-app-loading role="status" aria-live="polite">
               <div data-milos-loading-card>
-                <img data-milos-loading-icon src="./gravity-loop-mark.svg" width="52" height="52" alt="">
+                <img data-milos-loading-icon src="./gravity-loop-mark.svg" width="32" height="32" alt="">
                 <span data-milos-loading-brand>MilosApps</span>
                 <p data-milos-loading-title>Gravity Loop</p>
                 <p data-milos-loading-message>Gravity Loop wird geöffnet …</p>
@@ -236,6 +272,8 @@ test("loads the vendored essentials under a strict self-only CSP with correct MI
 
   await page.goto("./essentials-csp-fixture.html");
   await expect(page.locator("[data-milos-app-loading]")).toBeVisible();
+  await expect(page.locator("[data-milos-loading-icon]")).toHaveCSS("width", "32px");
+  await expect(page.locator("[data-milos-loading-icon]")).toHaveCSS("height", "32px");
   await expect(page.getByRole("button", { name: "Teilen" })).toHaveCSS(
     "min-height",
     "44px",

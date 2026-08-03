@@ -80,6 +80,13 @@ await access(localBuildPath(consumerSource, "consumer module"));
 const iconTag = (html.match(/<img\b[^>]*>/gi) ?? []).find((candidate) =>
   /\bdata-milos-loading-icon(?:=|\s|>)/i.test(candidate),
 );
+if (
+  !iconTag ||
+  !/\bwidth=["']32["']/i.test(iconTag) ||
+  !/\bheight=["']32["']/i.test(iconTag)
+) {
+  fail("built loading icon fallback must be exactly 32x32");
+}
 const iconSource = iconTag?.match(/\bsrc=["']([^"']+)["']/i)?.[1];
 const expectedIconSource = manifest.loading.iconRuntimePath ?? manifest.loading.iconPath;
 const normalizeLocalUrl = (value) => value.replace(/^\.\//, "").replace(/^\//, "");
