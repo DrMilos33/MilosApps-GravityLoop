@@ -31,7 +31,7 @@ export class RuntimeTelemetry {
   private previousFrameAt: number | null = null;
   private readonly frameTimes: number[] = [];
   private readonly inputTimes: number[] = [];
-  private pendingInputAt: number | null = null;
+  private readonly pendingInputsAt: number[] = [];
   private droppedSimulationMs = 0;
 
   recordFrame(now: number): void {
@@ -48,18 +48,19 @@ export class RuntimeTelemetry {
   }
 
   queueInput(now: number): void {
-    this.pendingInputAt = now;
+    this.pendingInputsAt.push(now);
   }
 
   applyPendingInput(now: number): void {
-    if (this.pendingInputAt === null) {
+    if (this.pendingInputsAt.length === 0) {
       return;
     }
-    this.inputTimes.push(Math.max(0, now - this.pendingInputAt));
-    if (this.inputTimes.length > 120) {
+    for (const queuedAt of this.pendingInputsAt.splice(0)) {
+      this.inputTimes.push(Math.max(0, now - queuedAt));
+    }
+    while (this.inputTimes.length > 120) {
       this.inputTimes.shift();
     }
-    this.pendingInputAt = null;
   }
 
   addDroppedSimulation(seconds: number): void {

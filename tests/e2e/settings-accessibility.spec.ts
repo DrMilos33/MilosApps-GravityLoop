@@ -216,13 +216,27 @@ test("has no automated WCAG A/AA violations in game and settings states", async 
   await expect
     .poll(() =>
       page.locator("milos-app-shell").evaluate((host) => {
-        const stylesheet = host.shadowRoot?.querySelector<HTMLLinkElement>(
+        const shadowStylesheet = host.shadowRoot?.querySelector<HTMLLinkElement>(
           'link[rel="stylesheet"]',
         );
-        return Boolean(stylesheet?.sheet);
+        const documentStylesheets = [
+          ...document.querySelectorAll<HTMLLinkElement>('link[rel="stylesheet"]'),
+        ];
+        const controlBackgrounds = [
+          ...(host.shadowRoot?.querySelectorAll<HTMLElement>("button.control") ?? []),
+        ].map((control) => getComputedStyle(control).backgroundColor);
+        return (
+          Boolean(shadowStylesheet?.sheet) &&
+          documentStylesheets.every((stylesheet) => Boolean(stylesheet.sheet)) &&
+          controlBackgrounds.length >= 2 &&
+          controlBackgrounds.every(
+            (color) => color !== "rgb(192, 192, 192)" && color !== "rgba(0, 0, 0, 0)",
+          )
+        );
       }),
     )
     .toBe(true);
+  await page.waitForTimeout(100);
   const baselineResults = await new AxeBuilder({ page })
     .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
     .analyze();
