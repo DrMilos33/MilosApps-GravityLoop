@@ -2,6 +2,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
+import { expectedPrivacyUrl } from "./environment";
 
 const LEGACY_PRIVACY_STORAGE_KEY = "milosapps.gravity-loop.privacyNotice.v1";
 
@@ -103,7 +104,7 @@ test("uses truthful permanent privacy information without a fake consent banner"
   await expect(page.locator("[data-milos-privacy-notice]")).toHaveCount(0);
   await expect(page.locator("[data-milos-privacy-info]")).toHaveAttribute(
     "href",
-    "https://dev.milos-apps.de/datenschutz",
+    expectedPrivacyUrl,
   );
   await expect(page.locator("[data-milos-privacy-info]")).toContainText(
     "Datenschutz & lokale Speicherung",

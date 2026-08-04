@@ -35,7 +35,7 @@ declare global {
     __gravityLoopTestApi?: {
       getDebugState: () => DebugState;
       getLanguage: () => Language;
-      getShellEnvironment: () => "dev";
+      getShellEnvironment: () => "production";
       reset: () => void;
       pause: () => void;
       resumeWithHold: () => void;
@@ -549,7 +549,7 @@ if (searchParameters.get("test") === "1") {
   window.__gravityLoopTestApi = {
     getDebugState: () => runtime.getDebugState(),
     getLanguage: () => language,
-    getShellEnvironment: () => "dev",
+    getShellEnvironment: () => "production",
     reset: () => runtime.reset(),
     pause: () => runtime.pause("manual"),
     resumeWithHold: () => runtime.beginHold(),

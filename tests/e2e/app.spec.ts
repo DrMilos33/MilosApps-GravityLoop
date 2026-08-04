@@ -1,4 +1,8 @@
 import { expect, test, type Page } from "@playwright/test";
+import {
+  expectedEnvironment,
+  expectedProductionApproved,
+} from "./environment";
 
 interface DebugState {
   state: {
@@ -65,11 +69,17 @@ test.describe("core browser flow", () => {
 
     const health = await request.get("./health.json");
     expect(health.ok()).toBe(true);
-    await expect(health.json()).resolves.toEqual({
+    const expectedHealth: Record<string, unknown> = {
       status: "ok",
       app: "gravity-loop",
-      environment: "dev",
-    });
+      environment: expectedEnvironment,
+    };
+    if (expectedProductionApproved) expectedHealth.productionApproved = true;
+    const healthBody = (await health.json()) as Record<string, unknown>;
+    expect(healthBody).toMatchObject(expectedHealth);
+    if (!expectedProductionApproved) {
+      expect(healthBody.productionApproved).not.toBe(true);
+    }
 
     const overflow = await page.evaluate(() => ({
       clientWidth: document.documentElement.clientWidth,

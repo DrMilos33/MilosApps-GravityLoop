@@ -10,7 +10,8 @@ Dieses Repository enthält ausschließlich `Gravity Loop` mit dem App-Key
 - App-Klasse: `öffentlich`
 - Plattformen: `Web, mobil und Desktop`
 - Datenhaltung: `Bestwert, Serie und Einstellungen lokal; keine App-Datenbank`
-- Deployment: `eigener DEV-Dienst; Production nicht freigegeben`
+- Deployment: `eigener DEV-Dienst; getrennte Cloudflare-Pages-Production ist
+  für die Kampagne public-app-production-launch-2026-08 freigegeben`
 - Gemeinsame Abhängigkeiten: `keine`
 
 Wenn der lokale MilosApps Workspace verfügbar ist, vor appübergreifenden
@@ -23,8 +24,9 @@ Wenn der lokale MilosApps Workspace verfügbar ist, vor appübergreifenden
 - Keine fremden App-Quellen, Assets, Spielmechaniken, Namen oder Designs kopieren.
 - Keine Datenbank, Cookies, Secrets oder Quellcode mit anderen Apps teilen.
 - Gemeinsame Assets erst über eine feste veröffentlichte Version beziehen.
-- DEV und Production strikt trennen; Production nur nach ausdrücklicher
-  Freigabe verändern.
+- DEV und Production strikt trennen. Die Production-Freigabe umfasst nur den
+  kampagnengebundenen Gravity-Loop-Kandidaten und dessen später bestätigtes
+  Cloudflare-Pages-Ziel; DEV, Portal und fremde Apps bleiben getrennt.
 
 ## Besondere Qualitätsanforderung
 

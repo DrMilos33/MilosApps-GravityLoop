@@ -3,8 +3,8 @@ import { initMilosAppEssentials } from "./milos-app-essentials.js";
 document.body?.setAttribute("data-milos-essentials-app", "gravity-loop");
 export const milosAppEssentials = initMilosAppEssentials({
   "appKey": "gravity-loop",
-  "environment": "dev",
-  "productionApproved": false,
+  "environment": "production",
+  "productionApproved": true,
   "loading": {
     "appName": "Gravity Loop",
     "iconPath": "public/gravity-loop-mark.svg",
@@ -32,7 +32,7 @@ export const milosAppEssentials = initMilosAppEssentials({
       }
     ],
     "optionalTracking": false,
-    "privacyUrl": "https://dev.milos-apps.de/datenschutz"
+    "privacyUrl": "https://milos-apps.de/datenschutz"
   },
   "features": {
     "startup": true,

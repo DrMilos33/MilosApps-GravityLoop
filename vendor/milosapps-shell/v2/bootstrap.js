@@ -17,8 +17,8 @@ if (!themeLink) {
 }
 registerMilosAppShell({
   "appKey": "gravity-loop",
-  "environment": "dev",
-  "productionApproved": false,
+  "environment": "production",
+  "productionApproved": true,
   "description": {
     "de": "Kurze Gravitationsrunden mit Sonne, Mond und deinem eigenen Kometen – direkt, lokal und ohne Login.",
     "en": "Short gravity runs with the Sun, Moon and your own comet – direct, local and without login."

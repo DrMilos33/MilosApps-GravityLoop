@@ -4,7 +4,7 @@
   "sharedCommit": "2942132ad3bf6cf39edc9f52ed918de6a230be23",
   "appKey": "gravity-loop",
   "manifest": "milos-essentials.json",
-  "manifestSha256": "sha256:da3d1469d1ecae2ca56134edaadcabc65e4d921aee39dfd19f22528697b2ac2b",
+  "manifestSha256": "sha256:c3b592d0b8826e410dbb0885bcdd1d058b0604f27df7336c201a943faa42eccf",
   "vendorDirectory": "vendor/milosapps-essentials/v1",
   "runtimeBasePath": "vendor/milosapps-essentials/v1",
   "loadingIconRuntimePath": "./gravity-loop-mark.svg",
@@ -12,7 +12,7 @@
     "milos-app-essentials.css": "sha256:45639329f6a94093354fd7d416a636d4e0da4d751b9fa97e2c75c84c7c6c4ade",
     "milos-app-essentials-theme.css": "sha256:0edc3da15315bc5ea3ec9bb96931dd1d1971c5e80e6eec2eeea41617e849ed5f",
     "milos-app-essentials.js": "sha256:c361558a7bd98c7a40c64b99e1b7c68916cf6711ac6da76c51482067f458c83f",
-    "bootstrap.js": "sha256:053c3f06b965374cf724242f633666cf6ee29493cd2a0d1a1b4bd5b6af5b2d87",
+    "bootstrap.js": "sha256:7304fe974af5f01e1aaf72f2200f88649ba89c3ed186dc019ec822790cc1b7ab",
     "verify.mjs": "sha256:f9e35bef7cbae39780b96339792ac9e7e09c70fcb78c4df45e66808d79d93453",
     "essentials-manifest.schema.json": "sha256:6d87625c2bb4d10d3b18f8c4ff7f6982512ba20cb7b3105c8be00432eed40385"
   }

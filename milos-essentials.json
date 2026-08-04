@@ -4,8 +4,8 @@
   "ownerTask": "MilosApps – Gravity Loop",
   "public": true,
   "loginRequired": false,
-  "environment": "dev",
-  "productionApproved": false,
+  "environment": "production",
+  "productionApproved": true,
   "entryHtml": "index.html",
   "consumerEntryModule": {
     "sourceFile": "src/main.ts",
@@ -39,7 +39,7 @@
       }
     ],
     "optionalTracking": false,
-    "privacyUrl": "https://dev.milos-apps.de/datenschutz"
+    "privacyUrl": "https://milos-apps.de/datenschutz"
   },
   "features": {
     "startup": true,
