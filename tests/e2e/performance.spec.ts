@@ -52,7 +52,17 @@ async function exercise(page: Page, richVisuals = false): Promise<Metrics> {
   await page.mouse.down();
   await page.waitForTimeout(180);
   await page.mouse.up();
-  await page.waitForTimeout(1_000);
+  await page.waitForTimeout(300);
+
+  // A percentile needs more than a handful of samples. Exercise a short,
+  // deterministic sequence so p95 is not merely the single worst event.
+  for (let index = 0; index < 8; index += 1) {
+    await page.mouse.down();
+    await page.waitForTimeout(60);
+    await page.mouse.up();
+    await page.waitForTimeout(60);
+  }
+  await page.waitForTimeout(700);
 
   return page.evaluate(() => window.__gravityLoopTestApi!.getDebugState().metrics);
 }
@@ -70,7 +80,7 @@ test("keeps frame and input latency responsive at normal CPU speed", async ({
   expect(metrics.frameSamples).toBeGreaterThan(120);
   expect(metrics.estimatedFps).toBeGreaterThan(45);
   expect(metrics.p95FrameMs).toBeLessThan(36);
-  expect(metrics.inputSamples).toBeGreaterThanOrEqual(3);
+  expect(metrics.inputSamples).toBeGreaterThanOrEqual(20);
   expect(metrics.p95InputMs).toBeLessThan(45);
   expect(metrics.droppedSimulationMs).toBeLessThan(250);
 });
@@ -88,6 +98,7 @@ test("keeps procedural moon and hat rendering within the frame budget", async ({
   expect(metrics.frameSamples).toBeGreaterThan(120);
   expect(metrics.estimatedFps).toBeGreaterThan(45);
   expect(metrics.p95FrameMs).toBeLessThan(36);
+  expect(metrics.inputSamples).toBeGreaterThanOrEqual(20);
   expect(metrics.p95InputMs).toBeLessThan(45);
   expect(metrics.droppedSimulationMs).toBeLessThan(250);
 });
@@ -109,6 +120,7 @@ test("remains playable under four-times CPU throttling", async ({
   expect(metrics.frameSamples).toBeGreaterThan(90);
   expect(metrics.estimatedFps).toBeGreaterThan(30);
   expect(metrics.p95FrameMs).toBeLessThan(51);
+  expect(metrics.inputSamples).toBeGreaterThanOrEqual(20);
   expect(metrics.p95InputMs).toBeLessThan(60);
   expect(metrics.droppedSimulationMs).toBeLessThan(500);
 });
