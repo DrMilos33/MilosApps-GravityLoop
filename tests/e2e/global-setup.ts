@@ -1,9 +1,14 @@
 import type { FullConfig } from "@playwright/test";
+import {
+  expectedEnvironment,
+  expectedProductionApproved,
+} from "./environment";
 
 interface HealthResponse {
   status?: unknown;
   app?: unknown;
   environment?: unknown;
+  productionApproved?: unknown;
 }
 
 export default async function verifyGravityLoopServer(
@@ -27,7 +32,10 @@ export default async function verifyGravityLoopServer(
   if (
     health.status !== "ok" ||
     health.app !== "gravity-loop" ||
-    health.environment !== "dev"
+    health.environment !== expectedEnvironment ||
+    (expectedProductionApproved
+      ? health.productionApproved !== true
+      : health.productionApproved === true)
   ) {
     throw new Error(
       `Gravity Loop readiness identity mismatch: ${JSON.stringify(health)}`,

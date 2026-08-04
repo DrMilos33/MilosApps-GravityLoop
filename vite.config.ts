@@ -32,7 +32,9 @@ export default defineConfig({
   },
   build: {
     target: "es2022",
-    sourcemap: true,
+    // Production artifacts never expose source maps. The existing GitHub
+    // Pages DEV remains pinned to its already published artifact.
+    sourcemap: false,
     // The public shell loads its theme and Shadow DOM stylesheets under a
     // strict `style-src 'self'` CSP. Keep even small CSS assets as same-origin
     // files instead of converting them to `data:` URLs in production builds.

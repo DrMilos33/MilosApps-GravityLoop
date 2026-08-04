@@ -4,6 +4,7 @@ import {
   type Language,
   type StaticTranslationKey,
 } from "../../src/i18n";
+import { expectedEnvironment, expectedPortalOrigin } from "./environment";
 
 async function expectCompleteAppLocale(
   page: import("@playwright/test").Page,
@@ -29,7 +30,7 @@ test.beforeEach(async ({ page }) => {
   await page.goto("./?test=1");
 });
 
-test("pins one local v2 shell with app-owned icon and DEV-only absolute links", async ({
+test("pins one local v2 shell with app-owned icon and environment-correct absolute links", async ({
   page,
   request,
 }) => {
@@ -38,7 +39,9 @@ test("pins one local v2 shell with app-owned icon and DEV-only absolute links", 
     page.locator('milos-app-shell > svg[slot="app-icon"]'),
   ).toHaveCount(1);
   await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
-  await expect(page.getByText("DEV", { exact: true })).toBeVisible();
+  const devBadge = page.getByText("DEV", { exact: true });
+  if (expectedEnvironment === "dev") await expect(devBadge).toBeVisible();
+  else await expect(devBadge).toBeHidden();
 
   const shell = await page.locator("milos-app-shell").evaluate((host) => {
     const root = host.shadowRoot;
@@ -68,10 +71,10 @@ test("pins one local v2 shell with app-owned icon and DEV-only absolute links", 
 
   expect(shell.links).toEqual(
     expect.arrayContaining([
-      expect.objectContaining({ href: "https://dev.milos-apps.de/" }),
-      expect.objectContaining({ href: "https://dev.milos-apps.de/apps" }),
-      expect.objectContaining({ href: "https://dev.milos-apps.de/impressum" }),
-      expect.objectContaining({ href: "https://dev.milos-apps.de/datenschutz" }),
+      expect.objectContaining({ href: `${expectedPortalOrigin}/` }),
+      expect.objectContaining({ href: `${expectedPortalOrigin}/apps` }),
+      expect.objectContaining({ href: `${expectedPortalOrigin}/impressum` }),
+      expect.objectContaining({ href: `${expectedPortalOrigin}/datenschutz` }),
     ]),
   );
   expect(shell.links.every(({ href }) => href.startsWith("https://"))).toBe(
@@ -457,7 +460,9 @@ test("renders the shared shell under a self-only style CSP", async ({ page }) =>
     await page.goto("./csp-shell-fixture.html");
   }
 
-  await expect(page.getByText("DEV", { exact: true })).toBeVisible();
+  const cspDevBadge = page.getByText("DEV", { exact: true });
+  if (expectedEnvironment === "dev") await expect(cspDevBadge).toBeVisible();
+  else await expect(cspDevBadge).toBeHidden();
   const shell = page.locator("milos-app-shell");
   await expect
     .poll(() => shell.evaluate((host) => getComputedStyle(host).display))

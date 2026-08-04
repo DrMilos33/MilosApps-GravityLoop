@@ -1,7 +1,11 @@
 import { defineConfig, devices } from "@playwright/test";
 
+process.env.GRAVITY_LOOP_EXPECTED_ENVIRONMENT ??= "production";
+process.env.GRAVITY_LOOP_E2E_ARTIFACT ??= "built";
+
 const usesManagedLocalServer =
   process.env.GRAVITY_LOOP_E2E_SERVER !== "external";
+const testsBuiltArtifact = process.env.GRAVITY_LOOP_E2E_ARTIFACT === "built";
 
 export default defineConfig({
   testDir: "./tests/e2e",
@@ -34,7 +38,9 @@ export default defineConfig({
   webServer: usesManagedLocalServer
     ? {
         command:
-          "node node_modules/vite/bin/vite.js --host 127.0.0.1 --port 4317 --strictPort",
+          testsBuiltArtifact
+            ? "node node_modules/vite/bin/vite.js preview --host 127.0.0.1 --port 4317 --strictPort"
+            : "node node_modules/vite/bin/vite.js --host 127.0.0.1 --port 4317 --strictPort",
         url: "http://127.0.0.1:4317/health.json",
         reuseExistingServer: false,
         timeout: 120_000,

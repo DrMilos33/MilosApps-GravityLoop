@@ -44,6 +44,14 @@ jobs:
       - name: Production build
         run: pnpm build
 
+      - name: Upload production candidate
+        uses: actions/upload-artifact@v4
+        with:
+          name: gravity-loop-production-${{ github.sha }}
+          path: dist
+          if-no-files-found: error
+          retention-days: 14
+
       - name: Install browser engines
         run: pnpm exec playwright install --with-deps chromium firefox webkit
 

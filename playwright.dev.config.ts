@@ -1,5 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 
+process.env.GRAVITY_LOOP_EXPECTED_ENVIRONMENT = "dev";
+
 const configuredDevUrl = process.env.GRAVITY_LOOP_DEV_URL?.trim();
 
 if (!configuredDevUrl) {

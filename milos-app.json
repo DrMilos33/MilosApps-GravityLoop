@@ -12,7 +12,7 @@
     "entryHtml": "index.html",
     "localeModule": "src/main.ts"
   },
-  "environment": "dev",
+  "environment": "production",
   "description": {
     "de": "Kurze Gravitationsrunden mit Sonne, Mond und deinem eigenen Kometen – direkt, lokal und ohne Login.",
     "en": "Short gravity runs with the Sun, Moon and your own comet – direct, local and without login."
@@ -33,5 +33,5 @@
     "url": "https://drmilos33.github.io/MilosApps-GravityLoop/",
     "healthUrl": "https://drmilos33.github.io/MilosApps-GravityLoop/health.json"
   },
-  "productionApproved": false
+  "productionApproved": true
 }

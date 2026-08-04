@@ -115,11 +115,20 @@ if (/style=["'][^"']*--milos-essential-/i.test(html)) {
   fail("inline essentials theme tokens are forbidden");
 }
 
+const privacyUrl =
+  manifest.environment === "production"
+    ? "https://milos-apps.de/datenschutz"
+    : "https://dev.milos-apps.de/datenschutz";
+const forbiddenPrivacyUrl =
+  manifest.environment === "production"
+    ? "https://dev.milos-apps.de/datenschutz"
+    : "https://milos-apps.de/datenschutz";
 if (
   !/\bdata-milos-privacy-info(?:=|\s|>)/i.test(html) ||
-  !html.includes("https://dev.milos-apps.de/datenschutz")
+  !html.includes(privacyUrl) ||
+  html.includes(forbiddenPrivacyUrl)
 ) {
-  fail("built no-cookies app must retain permanent DEV privacy information");
+  fail(`built no-cookies app must retain only ${manifest.environment} privacy information`);
 }
 
 process.stdout.write(`built essentials verification: PASS (${hrefs.join(", ")})\n`);

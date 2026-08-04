@@ -15,7 +15,8 @@ codebasiert gezeichnet.
 
 - kein Konto, keine Werbung und keine App-Datenbank;
 - Bestwert, Serie und Einstellungen nur lokal;
-- eigener DEV-Lifecycle, Production nicht freigegeben;
+- eigener DEV-Lifecycle; getrennte Production ist ausschließlich im Rahmen
+  von `public-app-production-launch-2026-08` freigegeben;
 - keine fremden Spiele, Assets oder Designs kopieren;
 - gemeinsame Public-App-Shell ausschließlich lokal vendort und auf den
   veröffentlichten Vertrag `public-app-shell/v2.0.3` fest gepinnt; kein CDN
@@ -42,8 +43,11 @@ und [DEV-Deployment](docs/DEV_DEPLOYMENT.md) sowie
   `321ef0dc7ba3b44d04d8b0ef5b2ba6b364b31c49`
 
 Die URL ist ein unabhängiger öffentlicher GitHub-Pages-DEV-Dienst ohne Login.
-Production ist nicht freigegeben. Build, Validierung, Aktualisierung und
-Rollback sind in [docs/DEV_DEPLOYMENT.md](docs/DEV_DEPLOYMENT.md) beschrieben.
+Der DEV-Stand und sein `gh-pages`-Branch bleiben vom getrennten
+Production-Kandidaten unangetastet. Build, Validierung, Aktualisierung und
+Rollback sind in [docs/DEV_DEPLOYMENT.md](docs/DEV_DEPLOYMENT.md) beschrieben;
+der Cloudflare-Kandidat steht in
+[docs/PRODUCTION_CANDIDATE.md](docs/PRODUCTION_CANDIDATE.md).
 
 ## Lokaler DEV-Start
 
@@ -63,12 +67,17 @@ statt versehentlich einen anderen lokalen Dienst zu akzeptieren.
 pnpm verify:shell
 pnpm verify:essentials
 pnpm test
-pnpm build
+pnpm build:production
 pnpm test:e2e
 
 $env:GRAVITY_LOOP_DEV_URL = "https://drmilos33.github.io/MilosApps-GravityLoop/"
 pnpm test:e2e:dev
 ```
+
+`pnpm build:production` erzeugt ausschließlich den statischen, streng
+geprüften Ordner `dist/`. Ein Build veröffentlicht weder Cloudflare Pages noch
+GitHub Pages. Das öffentliche Production-Ziel wird erst nach Übergabe der
+bestätigten Cloudflare-Project-ID und HTTPS-URL verwendet.
 
 Die Runtime besteht aus Vanilla TypeScript, CSS und Canvas. Vite dient nur dem
 DEV-/Build-Lifecycle; Spielphysik, Zufall, Zustand und lokale Speicherung sind

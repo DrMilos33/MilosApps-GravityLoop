@@ -213,6 +213,16 @@ test("renders procedural moon and hat skin as real canvas changes", async ({
 });
 
 test("has no automated WCAG A/AA violations in game and settings states", async ({ page }) => {
+  await expect
+    .poll(() =>
+      page.locator("milos-app-shell").evaluate((host) => {
+        const stylesheet = host.shadowRoot?.querySelector<HTMLLinkElement>(
+          'link[rel="stylesheet"]',
+        );
+        return Boolean(stylesheet?.sheet);
+      }),
+    )
+    .toBe(true);
   const baselineResults = await new AxeBuilder({ page })
     .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
     .analyze();
