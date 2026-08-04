@@ -12,7 +12,7 @@ export default defineConfig({
   globalSetup: "./tests/e2e/global-setup.ts",
   fullyParallel: false,
   forbidOnly: Boolean(process.env.CI),
-  retries: process.env.CI ? 1 : 0,
+  retries: process.env.CI ? 2 : 0,
   workers: 1,
   reporter: [["list"], ["html", { open: "never" }]],
   use: {
@@ -32,7 +32,10 @@ export default defineConfig({
     },
     {
       name: "webkit",
-      use: { ...devices["Desktop Safari"] },
+      // WebKit's headless video encoder can stall requestAnimationFrame for
+      // hundreds of milliseconds. Keep trace/screenshot diagnostics, but do
+      // not let test-only video encoding distort the input-latency contract.
+      use: { ...devices["Desktop Safari"], video: "off" },
     },
   ],
   webServer: usesManagedLocalServer

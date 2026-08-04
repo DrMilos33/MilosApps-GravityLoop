@@ -55,11 +55,14 @@ async function exercise(page: Page, richVisuals = false): Promise<Metrics> {
   await page.waitForTimeout(300);
 
   // A percentile needs more than a handful of samples. Exercise a short,
-  // deterministic sequence so p95 is not merely the single worst event.
+  // deterministic keyboard sequence so p95 is not merely the single worst
+  // event. Keyboard input stays valid even if a rich-visual run reaches the
+  // game-over overlay before this sampling phase.
+  await canvas.focus();
   for (let index = 0; index < 8; index += 1) {
-    await page.mouse.down();
+    await page.keyboard.down("Space");
     await page.waitForTimeout(60);
-    await page.mouse.up();
+    await page.keyboard.up("Space");
     await page.waitForTimeout(60);
   }
   await page.waitForTimeout(700);
