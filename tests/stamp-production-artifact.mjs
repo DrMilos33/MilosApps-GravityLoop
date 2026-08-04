@@ -1,9 +1,36 @@
 import { execFileSync } from "node:child_process";
-import { readFile, writeFile } from "node:fs/promises";
+import { lstat, readdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 const root = process.cwd();
 const distRoot = path.join(root, "dist");
+const textExtensions = new Set([
+  ".css",
+  ".html",
+  ".js",
+  ".json",
+  ".svg",
+  ".txt",
+  ".webmanifest",
+]);
+
+async function normalizeTextArtifacts(directory) {
+  for (const name of await readdir(directory)) {
+    const fullPath = path.join(directory, name);
+    const stats = await lstat(fullPath);
+    if (stats.isSymbolicLink()) {
+      throw new Error(`Production artifact must not contain a symbolic link: ${fullPath}`);
+    }
+    if (stats.isDirectory()) {
+      await normalizeTextArtifacts(fullPath);
+      continue;
+    }
+    if (name !== "_headers" && !textExtensions.has(path.extname(name))) continue;
+    const source = await readFile(fullPath, "utf8");
+    const normalized = source.replace(/\r\n?/g, "\n");
+    if (normalized !== source) await writeFile(fullPath, normalized, "utf8");
+  }
+}
 
 function sourceCommit() {
   const candidates = [
@@ -27,6 +54,7 @@ function sourceCommit() {
 }
 
 const commit = sourceCommit();
+await normalizeTextArtifacts(distRoot);
 const healthPath = path.join(distRoot, "health.json");
 const health = JSON.parse(await readFile(healthPath, "utf8"));
 const expectedHealth = {
