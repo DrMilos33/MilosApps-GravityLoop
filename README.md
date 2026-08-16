@@ -13,7 +13,8 @@ codebasiert gezeichnet.
 
 ## Feste Grenzen
 
-- kein Konto, keine Werbung und keine App-Datenbank;
+- kein Konto, keine aktive Werbung und keine App-Datenbank; `adsEnabled=false`
+  bleibt bis zu einer getrennten AdSense-Freigabe maschinenlesbar erzwungen;
 - Bestwert, Serie und Einstellungen nur lokal;
 - eigener DEV-Lifecycle; getrennte Production ist ausschließlich im Rahmen
   von `public-app-production-launch-2026-08` freigegeben;
@@ -76,8 +77,9 @@ pnpm test:e2e:dev
 
 `pnpm build:production` erzeugt ausschließlich den statischen, streng
 geprüften Ordner `dist/`. Ein Build veröffentlicht weder Cloudflare Pages noch
-GitHub Pages. Das öffentliche Production-Ziel wird erst nach Übergabe der
-bestätigten Cloudflare-Project-ID und HTTPS-URL verwendet.
+GitHub Pages. Production läuft getrennt unter
+<https://gravity-loop.milos-apps.de/> auf dem app-eigenen Cloudflare-Pages-
+Projekt; ein Upload erfolgt ausschließlich nach vollständigem Production-Gate.
 
 Die Runtime besteht aus Vanilla TypeScript, CSS und Canvas. Vite dient nur dem
 DEV-/Build-Lifecycle; Spielphysik, Zufall, Zustand und lokale Speicherung sind
@@ -95,3 +97,8 @@ beiden notwendigen lokalen Speicherzwecke für Spielfortschritt und Sprache.
 Die Teilen-Aktion teilt ausschließlich den allgemeinen App-Link mit neutralem
 DE-/EN-Text; lokale Bestwerte oder Serien werden nie ungefragt in den Payload
 aufgenommen.
+
+Eine bereits im initialen HTML enthaltene, vollständig übersetzte Anleitung
+erklärt Steuerung, Lichtsterne, Schild, Sonne/Mond und lokale Daten auch ohne
+Canvas- oder JavaScript-Auswertung. Sie dient Nutzenden und Crawlern als
+eigenständige Spielbeschreibung; sie lädt keine Werbe- oder Tracking-Runtime.

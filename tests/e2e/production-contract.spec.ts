@@ -54,6 +54,16 @@ test("enforces the production identity and exact self-only CSP without runtime v
     "href",
     expectedPrivacyUrl,
   );
+  await expect(page.getByTestId("game-guide")).toContainText(
+    "So funktioniert Gravity Loop",
+  );
+  const entry = await request.get("./");
+  const entryHtml = await entry.text();
+  expect(entryHtml).toContain('data-testid="game-guide"');
+  expect(entryHtml).toContain("Lichtsterne und Schild");
+  expect(entryHtml).not.toMatch(
+    /pagead2\.googlesyndication|adsbygoogle|data-ad-client|data-ad-slot/i,
+  );
   expect(
     await page.locator("milos-app-shell").evaluate((host) => {
       const root = host.shadowRoot;
@@ -79,6 +89,7 @@ test("enforces the production identity and exact self-only CSP without runtime v
     app: "gravity-loop",
     environment: "production",
     productionApproved: true,
+    adsEnabled: false,
   });
   expect(
     await page.evaluate(() => window.__gravityLoopTestApi?.getShellEnvironment()),

@@ -526,6 +526,68 @@ button {
   text-underline-offset: 0.2em;
 }
 
+.game-guide {
+  display: grid;
+  max-width: 64rem;
+  gap: 1rem;
+  margin: 1rem auto 0;
+  padding: clamp(1rem, 2.5vw, 1.4rem);
+  border: 1px solid var(--line);
+  border-radius: 1.25rem;
+  background: rgba(11, 31, 47, 0.72);
+}
+
+.game-guide h2,
+.game-guide h3,
+.game-guide p {
+  margin: 0;
+}
+
+.game-guide h2 {
+  margin-top: 0.18rem;
+  font-size: clamp(1.2rem, 2.5vw, 1.55rem);
+  line-height: 1.18;
+}
+
+.game-guide-intro > p {
+  max-width: 68ch;
+  margin-top: 0.55rem;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.game-guide-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.7rem;
+}
+
+.game-guide article {
+  min-width: 0;
+  padding: 0.85rem;
+  border: 1px solid rgba(157, 226, 220, 0.13);
+  border-radius: 0.9rem;
+  background: rgba(7, 20, 32, 0.5);
+}
+
+.game-guide h3 {
+  color: var(--mint-strong);
+  font-size: 0.95rem;
+}
+
+.game-guide article p {
+  margin-top: 0.42rem;
+  color: var(--muted);
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+
+@media (max-width: 720px) {
+  .game-guide-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 kbd {
   padding: 0.08rem 0.34rem 0.13rem;
   border: 1px solid rgba(160, 218, 215, 0.24);

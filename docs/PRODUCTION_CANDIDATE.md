@@ -1,6 +1,6 @@
 # Gravity Loop: Production-Kandidat
 
-Stand: 2026-08-04
+Stand: 2026-08-16
 
 Kampagne: `public-app-production-launch-2026-08`
 
@@ -8,21 +8,25 @@ App-Key: `gravity-loop`
 
 ## Freigegebene Grenze
 
-Der Nutzer hat Gravity Loop für einen getrennten Production-Lifecycle auf
-Cloudflare Pages freigegeben. Dieser Branch bereitet nur den statischen
-Release-Kandidaten vor. Er verändert weder `main`, `gh-pages`, die bestehende
-GitHub-Pages-DEV-URL, Portaldateien noch eine Cloudflare-Umgebung.
+Der Nutzer hat den Refresh der bereits laufenden Gravity-Loop-Production vom
+neuesten gesunden DEV-Stand freigegeben. Der Kandidat entsteht aus dem exakten
+DEV-Evidenzstand `8c8f3aee64aeed20f6a8f54c3bdc0de3179eea8c`; dessen einziger
+Unterschied zur zuvor veröffentlichten Runtime-Basis `15b090d...` ist
+Dokumentation. DEV, `main`, `gh-pages`, Portalroute und Shared-Pins bleiben
+unverändert.
 
 | Feld | Vertrag |
 |---|---|
+| DEV-Evidenzbasis | `8c8f3aee64aeed20f6a8f54c3bdc0de3179eea8c` |
 | Runtime-Basis | `15b090d494d491ae8b977d2dc0035f7844847bb0` |
-| Candidate-Branch | `codex/gravity-loop-production` |
+| Candidate-Branch | `codex/gravity-loop-production-refresh` |
 | Provider | Cloudflare Pages |
-| vorgesehener Projektname | `milosapps-gravity-loop-production` |
+| Projektname | `milosapps-gravity-loop-production` |
 | Buildbefehl | `pnpm install --frozen-lockfile && pnpm build:production` |
 | Output | `dist/` |
 | Functions | keine; `_worker.js` und `_routes.json` sind im Gate verboten |
-| Production-URL | blockiert bis zur bestätigten Project-ID/HTTPS-URL |
+| Production-URL | `https://gravity-loop.milos-apps.de/` |
+| Production-Health | `https://gravity-loop.milos-apps.de/health.json` |
 | Shared Shell | `public-app-shell/v2.0.3` @ `ed898412306e22c6ae1b10ee8953df29f8acd627` |
 | Shared Essentials | `public-app-essentials/v1.1.5` @ `2942132ad3bf6cf39edc9f52ed918de6a230be23` |
 
@@ -34,7 +38,12 @@ GitHub-Pages-DEV-URL, Portaldateien noch eine Cloudflare-Umgebung.
   Production-Freigabe und dem vollständigen Quell-SHA. Eine beliebige 200-Antwort
   ist keine Readiness.
 - `production-artifact.json` bindet App, Source-SHA, Provider, Projektname,
-  Output und die Functions-Grenze maschinenlesbar.
+  Output, `adsEnabled=false` und die Functions-Grenze maschinenlesbar.
+- `health.json` bestätigt zusätzlich `adsEnabled=false`; Build und Browsergate
+  lehnen bekannte AdSense-/Werbemarker bis zu einer getrennten Freigabe ab.
+- Ein sichtbarer, im initialen HTML crawlbarer DE-/EN-Spielguide beschreibt
+  Steuerung, Sternschild, Sonnen-/Mondgravitation und lokale Daten. Er ist
+  Originaltext der App und verändert weder Physik noch Werbe-/Trackinggrenze.
 - `public/_headers` wird als echte Cloudflare-Pages-Headerdatei nach `dist/`
   übernommen. Die CSP erlaubt Skripte, Styles, Bilder, Manifest und Verbindungen
   nur vom eigenen Ursprung; Inline-Styles, `unsafe-inline`, `unsafe-eval`,
@@ -64,19 +73,15 @@ ausgecheckten Git-Commit. Der Artefaktprüfer hasht anschließend den vollständ
 sortierten `dist/`-Dateibaum. CI lädt genau diesen Ordner als
 `gravity-loop-production-<SHA>` hoch, ohne ihn zu deployen.
 
-Nach einem späteren Deployment muss die externe HTTPS-Prüfung mit
+Nach jedem Deployment muss die externe HTTPS-Prüfung mit
 `GRAVITY_LOOP_PRODUCTION_URL` über `pnpm test:e2e:production` erfolgen. Erst
 danach darf eine Production-Evidenz als `production-verified` gelten.
 
-## Noch fehlendes Ziel und Rollback
+## Aktiver Rollback
 
-Blocker: Struktur & Architektur muss die autoritative Cloudflare-Pages-
-Project-ID sowie die endgültige HTTPS-Production-URL und Health-URL übergeben.
-Bis dahin gibt es ausdrücklich keinen Cloudflare-Upload.
-
-Da dies der erste Production-Launch ist, besteht der sichere Rollback darin,
-das Production-Ziel nicht zu aktivieren beziehungsweise einen fehlerhaften
-ersten Zielstand zu deaktivieren; die Portal-Productionroute bleibt dabei 404.
-Nach dem ersten gesunden Release wird ein Rollback ausschließlich als normaler
-Forward-Deploy aus dem letzten gesunden Production-Quellstand ausgeführt. DEV
-und `gh-pages` werden dafür nie verändert.
+Vor dem Refresh ist Cloudflare-Deployment
+`68057ca9-9e51-48f7-aa64-a75de1eaddfb` der aktive gesunde Stand. Es bindet
+Source `da913fe314c66425206102991db95d628bcae69c` und bleibt nach dem neuen
+Upload als erfolgreicher Production-Rollback verfügbar. Ein Rollback nutzt die
+Cloudflare-Pages-Rollbackfunktion auf genau diese Revision; DEV und `gh-pages`
+werden dafür nie verändert.

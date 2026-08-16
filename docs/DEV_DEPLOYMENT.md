@@ -4,7 +4,8 @@ Stand: 2026-08-03
 
 App-Key: `gravity-loop`
 
-Production: `false`, nicht freigegeben
+Production: getrennter Cloudflare-Pages-Lifecycle; siehe
+`docs/PRODUCTION_CANDIDATE.md`. Dieses Dokument beschreibt ausschließlich DEV.
 
 ## Aktiver Dienst
 

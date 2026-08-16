@@ -2,7 +2,8 @@
 
 Stand: 2026-08-03
 App-Key: `gravity-loop`  
-Production: nicht freigegeben
+Production: getrennter Cloudflare-Pages-Lifecycle; dieser Handoff beschreibt
+ausschließlich DEV und die unveränderte Portal-DEV-Route.
 
 ## Stabile Metadaten
 
@@ -69,7 +70,8 @@ Der unabhängige öffentliche DEV-Dienst ist aktiv:
   `https://github.com/DrMilos33/MilosApps-GravityLoop/actions/runs/30817964986`;
 - erfolgreiche SHA-genaue App-CI auf `main`:
   `https://github.com/DrMilos33/MilosApps-GravityLoop/actions/runs/30817484302`;
-- Production: `false`, nicht freigegeben.
+- Production wird getrennt unter `https://gravity-loop.milos-apps.de/`
+  betrieben; dieser DEV-Handoff verändert sie nicht.
 
 Direktaufruf, Health-Identität, Loginfreiheit, Chromium, Firefox und WebKit
 wurden gegen die öffentliche URL geprüft. Der Browser benötigt weder

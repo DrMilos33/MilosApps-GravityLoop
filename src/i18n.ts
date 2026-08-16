@@ -41,7 +41,7 @@ export type StaticTranslationKey = keyof StaticMessages;
 const deStatic = {
   documentTitle: "Gravity Loop · MilosApps",
   metaDescription:
-    "Gravity Loop – ein ruhiges, reaktionsschnelles Einfinger-Spiel von MilosApps.",
+    "Steuere einen Kometen mit einer einzigen Aktion durch Sonne oder Mond, sammle Lichtsterne und lade dein Schild – kostenlos, lokal und ohne Login.",
   skip: "Zum Spiel springen",
   shellNav: "App-Navigation",
   languageNav: "Sprache",
@@ -67,6 +67,19 @@ const deStatic = {
   holdKeyHelp: "halten",
   pauseKeyHelp: "Pause",
   restartKeyHelp: "Neustart",
+  guideEyebrow: "Kurzanleitung",
+  guideTitle: "So funktioniert Gravity Loop",
+  guideIntro:
+    "Du steuerst einen Kometen mit nur einer Aktion: Halten krümmt seine Flugbahn zur Mitte, Loslassen lässt ihn geradeaus fliegen. Finde den richtigen Rhythmus und bleib im sicheren Orbit.",
+  guideStarsTitle: "Lichtsterne und Schild",
+  guideStarsCopy:
+    "Sammle drei Lichtsterne, um einen Schild zu laden. Er wehrt den nächsten Trabanten ab, aber Sonne, Mond und Arenarand bleiben gefährlich.",
+  guideOrbitTitle: "Sonne oder Mond",
+  guideOrbitCopy:
+    "Die Sonne zieht in ihrer Nähe besonders stark. Der Mond lenkt sanfter und gleichmäßiger. Schwierigkeit und Orbit starten beim Übernehmen fair eine neue Runde.",
+  guideLocalTitle: "Direkt und lokal",
+  guideLocalCopy:
+    "Gravity Loop braucht kein Konto. Bestwert, Sternenserie, Sprache und Einstellungen bleiben ausschließlich auf diesem Gerät; Werbung und Tracking sind ausgeschaltet.",
   readySunTitle: "Halten zieht dich zur Sonne.",
   readySunCopy:
     "Sammle drei Lichtsterne für ein Schild gegen den nächsten Trabanten. Die Sonne bleibt tödlich.",
@@ -158,7 +171,7 @@ const deStatic = {
 const enStatic = {
   documentTitle: "Gravity Loop · MilosApps",
   metaDescription:
-    "Gravity Loop – a calm, responsive one-finger game by MilosApps.",
+    "Guide a comet around the Sun or Moon with one action, collect light stars and charge your shield – free, local and without login.",
   skip: "Skip to the game",
   shellNav: "App navigation",
   languageNav: "Language",
@@ -184,6 +197,19 @@ const enStatic = {
   holdKeyHelp: "hold",
   pauseKeyHelp: "Pause",
   restartKeyHelp: "Restart",
+  guideEyebrow: "Quick guide",
+  guideTitle: "How Gravity Loop works",
+  guideIntro:
+    "You control a comet with one action: holding curves its path toward the centre, releasing sends it flying straight. Find the right rhythm and stay in a safe orbit.",
+  guideStarsTitle: "Light stars and shield",
+  guideStarsCopy:
+    "Collect three light stars to charge a shield. It blocks the next satellite, but the Sun, Moon and arena edge remain dangerous.",
+  guideOrbitTitle: "Sun or Moon",
+  guideOrbitCopy:
+    "The Sun pulls especially hard up close. The Moon steers more gently and evenly. Applying a difficulty or orbit starts a fair new run.",
+  guideLocalTitle: "Direct and local",
+  guideLocalCopy:
+    "Gravity Loop needs no account. Best score, star streak, language and settings stay on this device only; advertising and tracking are disabled.",
   readySunTitle: "Hold to pull toward the Sun.",
   readySunCopy:
     "Collect three light stars for a shield against the next satellite. The Sun stays lethal.",

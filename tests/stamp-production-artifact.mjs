@@ -62,6 +62,7 @@ const expectedHealth = {
   app: "gravity-loop",
   environment: "production",
   productionApproved: true,
+  adsEnabled: false,
 };
 
 for (const [key, expected] of Object.entries(expectedHealth)) {
@@ -82,6 +83,7 @@ await writeFile(
       appKey: "gravity-loop",
       environment: "production",
       productionApproved: true,
+      adsEnabled: false,
       sourceCommit: commit,
       provider: "cloudflare-pages",
       projectName: "milosapps-gravity-loop-production",

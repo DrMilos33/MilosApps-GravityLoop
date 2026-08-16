@@ -63,6 +63,7 @@ const expectedHealth = {
   app: "gravity-loop",
   environment: "production",
   productionApproved: true,
+  adsEnabled: false,
   sourceCommit: expectedSource,
 };
 if (JSON.stringify(health) !== JSON.stringify(expectedHealth)) {
@@ -72,6 +73,7 @@ if (
   metadata.appKey !== "gravity-loop" ||
   metadata.environment !== "production" ||
   metadata.productionApproved !== true ||
+  metadata.adsEnabled !== false ||
   metadata.sourceCommit !== expectedSource ||
   metadata.provider !== "cloudflare-pages" ||
   metadata.projectName !== "milosapps-gravity-loop-production" ||
@@ -86,6 +88,12 @@ if (!html.includes("https://milos-apps.de/datenschutz")) {
 }
 if (html.includes("https://dev.milos-apps.de/datenschutz")) {
   fail("built app contains the DEV privacy URL");
+}
+if (!html.includes('data-testid="game-guide"') || !html.includes("So funktioniert Gravity Loop")) {
+  fail("built app is missing the crawlable game guide");
+}
+if (/pagead2\.googlesyndication|adsbygoogle|data-ad-client|data-ad-slot/i.test(html)) {
+  fail("advertising must remain disabled until a separate approval");
 }
 if (/<(?:script|style)\b[^>]*\b(?:src|href)=["']data:/i.test(html)) {
   fail("built app must not inline executable or stylesheet data URLs");
