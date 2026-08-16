@@ -448,3 +448,24 @@ Nutzerdaten eintragen.
 - Allgemeine Bedeutung: Lifecycle-Gates müssen an einer im jeweiligen
   Artefakt wirklich existierenden Netz-/Modulgrenze ansetzen. Quellpfade sind
   nach dem Bundling keine belastbare externe Testnaht.
+
+## 2026-08-17 – Prefix-URLs und Originpfade sind getrennte Verträge
+
+- Ausgangspunkt: Migration einer statischen Cloudflare-Pages-App von eigener
+  Subdomain auf `milos-apps.de/gravity-loop` hinter einem Reverse Proxy.
+- Beobachtung: Der Browser muss Assets, Health, Manifest und Sitemap unter dem
+  öffentlichen Prefix laden, während ein Direct-Upload-Artefakt diese Dateien
+  physisch weiterhin im Root enthält. Ein gewöhnlicher Vite-Previewserver
+  bildet das notwendige Strip-Prefix-Verhalten nicht ab.
+- Änderung: Vite erzeugt absolute Prefix-URLs, die Artefaktgates lösen diese
+  kontrolliert auf Rootdateien zurück, und ein kleiner Testserver simuliert die
+  Portalabbildung `/gravity-loop/{pfad}` auf `/{pfad}` unter der echten
+  Self-only-CSP. Die App registriert keinen Service Worker und enthält keine
+  eigene Legacyweiterleitung.
+- Regression: Quellvertrag, gebauter Artefaktbaum, Health-Identität, Manifest,
+  robots/sitemap, MIME und Browserlauf unter dem Proxy-Prefix in Chromium,
+  Firefox und WebKit.
+- Allgemeine Bedeutung: Ein korrektes `base` beim Bundler beweist weder die
+  physische Uploadstruktur noch den Reverse-Proxy-Vertrag. Beide Seiten müssen
+  getrennt und gemeinsam getestet werden; hostabhängige Legacyredirects gehören
+  nicht in ein wiederverwendetes statisches Originartefakt.

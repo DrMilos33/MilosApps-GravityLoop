@@ -16,3 +16,5 @@ export const expectedPortalOrigin =
     ? "https://milos-apps.de"
     : "https://dev.milos-apps.de";
 export const expectedPrivacyUrl = `${expectedPortalOrigin}/datenschutz`;
+export const expectedProductionCanonical = "https://milos-apps.de/gravity-loop";
+export const expectedProductionBasePath = "/gravity-loop/";

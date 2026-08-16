@@ -70,8 +70,10 @@ Der unabhängige öffentliche DEV-Dienst ist aktiv:
   `https://github.com/DrMilos33/MilosApps-GravityLoop/actions/runs/30817964986`;
 - erfolgreiche SHA-genaue App-CI auf `main`:
   `https://github.com/DrMilos33/MilosApps-GravityLoop/actions/runs/30817484302`;
-- Production wird getrennt unter `https://gravity-loop.milos-apps.de/`
-  betrieben; dieser DEV-Handoff verändert sie nicht.
+- Der aktive Productionstand läuft weiterhin getrennt unter
+  `https://gravity-loop.milos-apps.de/`; der noch nicht deployte Same-host-
+  Kandidat für `https://milos-apps.de/gravity-loop` verändert diesen
+  DEV-Handoff nicht.
 
 Direktaufruf, Health-Identität, Loginfreiheit, Chromium, Firefox und WebKit
 wurden gegen die öffentliche URL geprüft. Der Browser benötigt weder

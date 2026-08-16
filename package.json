@@ -10,7 +10,7 @@
   "scripts": {
     "dev": "vite --host 127.0.0.1",
     "build": "pnpm build:production",
-    "build:production": "tsc -b && vite build --base ./ && node tests/stamp-production-artifact.mjs && node tests/verify-built-essentials.mjs && node tests/verify-production-artifact.mjs",
+    "build:production": "tsc -b && vite build --base /gravity-loop/ && node tests/stamp-production-artifact.mjs && node tests/verify-built-essentials.mjs && node tests/verify-production-artifact.mjs",
     "preview": "vite preview --host 127.0.0.1",
     "verify:shell": "node vendor/milosapps-shell/v2/verify.mjs --app-root . --manifest milos-app.json",
     "verify:essentials": "node vendor/milosapps-essentials/v1/verify.mjs --app-root . --manifest milos-essentials.json",

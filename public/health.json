@@ -3,5 +3,7 @@
   "app": "gravity-loop",
   "environment": "production",
   "productionApproved": true,
-  "adsEnabled": false
+  "adsEnabled": false,
+  "canonicalUrl": "https://milos-apps.de/gravity-loop",
+  "publicBasePath": "/gravity-loop/"
 }

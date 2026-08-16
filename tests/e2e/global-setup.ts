@@ -2,6 +2,8 @@ import type { FullConfig } from "@playwright/test";
 import {
   expectedEnvironment,
   expectedProductionApproved,
+  expectedProductionBasePath,
+  expectedProductionCanonical,
 } from "./environment";
 
 interface HealthResponse {
@@ -9,6 +11,8 @@ interface HealthResponse {
   app?: unknown;
   environment?: unknown;
   productionApproved?: unknown;
+  canonicalUrl?: unknown;
+  publicBasePath?: unknown;
 }
 
 export default async function verifyGravityLoopServer(
@@ -33,6 +37,9 @@ export default async function verifyGravityLoopServer(
     health.status !== "ok" ||
     health.app !== "gravity-loop" ||
     health.environment !== expectedEnvironment ||
+    (expectedProductionApproved &&
+      (health.canonicalUrl !== expectedProductionCanonical ||
+        health.publicBasePath !== expectedProductionBasePath)) ||
     (expectedProductionApproved
       ? health.productionApproved !== true
       : health.productionApproved === true)

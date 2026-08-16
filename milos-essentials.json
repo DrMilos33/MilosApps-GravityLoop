@@ -15,7 +15,7 @@
   "loading": {
     "appName": "Gravity Loop",
     "iconPath": "public/gravity-loop-mark.svg",
-    "iconRuntimePath": "./gravity-loop-mark.svg",
+    "iconRuntimePath": "/gravity-loop/gravity-loop-mark.svg",
     "message": {
       "de": "Gravity Loop wird geöffnet …",
       "en": "Opening Gravity Loop …"
@@ -70,6 +70,6 @@
     "version": "1.1.5",
     "sharedCommit": "2942132ad3bf6cf39edc9f52ed918de6a230be23",
     "vendorDirectory": "vendor/milosapps-essentials/v1",
-    "runtimeBasePath": "vendor/milosapps-essentials/v1"
+    "runtimeBasePath": "/gravity-loop/vendor/milosapps-essentials/v1"
   }
 }

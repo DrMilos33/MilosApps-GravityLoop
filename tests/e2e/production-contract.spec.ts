@@ -4,6 +4,8 @@ import {
   expectedEnvironment,
   expectedPortalOrigin,
   expectedPrivacyUrl,
+  expectedProductionBasePath,
+  expectedProductionCanonical,
 } from "./environment";
 
 const headersFile = await readFile("public/_headers", "utf8");
@@ -47,7 +49,8 @@ test("enforces the production identity and exact self-only CSP without runtime v
     });
   });
 
-  await page.goto("./?test=1&production-csp=1");
+  await page.goto("../gravity-loop?test=1&production-csp=1");
+  expect(new URL(page.url()).pathname).toBe("/gravity-loop");
   await expect(page.getByRole("button", { name: "Losfliegen" })).toBeVisible();
   await expect(page.getByText("DEV", { exact: true })).toBeHidden();
   await expect(page.locator("[data-milos-privacy-info]")).toHaveAttribute(
@@ -57,12 +60,15 @@ test("enforces the production identity and exact self-only CSP without runtime v
   await expect(page.getByTestId("game-guide")).toContainText(
     "So funktioniert Gravity Loop",
   );
-  const entry = await request.get("./");
+  const entry = await request.get("../gravity-loop");
   const entryHtml = await entry.text();
   expect(entryHtml).toContain('data-testid="game-guide"');
   expect(entryHtml).toContain("Lichtsterne und Schild");
   expect(entryHtml).toContain(
-    '<link rel="canonical" href="https://gravity-loop.milos-apps.de/" />',
+    `<link rel="canonical" href="${expectedProductionCanonical}" />`,
+  );
+  expect(entryHtml).toContain(
+    `<meta property="og:url" content="${expectedProductionCanonical}" />`,
   );
   expect(entryHtml).not.toMatch(
     /pagead2\.googlesyndication|adsbygoogle|data-ad-client|data-ad-slot/i,
@@ -72,7 +78,7 @@ test("enforces the production identity and exact self-only CSP without runtime v
   expect(sitemap.headers()["content-type"]).toMatch(/^(?:application|text)\/xml\b/);
   const sitemapXml = await sitemap.text();
   expect(sitemapXml.match(/<loc>[^<]+<\/loc>/g)).toEqual([
-    "<loc>https://gravity-loop.milos-apps.de/</loc>",
+    `<loc>${expectedProductionCanonical}</loc>`,
   ]);
   const robots = await request.get("./robots.txt");
   expect(robots.ok()).toBe(true);
@@ -82,8 +88,23 @@ test("enforces the production identity and exact self-only CSP without runtime v
       .split(/\r?\n/)
       .filter((line) => /^Sitemap:/i.test(line)),
   ).toEqual([
-    "Sitemap: https://gravity-loop.milos-apps.de/sitemap.xml",
+    `Sitemap: ${expectedProductionCanonical}/sitemap.xml`,
   ]);
+  const resourcePaths = await page.evaluate(() =>
+    [
+      ...document.querySelectorAll<HTMLLinkElement | HTMLScriptElement | HTMLImageElement>(
+        'link[rel="stylesheet"], link[rel="icon"], link[rel="manifest"], script[src], img[src]',
+      ),
+    ].map((element) => {
+      const value =
+        element instanceof HTMLLinkElement ? element.href : element.src;
+      return new URL(value).pathname;
+    }),
+  );
+  expect(resourcePaths.length).toBeGreaterThan(4);
+  expect(resourcePaths.every((pathname) => pathname.startsWith(expectedProductionBasePath))).toBe(
+    true,
+  );
   expect(
     await page.locator("milos-app-shell").evaluate((host) => {
       const root = host.shadowRoot;
@@ -110,7 +131,10 @@ test("enforces the production identity and exact self-only CSP without runtime v
     environment: "production",
     productionApproved: true,
     adsEnabled: false,
+    canonicalUrl: expectedProductionCanonical,
+    publicBasePath: expectedProductionBasePath,
   });
+  expect(await page.evaluate(() => navigator.serviceWorker?.getRegistrations().then((items) => items.length) ?? 0)).toBe(0);
   expect(
     await page.evaluate(() => window.__gravityLoopTestApi?.getShellEnvironment()),
   ).toBe("production");

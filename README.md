@@ -77,9 +77,12 @@ pnpm test:e2e:dev
 
 `pnpm build:production` erzeugt ausschließlich den statischen, streng
 geprüften Ordner `dist/`. Ein Build veröffentlicht weder Cloudflare Pages noch
-GitHub Pages. Production läuft getrennt unter
-<https://gravity-loop.milos-apps.de/> auf dem app-eigenen Cloudflare-Pages-
-Projekt; ein Upload erfolgt ausschließlich nach vollständigem Production-Gate.
+GitHub Pages. Der derzeit aktive Stand läuft noch unter
+<https://gravity-loop.milos-apps.de/>. Der vorbereitete Nachfolger verwendet
+`https://milos-apps.de/gravity-loop` als Canonical und erwartet, dass das Portal
+den Prefix `/gravity-loop/` auf das Root-Artefakt des app-eigenen
+Cloudflare-Pages-Projekts abbildet. Vor Bestätigung dieses Originvertrags findet
+kein Upload statt.
 
 Die Runtime besteht aus Vanilla TypeScript, CSS und Canvas. Vite dient nur dem
 DEV-/Build-Lifecycle; Spielphysik, Zufall, Zustand und lokale Speicherung sind

@@ -167,7 +167,7 @@ test("shares only an intentional app link through native, abort and clipboard pa
     expect.objectContaining({
       title: "Gravity Loop · MilosApps",
       text: expect.stringContaining("Gravity Loop"),
-      url: expect.not.stringContaining("?"),
+      url: "https://milos-apps.de/gravity-loop",
     }),
   );
   expect((payload as { url: string }).url).not.toContain("#");

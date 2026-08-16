@@ -27,7 +27,7 @@
     "focus": "#fff0a5"
   },
   "integration": {
-    "portalRoute": "/apps/gravity-loop"
+    "portalRoute": "/gravity-loop"
   },
   "dev": {
     "url": "https://drmilos33.github.io/MilosApps-GravityLoop/",

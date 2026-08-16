@@ -8,7 +8,7 @@ export const milosAppEssentials = initMilosAppEssentials({
   "loading": {
     "appName": "Gravity Loop",
     "iconPath": "public/gravity-loop-mark.svg",
-    "iconRuntimePath": "./gravity-loop-mark.svg",
+    "iconRuntimePath": "/gravity-loop/gravity-loop-mark.svg",
     "message": {
       "de": "Gravity Loop wird geöffnet …",
       "en": "Opening Gravity Loop …"

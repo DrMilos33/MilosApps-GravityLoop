@@ -12,6 +12,7 @@ const textExtensions = new Set([
   ".svg",
   ".txt",
   ".webmanifest",
+  ".xml",
 ]);
 
 async function normalizeTextArtifacts(directory) {
@@ -63,6 +64,8 @@ const expectedHealth = {
   environment: "production",
   productionApproved: true,
   adsEnabled: false,
+  canonicalUrl: "https://milos-apps.de/gravity-loop",
+  publicBasePath: "/gravity-loop/",
 };
 
 for (const [key, expected] of Object.entries(expectedHealth)) {
@@ -84,6 +87,12 @@ await writeFile(
       environment: "production",
       productionApproved: true,
       adsEnabled: false,
+      clientTracking: false,
+      serviceWorker: false,
+      canonicalUrl: "https://milos-apps.de/gravity-loop",
+      publicBasePath: "/gravity-loop/",
+      originBasePath: "/",
+      portalProxyPrefix: "/gravity-loop",
       sourceCommit: commit,
       provider: "cloudflare-pages",
       projectName: "milosapps-gravity-loop-production",

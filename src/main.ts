@@ -557,16 +557,13 @@ if (searchParameters.get("test") === "1") {
 }
 
 function sharePayload(): MilosSharePayload {
-  const url = new URL(window.location.href);
-  url.search = "";
-  url.hash = "";
   return {
     title: document.title,
     text:
       language === "en"
         ? "Play Gravity Loop – a quick one-finger orbit game by MilosApps."
         : "Spiele Gravity Loop – ein schnelles Einfinger-Orbitspiel von MilosApps.",
-    url: url.toString(),
+    url: "https://milos-apps.de/gravity-loop",
   };
 }
 

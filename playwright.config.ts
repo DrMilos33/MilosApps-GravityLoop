@@ -6,6 +6,7 @@ process.env.GRAVITY_LOOP_E2E_ARTIFACT ??= "built";
 const usesManagedLocalServer =
   process.env.GRAVITY_LOOP_E2E_SERVER !== "external";
 const testsBuiltArtifact = process.env.GRAVITY_LOOP_E2E_ARTIFACT === "built";
+const localBasePath = testsBuiltArtifact ? "/gravity-loop/" : "/";
 
 export default defineConfig({
   testDir: "./tests/e2e",
@@ -16,7 +17,7 @@ export default defineConfig({
   workers: 1,
   reporter: [["list"], ["html", { open: "never" }]],
   use: {
-    baseURL: "http://127.0.0.1:4317",
+    baseURL: `http://127.0.0.1:4317${localBasePath}`,
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
     video: "retain-on-failure",
@@ -42,9 +43,9 @@ export default defineConfig({
     ? {
         command:
           testsBuiltArtifact
-            ? "node node_modules/vite/bin/vite.js preview --host 127.0.0.1 --port 4317 --strictPort"
+            ? "node tests/serve-production-prefix.mjs"
             : "node node_modules/vite/bin/vite.js --host 127.0.0.1 --port 4317 --strictPort",
-        url: "http://127.0.0.1:4317/health.json",
+        url: `http://127.0.0.1:4317${localBasePath}health.json`,
         reuseExistingServer: false,
         timeout: 120_000,
       }

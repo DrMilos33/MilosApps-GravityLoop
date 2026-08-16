@@ -4,7 +4,11 @@ import {
   type Language,
   type StaticTranslationKey,
 } from "../../src/i18n";
-import { expectedEnvironment, expectedPortalOrigin } from "./environment";
+import {
+  expectedEnvironment,
+  expectedPortalOrigin,
+  expectedProductionBasePath,
+} from "./environment";
 
 async function expectCompleteAppLocale(
   page: import("@playwright/test").Page,
@@ -91,10 +95,14 @@ test("pins one local v2 shell with app-owned icon and environment-correct absolu
   const manifestResponse = await request.get("./manifest.webmanifest");
   expect(manifestResponse.ok()).toBe(true);
   const manifest = (await manifestResponse.json()) as {
+    id?: string;
     start_url?: string;
+    scope?: string;
     icons?: Array<{ src?: string }>;
   };
-  expect(manifest.start_url).toBe("./");
+  expect(manifest.id).toBe("/gravity-loop");
+  expect(manifest.start_url).toBe(expectedProductionBasePath);
+  expect(manifest.scope).toBe(expectedProductionBasePath);
   expect(manifest.icons?.every(({ src }) => src?.startsWith("./"))).toBe(true);
 });
 

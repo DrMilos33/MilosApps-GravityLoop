@@ -23,7 +23,8 @@ const headers = await readFile(path.join(distRoot, "_headers"), "utf8");
 const robots = await readFile(path.join(distRoot, "robots.txt"), "utf8");
 const sitemap = await readFile(path.join(distRoot, "sitemap.xml"), "utf8");
 
-const productionCanonical = "https://gravity-loop.milos-apps.de/";
+const productionCanonical = "https://milos-apps.de/gravity-loop";
+const productionBasePath = "/gravity-loop/";
 
 const expectedSource = (
   process.env.GRAVITY_LOOP_SOURCE_SHA ??
@@ -61,6 +62,19 @@ if (
 ) {
   fail("the independent DEV contract must remain unchanged");
 }
+if (appManifest.integration?.portalRoute !== "/gravity-loop") {
+  fail("shell integration must use the same-host production route");
+}
+if (
+  essentialsManifest.essentialsContract?.runtimeBasePath !==
+    "/gravity-loop/vendor/milosapps-essentials/v1" ||
+  essentialsManifest.loading?.iconRuntimePath !==
+    "/gravity-loop/gravity-loop-mark.svg" ||
+  essentialsManifest.consumerEntryModule?.runtimePath !==
+    "/src/main.ts"
+) {
+  fail("essentials public URLs and source entry must match the production contract");
+}
 
 const expectedHealth = {
   status: "ok",
@@ -68,6 +82,8 @@ const expectedHealth = {
   environment: "production",
   productionApproved: true,
   adsEnabled: false,
+  canonicalUrl: productionCanonical,
+  publicBasePath: productionBasePath,
   sourceCommit: expectedSource,
 };
 if (JSON.stringify(health) !== JSON.stringify(expectedHealth)) {
@@ -78,6 +94,12 @@ if (
   metadata.environment !== "production" ||
   metadata.productionApproved !== true ||
   metadata.adsEnabled !== false ||
+  metadata.clientTracking !== false ||
+  metadata.serviceWorker !== false ||
+  metadata.canonicalUrl !== productionCanonical ||
+  metadata.publicBasePath !== productionBasePath ||
+  metadata.originBasePath !== "/" ||
+  metadata.portalProxyPrefix !== "/gravity-loop" ||
   metadata.sourceCommit !== expectedSource ||
   metadata.provider !== "cloudflare-pages" ||
   metadata.projectName !== "milosapps-gravity-loop-production" ||
@@ -99,6 +121,30 @@ if (
 ) {
   fail("built app must declare exactly one production canonical URL");
 }
+const openGraphUrls = [
+  ...html.matchAll(/<meta\b[^>]*\bproperty=["']og:url["'][^>]*\bcontent=["']([^"']+)["'][^>]*>/gi),
+].map((match) => match[1]);
+if (openGraphUrls.length !== 1 || openGraphUrls[0] !== productionCanonical) {
+  fail("built app must declare exactly one production Open Graph URL");
+}
+const manifest = JSON.parse(await readFile(path.join(distRoot, "manifest.webmanifest"), "utf8"));
+if (
+  manifest.id !== "/gravity-loop" ||
+  manifest.start_url !== productionBasePath ||
+  manifest.scope !== productionBasePath ||
+  !manifest.icons?.every(({ src }) => typeof src === "string" && src.startsWith("./"))
+) {
+  fail("web manifest must be scoped to the production prefix");
+}
+const localResourceUrls = [
+  ...html.matchAll(/\b(?:src|href)=["'](\/[^"']+)["']/gi),
+].map((match) => match[1]);
+if (
+  localResourceUrls.length === 0 ||
+  localResourceUrls.some((url) => !url.startsWith(productionBasePath))
+) {
+  fail(`all root-relative browser resources must stay under ${productionBasePath}`);
+}
 const sitemapLocations = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(
   (match) => match[1],
 );
@@ -117,7 +163,7 @@ if (
   !/^User-agent:\s*\*\s*$/im.test(robots) ||
   !/^Allow:\s*\/\s*$/im.test(robots) ||
   robotsSitemaps.length !== 1 ||
-  robotsSitemaps[0] !== `${productionCanonical}sitemap.xml`
+  robotsSitemaps[0] !== `${productionCanonical}/sitemap.xml`
 ) {
   fail("robots.txt must allow crawling and reference exactly the production sitemap");
 }
@@ -183,6 +229,20 @@ if (files.some(({ relativePath }) => relativePath.endsWith(".map"))) {
 }
 if (!files.some(({ relativePath }) => relativePath === "404.html")) {
   fail("fail-closed 404.html is missing");
+}
+if (files.some(({ relativePath }) => /(?:^|\/)(?:sw|service-worker)\.js$/i.test(relativePath))) {
+  fail("this static app must not ship an unscoped service worker");
+}
+const runtimeText = [
+  html,
+  ...(await Promise.all(
+    files
+      .filter(({ relativePath }) => relativePath.endsWith(".js"))
+      .map(({ fullPath }) => readFile(fullPath, "utf8")),
+  )),
+].join("\n");
+if (/serviceWorker\s*\.\s*register|navigator\s*\.\s*sendBeacon|cloudflareinsights|googletagmanager|\bgtag\s*\(|posthog|plausible\.io/i.test(runtimeText)) {
+  fail("client-side service-worker or tracking runtime is forbidden");
 }
 
 const digest = createHash("sha256");

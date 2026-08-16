@@ -4,6 +4,7 @@ import path from "node:path";
 
 const root = process.cwd();
 const distRoot = path.join(root, "dist");
+const publicBasePath = "/gravity-loop/";
 const html = await readFile(path.join(distRoot, "index.html"), "utf8");
 const manifest = JSON.parse(await readFile(path.join(root, "milos-essentials.json"), "utf8"));
 
@@ -40,13 +41,28 @@ const hrefs = [
 
 if (new Set(hrefs).size !== 2) fail("base and theme stylesheets must remain separate");
 
+function localBuildPath(value, label) {
+  if (!value || /^(?:data:|https?:|\/\/)/i.test(value) || /[?#]/.test(value)) {
+    fail(`${label} must be an exact same-origin build path: ${value ?? "missing"}`);
+  }
+  let pathname = value;
+  if (pathname.startsWith("/")) {
+    if (!pathname.startsWith(publicBasePath)) {
+      fail(`${label} must stay under ${publicBasePath}: ${value}`);
+    }
+    pathname = pathname.slice(publicBasePath.length);
+  } else {
+    pathname = pathname.replace(/^\.\//, "");
+  }
+  if (!pathname || pathname.split("/").includes("..")) fail(`unsafe ${label} path: ${value}`);
+  return path.join(distRoot, ...pathname.split("/"));
+}
+
 for (const href of hrefs) {
   if (/^(?:data:|https?:|\/\/)/i.test(href)) {
     fail(`stylesheet must be an external same-origin build artifact: ${href}`);
   }
-  const pathname = href.split(/[?#]/, 1)[0].replace(/^\.\//, "").replace(/^\//, "");
-  if (!pathname || pathname.includes("..")) fail(`unsafe stylesheet path: ${href}`);
-  await access(path.join(distRoot, ...pathname.split("/")));
+  await access(localBuildPath(href, "stylesheet"));
 }
 
 const scripts = html.match(/<script\b[^>]*>/gi) ?? [];
@@ -57,15 +73,6 @@ if (!bootstrapTag) fail("missing external essentials bootstrap");
 const bootstrapSource = bootstrapTag.match(/\bsrc=["']([^"']+)["']/i)?.[1];
 if (!bootstrapSource || /^(?:data:|https?:|\/\/)/i.test(bootstrapSource)) {
   fail("essentials bootstrap must remain a relative same-origin module");
-}
-
-function localBuildPath(value, label) {
-  if (!value || /^(?:data:|https?:|\/\/)/i.test(value) || /[?#]/.test(value)) {
-    fail(`${label} must be an exact same-origin build path: ${value ?? "missing"}`);
-  }
-  const pathname = value.replace(/^\.\//, "").replace(/^\//, "");
-  if (!pathname || pathname.split("/").includes("..")) fail(`unsafe ${label} path: ${value}`);
-  return path.join(distRoot, ...pathname.split("/"));
 }
 
 const consumerTag = scripts.find(
