@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://gravity-loop.milos-apps.de/sitemap.xml

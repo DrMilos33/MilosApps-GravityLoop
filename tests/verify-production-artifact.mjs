@@ -20,6 +20,10 @@ const metadata = JSON.parse(
 );
 const html = await readFile(path.join(distRoot, "index.html"), "utf8");
 const headers = await readFile(path.join(distRoot, "_headers"), "utf8");
+const robots = await readFile(path.join(distRoot, "robots.txt"), "utf8");
+const sitemap = await readFile(path.join(distRoot, "sitemap.xml"), "utf8");
+
+const productionCanonical = "https://gravity-loop.milos-apps.de/";
 
 const expectedSource = (
   process.env.GRAVITY_LOOP_SOURCE_SHA ??
@@ -85,6 +89,37 @@ if (
 
 if (!html.includes("https://milos-apps.de/datenschutz")) {
   fail("built app is missing the production privacy URL");
+}
+const canonicalMatches = [
+  ...html.matchAll(/<link\b[^>]*\brel=["']canonical["'][^>]*\bhref=["']([^"']+)["'][^>]*>/gi),
+];
+if (
+  canonicalMatches.length !== 1 ||
+  canonicalMatches[0]?.[1] !== productionCanonical
+) {
+  fail("built app must declare exactly one production canonical URL");
+}
+const sitemapLocations = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(
+  (match) => match[1],
+);
+if (
+  !sitemap.startsWith('<?xml version="1.0" encoding="UTF-8"?>') ||
+  !sitemap.includes('xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"') ||
+  sitemapLocations.length !== 1 ||
+  sitemapLocations[0] !== productionCanonical
+) {
+  fail("sitemap must contain exactly the production canonical URL");
+}
+const robotsSitemaps = [...robots.matchAll(/^Sitemap:\s*(\S+)\s*$/gim)].map(
+  (match) => match[1],
+);
+if (
+  !/^User-agent:\s*\*\s*$/im.test(robots) ||
+  !/^Allow:\s*\/\s*$/im.test(robots) ||
+  robotsSitemaps.length !== 1 ||
+  robotsSitemaps[0] !== `${productionCanonical}sitemap.xml`
+) {
+  fail("robots.txt must allow crawling and reference exactly the production sitemap");
 }
 if (html.includes("https://dev.milos-apps.de/datenschutz")) {
   fail("built app contains the DEV privacy URL");

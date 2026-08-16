@@ -61,9 +61,29 @@ test("enforces the production identity and exact self-only CSP without runtime v
   const entryHtml = await entry.text();
   expect(entryHtml).toContain('data-testid="game-guide"');
   expect(entryHtml).toContain("Lichtsterne und Schild");
+  expect(entryHtml).toContain(
+    '<link rel="canonical" href="https://gravity-loop.milos-apps.de/" />',
+  );
   expect(entryHtml).not.toMatch(
     /pagead2\.googlesyndication|adsbygoogle|data-ad-client|data-ad-slot/i,
   );
+  const sitemap = await request.get("./sitemap.xml");
+  expect(sitemap.ok()).toBe(true);
+  expect(sitemap.headers()["content-type"]).toMatch(/^(?:application|text)\/xml\b/);
+  const sitemapXml = await sitemap.text();
+  expect(sitemapXml.match(/<loc>[^<]+<\/loc>/g)).toEqual([
+    "<loc>https://gravity-loop.milos-apps.de/</loc>",
+  ]);
+  const robots = await request.get("./robots.txt");
+  expect(robots.ok()).toBe(true);
+  expect(robots.headers()["content-type"]).toContain("text/plain");
+  expect(
+    (await robots.text())
+      .split(/\r?\n/)
+      .filter((line) => /^Sitemap:/i.test(line)),
+  ).toEqual([
+    "Sitemap: https://gravity-loop.milos-apps.de/sitemap.xml",
+  ]);
   expect(
     await page.locator("milos-app-shell").evaluate((host) => {
       const root = host.shadowRoot;

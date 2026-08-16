@@ -44,6 +44,10 @@ unverändert.
 - Ein sichtbarer, im initialen HTML crawlbarer DE-/EN-Spielguide beschreibt
   Steuerung, Sternschild, Sonnen-/Mondgravitation und lokale Daten. Er ist
   Originaltext der App und verändert weder Physik noch Werbe-/Trackinggrenze.
+- Das Dokument deklariert genau die Production-Canonical
+  `https://gravity-loop.milos-apps.de/`; `sitemap.xml` enthält ausschließlich
+  diese URL und `robots.txt` verweist genau auf diese Sitemap. Artefakt- und
+  Browsergate lehnen fehlende, zusätzliche oder abweichende Ziele ab.
 - `public/_headers` wird als echte Cloudflare-Pages-Headerdatei nach `dist/`
   übernommen. Die CSP erlaubt Skripte, Styles, Bilder, Manifest und Verbindungen
   nur vom eigenen Ursprung; Inline-Styles, `unsafe-inline`, `unsafe-eval`,
