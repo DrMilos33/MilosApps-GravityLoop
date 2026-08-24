@@ -18,6 +18,7 @@
   },
   "include": [
     "src",
+    "infra",
     "tests/unit",
     "vite.config.ts",
     "playwright.config.ts",
