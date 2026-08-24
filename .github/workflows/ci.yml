@@ -41,6 +41,9 @@ jobs:
       - name: Unit tests
         run: pnpm test
 
+      - name: Verify legacy redirect artifact
+        run: pnpm verify:legacy-redirect
+
       - name: Production build
         run: pnpm build
 

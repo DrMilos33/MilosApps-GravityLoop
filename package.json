@@ -14,6 +14,7 @@
     "preview": "vite preview --host 127.0.0.1",
     "verify:shell": "node vendor/milosapps-shell/v2/verify.mjs --app-root . --manifest milos-app.json",
     "verify:essentials": "node vendor/milosapps-essentials/v1/verify.mjs --app-root . --manifest milos-essentials.json",
+    "verify:legacy-redirect": "node tests/verify-legacy-redirect.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
